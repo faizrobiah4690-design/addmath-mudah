@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="ms" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AddMath Mudah — KSSM Tingkatan 4 & 5 (BM / EN)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <canvas id="confetti-canvas"></canvas>
+
+  <!-- Sticky Mobile-Friendly Header -->
+  <header class="top-bar">
+    <div class="brand" data-nav="home">
+      <div class="brand-logo">∑+</div>
+      <div>
+        <div class="brand-title">AddMath Mudah</div>
+        <div id="brand-sub" class="brand-sub">KSSM Tingkatan 4 & 5 • Pintar</div>
+      </div>
+    </div>
+
+    <div class="top-actions">
+      <span id="hdr-streak" class="stat-pill" title="Streak">🔥 1</span>
+      <span id="hdr-xp" class="stat-pill" title="XP">0 XP</span>
+      <div class="lang-toggle" role="group" aria-label="Language Switch">
+        <button id="btn-lang-bm" class="lang-btn active" type="button">BM</button>
+        <button id="btn-lang-en" class="lang-btn" type="button">EN</button>
+      </div>
+      <button id="btn-theme" class="icon-btn" type="button" title="Tukar Tema / Toggle Theme">🌙</button>
+    </div>
+  </header>
+
+  <!-- Main Responsive Layout -->
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div id="side-main-nav" class="nav-card"></div>
+      <div id="side-chap-list" class="nav-card"></div>
+    </aside>
+
+    <main id="main-view"></main>
+  </div>
+
+  <!-- Mobile Bottom Navigation -->
+  <nav id="bottom-nav" class="bottom-nav" aria-label="Mobile Navigation"></nav>
+
+  <!-- KaTeX (Async Non-Blocking Online Enhancement; Instant Offline Fallback Built-in) -->
+  <script async src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" onload="window.AddMathApp && window.AddMathApp.rerender && window.AddMathApp.rerender()"></script>
+
+  <!-- Core Application Modules (file:// friendly, zero build required) -->
+  <script src="js/math-utils.js"></script>
+  <script src="js/chapters-f4a.js"></script>
+  <script src="js/syllabus-catalog.js"></script>
+  <script src="js/visual-labs.js"></script>
+  <script src="js/diagnostic-coach.js"></script>
+  <script src="js/confetti-gamify.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
