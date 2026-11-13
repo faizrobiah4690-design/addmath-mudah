@@ -444,7 +444,62 @@ body {
 }
 .spm-P1 { background: #dbeafe; color: #1d4ed8; }
 .spm-K1 { background: #fef3c7; color: #b45309; }
-.spm-J1 { background: #d1fae5; color: #047857; }
+.spm-J1, .spm-N1 { background: #d1fae5; color: #047857; }
+
+/* Master SPM Bank (180 Questions: Examples, Common Mistakes & K1/N1 Scheme) */
+.mbank-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px;
+  box-shadow: var(--shadow);
+  margin-bottom: 14px;
+  min-width: 0;
+  max-width: 100%;
+  transition: border-color 0.2s;
+}
+.mbank-card.mastered {
+  border-color: var(--accent);
+}
+.mbank-qbox {
+  font-size: 0.96rem;
+  font-weight: 600;
+  background: var(--surface-alt);
+  padding: 13px 14px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  margin: 10px 0 12px;
+  white-space: pre-line;
+  overflow-x: auto;
+}
+.mbank-mistake-panel {
+  background: var(--danger-soft);
+  border: 1px solid rgba(239, 68, 68, 0.38);
+  border-left: 4px solid var(--danger);
+  border-radius: 12px;
+  padding: 12px 14px;
+  margin-top: 10px;
+  font-size: 0.88rem;
+  overflow-x: auto;
+}
+.mbank-scheme-panel {
+  background: var(--accent-soft);
+  border: 1px solid rgba(16, 185, 129, 0.38);
+  border-left: 4px solid var(--accent);
+  border-radius: 12px;
+  padding: 12px 14px;
+  margin-top: 10px;
+  font-size: 0.89rem;
+  overflow-x: auto;
+}
+.mbank-scheme-row {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 9px 12px;
+  margin-top: 8px;
+  overflow-x: auto;
+}
 
 /* Buttons & Inputs */
 .btn {

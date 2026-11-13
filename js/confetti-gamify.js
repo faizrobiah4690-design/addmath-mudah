@@ -18,6 +18,7 @@ window.AddMathApp = window.AddMathApp || {};
     kbatSolved: 0,
     labsExplored: {},
     mastery: {}, // { 'f4-c1': 25, ... } (0..100)
+    masterBankDone: {}, // { 'f4-c1:1.1': true, ... } (180 Master SPM Bank)
     radar: { P: 0, K: 0, J: 0, ok: 0 }, // Misconception diagnostic tracker
     quests: { lab: false, solve3: false, kbat1: false },
     highBlitz: 0
@@ -27,7 +28,10 @@ window.AddMathApp = window.AddMathApp || {};
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
       if (!raw) return JSON.parse(JSON.stringify(defaultState));
-      return Object.assign(JSON.parse(JSON.stringify(defaultState)), JSON.parse(raw));
+      const merged = Object.assign(JSON.parse(JSON.stringify(defaultState)), JSON.parse(raw));
+      if (!merged.masterBankDone || typeof merged.masterBankDone !== 'object') merged.masterBankDone = {};
+      if (!merged.mastery || typeof merged.mastery !== 'object') merged.mastery = {};
+      return merged;
     } catch (_) {
       return JSON.parse(JSON.stringify(defaultState));
     }

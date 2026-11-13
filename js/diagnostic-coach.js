@@ -421,6 +421,20 @@ window.AddMathApp = window.AddMathApp || {};
     }
 
     const chTitle = U.t(activeChapter.title, l);
+    if (/(kesilapan|lazim|mistake|trap|perangkap|contoh soalan|skim|markah|k1|n1)/i.test(lower)) {
+      const bankList = (App.masterBank && App.masterBank[activeChapter.id]) || [];
+      if (bankList.length) {
+        const sampleItems = bankList.slice(0, 3).map((it) => {
+          const mTxt = (it.mistakes[l] || it.mistakes.bm || [])[0] || '';
+          const sTxt = it.scheme[0] ? `[${it.scheme[0].badge}] ${it.scheme[0][l] || it.scheme[0].bm}` : '';
+          return `- **Soalan ${it.code} (${U.t(it.topic, l)}):**\n  ⚠️ *${l === 'bm' ? 'Kesilapan Lazim' : 'Common Mistake'}:* ${mTxt}\n  ✅ *${l === 'bm' ? 'Langkah Kunci' : 'Key Step'}:* ${sTxt}`;
+        }).join('\n\n');
+        return l === 'bm'
+          ? `**Analisis Kesilapan Lazim & Skim Pemarkahan SPM — ${chTitle}:**\n\n${sampleItems}\n\n💡 *Buka tab **📋 Contoh SPM & Kesilapan (10)** dalam menu Belajar untuk melihat kesemua 10 soalan peperiksaan, kesilapan lazim & skim penuh K1/N1 bab ini!*`
+          : `**SPM Common Mistakes & Marking Scheme — ${chTitle}:**\n\n${sampleItems}\n\n💡 *Open the **📋 SPM Examples & Mistakes (10)** sub-tab inside Learn to explore all 10 exam questions, common mistakes & K1/N1 schemes for this chapter!*`;
+      }
+    }
+
     if (/(kalkulus|beza|differentiate|dy\/dx|kamir|integrate|tangen|pusingan)/i.test(lower)) {
       return l === 'bm'
         ? `**Peta Pantas Kalkulus SPM (Pembezaan & Pengamiran):**\n` +

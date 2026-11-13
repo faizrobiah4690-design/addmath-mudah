@@ -9,6 +9,7 @@ Aplikasi pembelajaran interaktif dwibahasa (**Bahasa Melayu & English DLP**) unt
 - **Tingkatan 5 (Bab 1–8):** Sukatan Membulat • Pembezaan • Pengamiran • Pilih Atur & Gabungan • Taburan Kebarangkalian (Binomial & Normal Skor-Z) • Fungsi Trigonometri • Pengaturcaraan Linear • Kinematik Gerakan Linear.
 
 ## Ciri Utama
+- **Bank Soalan Master SPM 180 Soalan (`BM` / `EN`):** 10 contoh soalan peperiksaan setiap bab merentasi kesemua 18 bab T4 & T5, lengkap dengan panel interaktif **Analisis Kesilapan Lazim Murid** dan **Cara Menjawab Betul & Skim Pemarkahan Analitik (`K1` Kaedah / `N1` Nilai Tepat)**.
 - **Dwi-Bahasa Sepenuhnya (`BM` / `EN`) & Tema Cerah/Gelap:** Tukar bahasa pada bila-bila masa selari dengan program DLP.
 - **Enjin Kepintaran Intent & Diagnostik Sokratik:** Mengesan punca kesilapan pelajar mengikut kategori markah SPM (**Konsep `[P]`**, **Kaedah/Algebra `[K]`**, **Ketepatan/Tanda `[J]`**) dan membimbing secara langkah demi langkah (*Micro-Checkpoints*).
 - **18 Makmal Visual Interaktif (`HTML5 Canvas`):** Satu makmal simulasi masa nyata khusus bagi setiap bab.
