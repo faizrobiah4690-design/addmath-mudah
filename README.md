@@ -2,7 +2,7 @@
 
 Aplikasi pembelajaran interaktif dwibahasa (**Bahasa Melayu & English DLP**) untuk pelajar Malaysia menguasai **kesemua 18 bab KSSM Matematik Tambahan (Additional Mathematics) Tingkatan 4 (Bab 1–10) & Tingkatan 5 (Bab 1–8)** secara visual, menyeronokkan, dan berpandu langkah demi langkah.
 
-🌐 **Pautan Langsung (GitHub Pages):** https://faizrobiah4690-design.github.io/addmath-mudah/
+🌐 **Pautan Rasmi:** https://addmath-mudah.pages.dev/
 
 ## Silibus Lengkap 18 Bab (100% Aktif)
 - **Tingkatan 4 (Bab 1–10):** Fungsi • Fungsi Kuadratik • Sistem Persamaan • Indeks, Surd & Logaritma • Janjang • Hukum Linear • Geometri Koordinat • Vektor • Penyelesaian Segi Tiga (SSA Berambiguiti) • Nombor Indeks.
@@ -17,4 +17,4 @@ Aplikasi pembelajaran interaktif dwibahasa (**Bahasa Melayu & English DLP**) unt
 - **Gamifikasi & Mesra Mudah Alih:** Sistem XP, *Combo Streak*, Misi Harian, Buku Formula 18 Bab, dan permainan pantas **Kilat Konsep 60 Saat**.
 
 ## Cara Guna
-Buka terus fail `index.html` dalam pelayar moden (Chrome / Edge / Safari), atau layari terus pautan GitHub Pages di atas.
+Buka terus fail `index.html` dalam pelayar moden (Chrome / Edge / Safari), atau layari terus pautan rasmi di atas.
