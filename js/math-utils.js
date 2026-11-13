@@ -448,14 +448,32 @@ window.AddMathApp = window.AddMathApp || {};
     return fallbackTexToHtml(tex);
   }
 
-  // Render mixed text containing $$...$$ and $...$ into HTML
+  // Render mixed text containing $$...$$, $...$, **bold**, *italic*, and `code` into clean HTML
   function renderMixed(text) {
     if (!text) return '';
     let str = String(text);
-    // Display math $$...$$
-    str = str.replace(/\$\$([\s\S]+?)\$\$/g, (_, m) => renderTex(m.trim(), true));
-    // Inline math $...$
-    str = str.replace(/\$([^$\n]+?)\$/g, (_, m) => renderTex(m.trim(), false));
+    const mathBlocks = [];
+
+    // 1. Temporarily extract display math $$...$$ and inline math $...$ so markdown never corrupts math
+    str = str.replace(/\$\$([\s\S]+?)\$\$/g, (_, m) => {
+      const idx = mathBlocks.length;
+      mathBlocks.push(renderTex(m.trim(), true));
+      return '@@MATHBLOCK_' + idx + '@@';
+    });
+    str = str.replace(/\$([^$\n]+?)\$/g, (_, m) => {
+      const idx = mathBlocks.length;
+      mathBlocks.push(renderTex(m.trim(), false));
+      return '@@MATHBLOCK_' + idx + '@@';
+    });
+
+    // 2. Convert inline markdown (`code`, **bold**, *italic*)
+    str = str
+      .replace(/`([^`\n]+)`/g, '<code class="m-code">$1</code>')
+      .replace(/\*\*([\s\S]+?)\*\*/g, '<strong>$1</strong>')
+      .replace(/(^|[^*])\*([^*\n]+)\*(?!\*)/g, '$1<em>$2</em>');
+
+    // 3. Restore rendered math blocks
+    str = str.replace(/@@MATHBLOCK_(\d+)@@/g, (_, i) => mathBlocks[Number(i)] || '');
     return str;
   }
 

@@ -1,5 +1,5 @@
 /**
- * AddMath Mudah — Pengawal Antara Muka Utama (Dwi-Bahasa BM / EN, Mobile-First)
+ * AddMath Mudah — Pengawal Antara Muka Utama (Dwi-Bahasa BM / EN, Mobile-First, Live Dynamic Steps)
  */
 window.AddMathApp = window.AddMathApp || {};
 
@@ -16,11 +16,13 @@ window.AddMathApp = window.AddMathApp || {};
   let activeSubTab = 'concept'; // 'concept' | 'solver' | 'practice'
   let activeTier = 1; // 1, 2, 3
   let currentQuestion = null;
+  let draftAnswer = '';
   let lastWrongAttempt = '';
   let coachOutput = null;
   let guidedActive = false;
   let guidedIndex = 0;
   let showFullSolution = false;
+  let customEqResult = '';
   let tutorMessages = [];
   let blitzTimer = null;
   let blitzState = { active: false, timeLeft: 60, score: 0, idx: 0 };
@@ -49,12 +51,18 @@ window.AddMathApp = window.AddMathApp || {};
       currentQuestion = ch.generateQuestion(activeTier, App.lang);
       currentQuestion._chapId = ch.id;
       currentQuestion._lang = App.lang;
+      draftAnswer = '';
       lastWrongAttempt = '';
       coachOutput = null;
       guidedActive = false;
       guidedIndex = 0;
       showFullSolution = false;
     }
+  }
+
+  function saveDraftAnswer() {
+    const inp = document.getElementById('practice-ans-input');
+    if (inp) draftAnswer = inp.value;
   }
 
   function renderHeader() {
@@ -66,7 +74,6 @@ window.AddMathApp = window.AddMathApp || {};
     document.getElementById('btn-lang-en').classList.toggle('active', App.lang === 'en');
     document.getElementById('btn-theme').textContent = state.theme === 'dark' ? '☀️' : '🌙';
 
-    // Update bottom & side nav labels
     const navMap = [
       { id: 'home', bm: 'Utama', en: 'Home', ico: '🏠' },
       { id: 'learn', bm: 'Belajar', en: 'Learn', ico: '📘' },
@@ -116,7 +123,7 @@ window.AddMathApp = window.AddMathApp || {};
           <span style="font-size:0.82rem;font-weight:700;">Combo 🔥 x${state.combo || 0}</span>
         </div>
         <h1 style="margin-top:10px;">${L('Kuasai AddMath Secara Visual & Berpandu!', 'Master AddMath Visually & Step-by-Step!')}</h1>
-        <p>${L('Enjin pintar mengesan di mana awak sangkut dan membimbing setiap langkah mengikut skema SPM (P, K, J).', 'Our diagnostic engine detects exactly where you get stuck and guides every step using SPM (P, K, J) logic.')}</p>
+        <p>${L('Enjin pintar mengira secara langsung, mengesan di mana awak sangkut, dan membimbing setiap langkah mengikut skema SPM (P, K, J).', 'Our live math engine calculates dynamically, detects where you get stuck, and guides every step using SPM (P, K, J) logic.')}</p>
         <div style="font-size:0.78rem;font-weight:700;">${L('Kemajuan Tahap Seterusnya', 'Next Rank Progress')} (${state.xp} XP)</div>
         <div class="xp-bar-wrap"><div class="xp-bar-fill" style="width:${rank.pct}%"></div></div>
       </div>
@@ -197,7 +204,7 @@ window.AddMathApp = window.AddMathApp || {};
     const tabsHtml = `
       <div class="mode-tabs">
         <button class="mode-tab ${activeSubTab === 'concept' ? 'active' : ''}" data-subtab="concept">🎨 ${L('Konsep & Makmal Graf', 'Concept & Visual Lab')}</button>
-        <button class="mode-tab ${activeSubTab === 'solver' ? 'active' : ''}" data-subtab="solver">🧮 ${L('Smart Solver SPM', 'SPM Smart Solver')}</button>
+        <button class="mode-tab ${activeSubTab === 'solver' ? 'active' : ''}" data-subtab="solver">🧮 ${L('Smart Solver Dinamik', 'Dynamic Smart Solver')}</button>
         <button class="mode-tab ${activeSubTab === 'practice' ? 'active' : ''}" data-subtab="practice">🎯 ${L('Latihan Berpandu TP1–TP6', 'Guided Practice TP1–TP6')}</button>
       </div>
     `;
@@ -242,7 +249,7 @@ window.AddMathApp = window.AddMathApp || {};
                 <div>${U.renderTex(f.tex, true)}</div>
               </div>
             `).join('')}
-            ${sec.tip ? `<div class="tip-box">💡 <strong>Tip Pintar:</strong> ${U.t(sec.tip, App.lang)}</div>` : ''}
+            ${sec.tip ? `<div class="tip-box">💡 <strong>${L('Tip Pintar:', 'Smart Tip:')}</strong> ${U.renderMixed(U.t(sec.tip, App.lang))}</div>` : ''}
           </div>
         `).join('')}
 
@@ -250,32 +257,62 @@ window.AddMathApp = window.AddMathApp || {};
           <h3 style="font-size:1.02rem;color:var(--danger);">⚠️ ${L('Radar Perangkap Lazim SPM', 'Common SPM Exam Traps')}</h3>
           ${ch.traps.map((tr) => `
             <div class="trap-box">
-              <strong>${U.t(tr.title, App.lang)}:</strong> ${U.t(tr.desc, App.lang)}
+              <strong>${U.t(tr.title, App.lang)}:</strong> ${U.renderMixed(U.t(tr.desc, App.lang))}
             </div>
           `).join('')}
         </div>
       `;
     } else if (activeSubTab === 'solver') {
-      bodyHtml = ch.solvers.map((s, idx) => `
-        <div class="card" data-solver-card="${idx}">
-          <h3 style="font-size:1.06rem;">🧮 ${U.t(s.title, App.lang)}</h3>
-          <p style="font-size:0.85rem;color:var(--text-muted);margin-bottom:12px;">${U.t(s.desc, App.lang)}</p>
-          <div class="grid-2" style="margin-bottom:12px;">
-            ${s.inputs.map((inp) => `
-              <div>
-                <label style="font-size:0.78rem;font-weight:700;display:block;margin-bottom:4px;">${U.t(inp.label, App.lang)}</label>
-                <input type="number" step="any" class="math-input solver-inp-${idx}" data-inp-id="${inp.id}" value="${inp.default}">
-              </div>
-            `).join('')}
+      // Universal Free-Form Expression Solver + Chapter Dynamic Solvers (NOT pre-hardcoded!)
+      bodyHtml = `
+        <div class="card" style="border-color:var(--primary);">
+          <h3 style="font-size:1.05rem;">✨ ${L('Penyelesai Persamaan Bebas (Taip Soalan Sendiri)', 'Free-Form Equation Solver (Type Your Own Problem)')}</h3>
+          <p style="font-size:0.84rem;color:var(--text-muted);margin:4px 0 10px;">
+            ${L('Taip sebarang kuadratik, nilai mutlak, fungsi, atau jujukan janjang — enjin akan mengira langkah demi langkah secara langsung:', 'Type any quadratic, modulus, linear function, or sequence — the engine computes every step live:')}
+          </p>
+          <div class="intent-chips">
+            <button class="intent-chip" data-sample-eq="3x^2 - 11x - 4 = 0">3x² − 11x − 4 = 0</button>
+            <button class="intent-chip" data-sample-eq="|3x - 6| = 12">|3x − 6| = 12</button>
+            <button class="intent-chip" data-sample-eq="f(x) = 4x - 9">f(x) = 4x − 9</button>
+            <button class="intent-chip" data-sample-eq="32, 16, 8">32, 16, 8</button>
           </div>
-          <button class="btn btn-primary" data-run-solver="${idx}">⚡ ${L('Jana Jalan Kerja Skema SPM', 'Generate SPM Step-by-Step Working')}</button>
-          <div id="solver-out-${idx}" style="margin-top:16px;"></div>
+          <div style="display:flex;gap:8px;margin-top:6px;">
+            <input id="custom-eq-inp" type="text" class="math-input" placeholder="${L('Contoh: 2x^2 - 5x - 3 = 0 atau |2x - 4| = 10', 'e.g. 2x^2 - 5x - 3 = 0 or |2x - 4| = 10')}">
+            <button class="btn btn-primary" id="btn-solve-custom-eq">⚡ ${L('Kira Langkah', 'Solve Steps')}</button>
+          </div>
+          ${customEqResult ? `<div class="step-item anim-in" style="margin-top:12px;white-space:pre-line;">${U.renderMixed(customEqResult)}</div>` : ''}
         </div>
-      `).join('');
+
+        ${ch.solvers.map((s, idx) => `
+          <div class="card" data-solver-card="${idx}">
+            <h3 style="font-size:1.06rem;">🧮 ${U.t(s.title, App.lang)}</h3>
+            <p style="font-size:0.85rem;color:var(--text-muted);margin-bottom:12px;">${U.t(s.desc, App.lang)}</p>
+            <div class="grid-2" style="margin-bottom:12px;">
+              ${s.inputs.map((inp) => `
+                <div>
+                  <label style="font-size:0.78rem;font-weight:700;display:block;margin-bottom:4px;">${U.t(inp.label, App.lang)}</label>
+                  <input type="number" step="any" class="math-input solver-inp-${idx}" data-solver-live="${idx}" data-inp-id="${inp.id}" value="${inp.default}">
+                </div>
+              `).join('')}
+            </div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;">
+              <button class="btn btn-primary" data-run-solver="${idx}">⚡ ${L('Kira & Jana Langkah SPM', 'Compute & Generate SPM Steps')}</button>
+              <button class="btn btn-outline" data-rand-solver="${idx}">🎲 ${L('Cuba Nilai Rawak Baru', 'Try Random Values')}</button>
+            </div>
+            <div id="solver-out-${idx}" style="margin-top:14px;">
+              <div style="font-size:0.84rem;color:var(--text-muted);padding:10px 12px;background:var(--surface-alt);border-radius:10px;border:1px dashed var(--border);">
+                👆 ${L('Masukkan sebarang nombor anda di atas atau klik "Cuba Nilai Rawak Baru", kemudian tekan "Kira & Jana Langkah SPM".', 'Enter your own numbers above or click "Try Random Values", then press "Compute & Generate SPM Steps".')}
+              </div>
+            </div>
+          </div>
+        `).join('')}
+      `;
     } else {
-      // GUIDED PRACTICE TAB WITH INTENT & MISCONCEPTION ENGINE
+      // GUIDED PRACTICE TAB WITH COMPLETED STEP TRAIL & DYNAMIC INTENT COACH
       const q = currentQuestion;
       const gSteps = q.guidedSteps || [];
+      const safeVal = String(draftAnswer || '').replace(/"/g, '&quot;');
+
       bodyHtml = `
         <div class="card">
           <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:12px;">
@@ -284,7 +321,7 @@ window.AddMathApp = window.AddMathApp || {};
               <button class="btn btn-sm ${activeTier === 2 ? 'btn-primary' : 'btn-outline'}" data-tier="2">🔥 ${L('Sederhana (TP3–4)', 'Medium (TP3–4)')}</button>
               <button class="btn btn-sm ${activeTier === 3 ? 'btn-primary' : 'btn-outline'}" data-tier="3">👑 ${L('KBAT (TP5–6)', 'HOTS (TP5–6)')}</button>
             </div>
-            <button class="btn btn-outline btn-sm" id="btn-new-q">🎲 ${L('Soalan Baru', 'New Question')}</button>
+            <button class="btn btn-outline btn-sm" id="btn-new-q">🎲 ${L('Jana Soalan Baru', 'New Random Question')}</button>
           </div>
 
           <div style="display:flex;justify-content:space-between;font-size:0.76rem;font-weight:800;color:var(--primary);margin-bottom:8px;">
@@ -297,41 +334,48 @@ window.AddMathApp = window.AddMathApp || {};
           </div>
 
           <label style="font-size:0.8rem;font-weight:700;">${L('Jawapan Anda:', 'Your Answer:')}</label>
-          <input id="practice-ans-input" type="text" class="math-input" style="margin-top:4px;" placeholder="${q.placeholder ? U.t(q.placeholder, App.lang) : L('Masukkan nilai atau pecahan (cth: 5 atau -3/2)', 'Enter number or fraction (e.g. 5 or -3/2)')}">
+          <input id="practice-ans-input" type="text" class="math-input" style="margin-top:4px;" value="${safeVal}" placeholder="${q.placeholder ? U.t(q.placeholder, App.lang) : L('Masukkan nilai atau pecahan (cth: 5 atau -3/2)', 'Enter number or fraction (e.g. 5 or -3/2)')}">
           <div class="keypad-row">
             ${['-', '/', ',', '0', '1', '2', '3', '5'].map((chKey) => `<button class="key-chip" data-key-ins="${chKey}">${chKey}</button>`).join('')}
           </div>
 
           <div style="display:flex;gap:8px;flex-wrap:wrap;">
             <button class="btn btn-primary" id="btn-check-ans">✅ ${L('Semak Jawapan', 'Check Answer')}</button>
-            <button class="btn btn-accent" id="btn-start-guided">🧭 ${L('Bimbing Langkah demi Langkah', 'Guide Me Step-by-Step')}</button>
-            <button class="btn btn-outline" id="btn-show-sol">📖 ${L('Lihat Skema Penuh', 'Full SPM Working')}</button>
+            <button class="btn btn-accent" id="btn-start-guided">🧭 ${L(guidedActive ? 'Tutup Mod Langkah' : 'Bimbing Langkah demi Langkah', guidedActive ? 'Hide Step Guide' : 'Guide Me Step-by-Step')}</button>
+            <button class="btn btn-outline" id="btn-show-sol">📖 ${L(showFullSolution ? 'Sembunyi Skema' : 'Jana Skema Penuh SPM', showFullSolution ? 'Hide Working' : 'Generate Full SPM Working')}</button>
           </div>
 
           <div id="practice-feedback-box"></div>
 
           ${guidedActive && gSteps.length ? `
-            <div class="guided-step-card">
+            <div id="guided-box-anchor" class="guided-step-card anim-in">
+              ${gSteps.slice(0, guidedIndex).map((doneSt, idx) => `
+                <div class="step-done-row">
+                  ✅ <strong>${L('Langkah', 'Step')} ${idx + 1}:</strong> ${U.renderMixed(U.t(doneSt.prompt, App.lang))} ➔ <strong>${doneSt.expected}</strong>
+                </div>
+              `).join('')}
+
               <div style="font-size:0.8rem;font-weight:800;color:var(--accent);margin-bottom:6px;">
                 🧭 ${L(`Bimbingan Interaktif: Langkah ${guidedIndex + 1} daripada ${gSteps.length}`, `Interactive Step ${guidedIndex + 1} of ${gSteps.length}`)}
               </div>
               <div style="font-size:0.93rem;margin-bottom:8px;">${U.renderMixed(U.t(gSteps[guidedIndex].prompt, App.lang))}</div>
-              <div style="display:flex;gap:8px;">
-                <input id="guided-step-inp" type="text" class="math-input" placeholder="${L('Jawapan langkah ini...', 'Value for this step...')}">
-                <button class="btn btn-primary" id="btn-verify-step">${L('Sahkan', 'Verify')}</button>
+              <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                <input id="guided-step-inp" type="text" class="math-input" style="flex:1;min-width:170px;" placeholder="${L('Kira nilai langkah ini...', 'Enter value for this step...')}">
+                <button class="btn btn-primary" id="btn-verify-step">${L('Semak Langkah', 'Verify Step')}</button>
+                <button class="btn btn-outline btn-sm" id="btn-hint-step">💡 ${L('Petunjuk', 'Hint')}</button>
               </div>
-              <div id="guided-step-msg" style="margin-top:8px;font-size:0.85rem;"></div>
+              <div id="guided-step-msg" style="margin-top:8px;font-size:0.86rem;"></div>
             </div>
           ` : ''}
 
           ${showFullSolution ? `
-            <div style="margin-top:14px;">
-              <h4 style="margin-bottom:8px;">📋 ${L('Skema Pemarkahan Langkah demi Langkah SPM', 'SPM Step-by-Step Marking Scheme')}</h4>
+            <div id="full-sol-anchor" class="anim-in" style="margin-top:14px;">
+              <h4 style="margin-bottom:8px;">📋 ${L('Skema Jalan Kerja Dijana Mengikut Soalan Ini', 'Generated SPM Step-by-Step Working')}</h4>
               ${q.steps.map((st) => `
-                <div class="step-item">
-                  <div><span class="spm-badge spm-${st.badge}">${st.badge}</span><strong>${st.title}</strong></div>
+                <div class="step-item anim-in">
+                  <div><span class="spm-badge spm-${st.badge}">${st.badge}</span><strong>${U.renderMixed(st.title)}</strong></div>
                   <div style="margin:6px 0;">${U.renderTex(st.tex, true)}</div>
-                  <div style="font-size:0.8rem;color:var(--text-muted);">💡 ${st.why}</div>
+                  <div style="font-size:0.82rem;color:var(--text-muted);">💡 ${U.renderMixed(st.why)}</div>
                 </div>
               `).join('')}
             </div>
@@ -341,17 +385,18 @@ window.AddMathApp = window.AddMathApp || {};
           <div class="coach-panel">
             <div style="font-weight:800;font-size:0.93rem;">🧠 ${L('Sangkut? Beritahu Cikgu Pintar Di Mana Awak Keliru:', 'Stuck? Tell the Smart Coach Where You Are Confused:')}</div>
             <div class="intent-chips">
-              <button class="intent-chip" data-intent-ask="${L('Saya tak tahu nak mula dari mana', 'I do not know how to start')}">🙋 ${L('Tak tahu nak mula', 'How do I start?')}</button>
+              <button class="intent-chip" data-intent-ask="${L('Jana pelan langkah demi langkah', 'Generate step by step plan')}">⚡ ${L('Jana Pelan Langkah', 'Generate Step Plan')}</button>
+              <button class="intent-chip" data-intent-ask="${L('Saya tak tahu nak mula dari mana', 'How do I start?')}">🙋 ${L('Tak tahu nak mula', 'How do I start?')}</button>
               <button class="intent-chip" data-intent-ask="${L('Rumus mana perlu saya guna?', 'Which formula should I use?')}">📐 ${L('Rumus mana?', 'Which formula?')}</button>
-              <button class="intent-chip" data-intent-ask="${L('Kenapa jawapan saya salah?', 'Why is my answer wrong?')}">🔍 ${L('Kenapa saya salah?', 'Why was I wrong?')}</button>
+              <button class="intent-chip" data-intent-ask="${L('Kenapa jawapan saya salah?', 'Why was I wrong?')}">🔍 ${L('Kenapa saya salah?', 'Why was I wrong?')}</button>
               <button class="intent-chip" data-intent-ask="${L('Terangkan konsep soalan ini', 'Explain the concept behind this')}">💡 ${L('Terangkan konsep', 'Explain concept')}</button>
             </div>
             <div style="display:flex;gap:8px;margin-top:6px;">
-              <input id="intent-free-inp" type="text" class="math-input" style="background:var(--surface);" placeholder="${L('Taip masalah awak (cth: saya keliru tanda negatif / sangkut langkah 2)...', 'Type where you got stuck (e.g. confused about negative sign)...')}">
+              <input id="intent-free-inp" type="text" class="math-input" style="background:var(--surface);" placeholder="${L('Taip masalah awak (cth: jana step / keliru tanda negatif)...', 'Type what you need (e.g. show steps / confused about sign)...')}">
               <button class="btn btn-primary" id="btn-ask-intent">${L('Tanya', 'Ask')}</button>
             </div>
             ${coachOutput ? `
-              <div style="margin-top:10px;background:var(--surface);border-radius:12px;padding:12px;border-left:4px solid var(--primary);">
+              <div id="coach-reply-anchor" class="anim-in" style="margin-top:10px;background:var(--surface);border-radius:12px;padding:12px;border-left:4px solid var(--primary);">
                 <div style="font-size:0.74rem;font-weight:800;color:var(--primary);margin-bottom:4px;">${coachOutput.tag}</div>
                 <div style="font-size:0.89rem;white-space:pre-line;">${U.renderMixed(coachOutput.reply)}</div>
               </div>
@@ -364,7 +409,6 @@ window.AddMathApp = window.AddMathApp || {};
     container.innerHTML = chapSelector + tabsHtml + bodyHtml;
 
     if (activeSubTab === 'concept') initActiveLab(ch.id);
-    if (activeSubTab === 'solver') ch.solvers.forEach((_, idx) => runSolverCard(ch, idx));
   }
 
   function initActiveLab(chapId) {
@@ -406,27 +450,48 @@ window.AddMathApp = window.AddMathApp || {};
     const solver = ch.solvers[idx];
     const outEl = document.getElementById('solver-out-' + idx);
     if (!solver || !outEl) return;
+    outEl.dataset.opened = '1';
     const vals = {};
     document.querySelectorAll('.solver-inp-' + idx).forEach((inp) => {
       vals[inp.getAttribute('data-inp-id')] = inp.value;
     });
     const res = solver.solve(vals, App.lang);
     outEl.innerHTML = `
-      <div class="formula-box" style="margin-bottom:12px;">
-        <strong>${L('Masalah:', 'Problem:')}</strong> ${U.renderTex(res.problemTex, true)}
-      </div>
-      ${res.steps.map((st) => `
-        <div class="step-item">
-          <div><span class="spm-badge spm-${st.badge}">${st.badge}</span><strong>${st.title}</strong></div>
-          <div style="margin:6px 0;">${U.renderTex(st.tex, true)}</div>
-          <div style="font-size:0.8rem;color:var(--text-muted);">💡 ${st.why}</div>
+      <div class="anim-in">
+        <div class="formula-box" style="margin-bottom:12px;">
+          <div style="font-size:0.74rem;font-weight:800;color:var(--accent);">⚡ ${L('DIKIRA SECARA DINAMIK DARIPADA INPUT ANDA', 'COMPUTED LIVE FROM YOUR INPUTS')}</div>
+          <div>${U.renderTex(res.problemTex, true)}</div>
         </div>
-      `).join('')}
-      <div class="tip-box" style="border-color:var(--accent);background:var(--accent-soft);">
-        <strong>🎯 ${L('Jawapan Akhir:', 'Final Result:')}</strong> ${U.renderTex(res.finalTex, false)}
+        ${res.steps.map((st) => `
+          <div class="step-item anim-in">
+            <div><span class="spm-badge spm-${st.badge}">${st.badge}</span><strong>${U.renderMixed(st.title)}</strong></div>
+            <div style="margin:6px 0;">${U.renderTex(st.tex, true)}</div>
+            <div style="font-size:0.82rem;color:var(--text-muted);">💡 ${U.renderMixed(st.why)}</div>
+          </div>
+        `).join('')}
+        <div class="tip-box" style="border-color:var(--accent);background:var(--accent-soft);">
+          <strong>🎯 ${L('Jawapan Akhir:', 'Final Result:')}</strong> ${U.renderTex(res.finalTex, false)}
+        </div>
+        ${res.trapWarning ? `<div class="trap-box">⚠️ ${U.renderMixed(res.trapWarning)}</div>` : ''}
       </div>
-      ${res.trapWarning ? `<div class="trap-box">⚠️ ${res.trapWarning}</div>` : ''}
     `;
+    outEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+
+  function randomizeSolverInputs(ch, idx) {
+    const solver = ch.solvers[idx];
+    if (!solver) return;
+    document.querySelectorAll('.solver-inp-' + idx).forEach((inp) => {
+      const id = inp.getAttribute('data-inp-id');
+      if (id === 'mode') inp.value = U.pick([1, 2]);
+      else if (id === 'dr') inp.value = U.pick([0.25, 0.5, 2, 3, -2]);
+      else if (id === 'n') inp.value = U.randInt(4, 10);
+      else if (id === 'b' && solver.id === 'surd-rationalizer') inp.value = U.pick([2, 3, 5, 6, 7]);
+      else if (id === 'a' && solver.id === 'log-base-solver') inp.value = U.pick([2, 3, 4, 5]);
+      else if (id === 'b' && solver.id === 'log-base-solver') inp.value = U.pick([8, 16, 27, 64, 81, 125]);
+      else inp.value = U.randInt(-6, 9, true);
+    });
+    runSolverCard(ch, idx);
   }
 
   function renderBlitzView(container) {
@@ -436,7 +501,7 @@ window.AddMathApp = window.AddMathApp || {};
           <div style="font-size:2.6rem;">⚡</div>
           <h2 style="margin:8px 0;">${L('Cabaran Kilat Konsep 60 Saat!', '60-Second Concept Blitz!')}</h2>
           <p style="color:var(--text-muted);max-width:480px;margin:0 auto 16px;">
-            ${L('Uji kepantasan ingatan konsep & rumus Tingkatan 4! Setiap jawapan betul berturut-turut menggandakan XP awak.', 'Test your Form 4 concept & formula reflexes! Consecutive hits multiply your XP.')}
+            ${L('Uji kepantasan ingatan konsep & rumus Tingkatan 4! Setiap jawapan betul memberi +15 XP.', 'Test your Form 4 concept & formula reflexes! Every right hit earns +15 XP.')}
           </p>
           <div style="font-weight:800;margin-bottom:16px;color:var(--primary);">🏆 ${L('Skor Tertinggi Anda:', 'Your Best Score:')} ${state.highBlitz || 0}</div>
           <button class="btn btn-primary" id="btn-start-blitz">🚀 ${L('Mula Cabaran Sekarang!', 'Start Blitz Now!')}</button>
@@ -467,8 +532,8 @@ window.AddMathApp = window.AddMathApp || {};
       tutorMessages.push({
         role: 'bot',
         text: L(
-          `Hai! Saya **Cikgu Pintar AddMath** awak 👋\nBeritahu saya bahagian mana yang awak kurang faham, atau taip terus persamaan seperti \`2x^2 - 7x + 3 = 0\` atau \`f(x) = 3x - 5\` untuk bimbingan langkah demi langkah!`,
-          `Hi! I'm your **Smart AddMath Coach** 👋\nTell me which concept feels tricky, or type an equation like \`2x^2 - 7x + 3 = 0\` or \`f(x) = 3x - 5\` for instant step-by-step guidance!`
+          `Hai! Saya **Cikgu Pintar AddMath** awak 👋\nTaip sebarang persamaan anda sendiri seperti \`2x^2 - 7x + 3 = 0\`, \`|2x - 4| = 10\`, \`f(x) = 3x - 5\`, atau jujukan \`18, 6, 2\` untuk pengiraan langkah demi langkah secara langsung!`,
+          `Hi! I'm your **Smart AddMath Coach** 👋\nType any equation of your own like \`2x^2 - 7x + 3 = 0\`, \`|2x - 4| = 10\`, \`f(x) = 3x - 5\`, or sequence \`18, 6, 2\` for live step-by-step calculation!`
         )
       });
     }
@@ -478,7 +543,7 @@ window.AddMathApp = window.AddMathApp || {};
       <div class="card">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;flex-wrap:wrap;gap:8px;">
           <div>
-            <h3 style="font-size:1.08rem;">🧠 ${L('Cikgu Pintar AddMath (Pengesan Intent)', 'Smart AddMath Socratic Tutor')}</h3>
+            <h3 style="font-size:1.08rem;">🧠 ${L('Cikgu Pintar AddMath (Pengira & Pengesan Intent)', 'Smart AddMath Live Tutor')}</h3>
             <div style="font-size:0.76rem;color:var(--text-muted);">${L('Konteks Semasa:', 'Active Topic:')} ${U.t(ch.title, App.lang)}</div>
           </div>
           <button class="btn btn-outline btn-sm" id="btn-config-key">🔑 ${hasKey ? L('Gemini API Aktif', 'Gemini API Active') : L('Sambung Gemini API (Pilihan)', 'Optional Gemini Key')}</button>
@@ -489,14 +554,14 @@ window.AddMathApp = window.AddMathApp || {};
         </div>
 
         <div class="intent-chips" style="margin-top:10px;">
-          <button class="intent-chip" data-tutor-chip="${L('Macam mana nak cari fungsi songsang?', 'How do I find an inverse function?')}">${L('Fungsi Songsang', 'Inverse Function')}</button>
           <button class="intent-chip" data-tutor-chip="2x^2 - 7x + 3 = 0">2x² − 7x + 3 = 0</button>
-          <button class="intent-chip" data-tutor-chip="${L('Apa beza JA dan JG?', 'Difference between AP and GP?')}">${L('Beza JA & JG', 'AP vs GP')}</button>
-          <button class="intent-chip" data-tutor-chip="${L('Hukum tukar asas logaritma', 'Logarithm change of base law')}">${L('Log Tukar Asas', 'Change of Base')}</button>
+          <button class="intent-chip" data-tutor-chip="|2x - 5| = 9">|2x − 5| = 9</button>
+          <button class="intent-chip" data-tutor-chip="18, 6, 2">18, 6, 2</button>
+          <button class="intent-chip" data-tutor-chip="${L('Macam mana nak cari fungsi songsang?', 'How do I find an inverse function?')}">${L('Fungsi Songsang', 'Inverse Function')}</button>
         </div>
 
         <div style="display:flex;gap:8px;margin-top:8px;">
-          <input id="tutor-inp" type="text" class="math-input" placeholder="${L('Tanya apa-apa persoalan atau taip persamaan...', 'Ask any question or type an equation...')}">
+          <input id="tutor-inp" type="text" class="math-input" placeholder="${L('Taip persamaan atau persoalan konsep...', 'Type an equation or concept question...')}">
           <button class="btn btn-primary" id="btn-send-tutor">${L('Hantar', 'Send')}</button>
         </div>
       </div>
@@ -560,7 +625,20 @@ window.AddMathApp = window.AddMathApp || {};
     else renderProfileView(main);
   }
 
-  // Global Delegated Event Listeners (Clean, Fast & Mobile-Friendly)
+  // Live update solver if already opened when user edits numbers
+  document.addEventListener('input', (e) => {
+    if (e.target.id === 'practice-ans-input') {
+      draftAnswer = e.target.value;
+    }
+    const liveIdx = e.target.getAttribute && e.target.getAttribute('data-solver-live');
+    if (liveIdx !== null && liveIdx !== undefined) {
+      const outEl = document.getElementById('solver-out-' + liveIdx);
+      if (outEl && outEl.dataset.opened === '1') {
+        runSolverCard(getActiveChapter(), Number(liveIdx));
+      }
+    }
+  });
+
   document.addEventListener('click', async (e) => {
     const navBtn = e.target.closest('[data-nav]');
     if (navBtn) {
@@ -609,10 +687,38 @@ window.AddMathApp = window.AddMathApp || {};
       return;
     }
 
+    const randBtn = e.target.closest('[data-rand-solver]');
+    if (randBtn) {
+      randomizeSolverInputs(getActiveChapter(), Number(randBtn.getAttribute('data-rand-solver')));
+      return;
+    }
+
+    const sampleEq = e.target.closest('[data-sample-eq]');
+    if (sampleEq) {
+      const eq = sampleEq.getAttribute('data-sample-eq');
+      customEqResult = await App.coach.askSmartTutor(eq, getActiveChapter(), App.lang);
+      renderMain();
+      const inp = document.getElementById('custom-eq-inp');
+      if (inp) inp.value = eq;
+      return;
+    }
+
+    if (e.target.id === 'btn-solve-custom-eq') {
+      const inp = document.getElementById('custom-eq-inp');
+      if (inp && inp.value.trim()) {
+        const eq = inp.value.trim();
+        customEqResult = await App.coach.askSmartTutor(eq, getActiveChapter(), App.lang);
+        renderMain();
+        const inpAfter = document.getElementById('custom-eq-inp');
+        if (inpAfter) inpAfter.value = eq;
+      }
+      return;
+    }
+
     const keyIns = e.target.closest('[data-key-ins]');
     if (keyIns) {
       const inp = document.getElementById('practice-ans-input');
-      if (inp) { inp.value += keyIns.getAttribute('data-key-ins'); inp.focus(); }
+      if (inp) { inp.value += keyIns.getAttribute('data-key-ins'); draftAnswer = inp.value; inp.focus(); }
       return;
     }
 
@@ -626,6 +732,7 @@ window.AddMathApp = window.AddMathApp || {};
       const inp = document.getElementById('practice-ans-input');
       const box = document.getElementById('practice-feedback-box');
       if (!inp || !box) return;
+      draftAnswer = inp.value;
       const res = U.evaluateAnswer(currentQuestion, inp.value, App.lang);
       if (res.correct) {
         state.combo = (state.combo || 0) + 1;
@@ -637,7 +744,7 @@ window.AddMathApp = window.AddMathApp || {};
         state.mastery[activeChapterId] = Math.min(100, curM + activeTier * 12);
         awardXP(gain);
         G.fireConfetti();
-        box.innerHTML = `<div class="tip-box" style="border-color:var(--accent);background:var(--accent-soft);font-weight:700;">🎉 ${res.feedback} (+${gain} XP • Combo x${state.combo})</div>`;
+        box.innerHTML = `<div class="tip-box anim-in" style="border-color:var(--accent);background:var(--accent-soft);font-weight:700;">🎉 ${U.renderMixed(res.feedback)} (+${gain} XP • Combo x${state.combo})</div>`;
       } else {
         state.combo = 0;
         lastWrongAttempt = inp.value;
@@ -647,19 +754,34 @@ window.AddMathApp = window.AddMathApp || {};
           else state.radar.J++;
         }
         G.saveState(state);
-        box.innerHTML = `<div class="trap-box">🔍 <strong>${L('Diagnostik Pintar:', 'Smart Diagnosis:')}</strong> ${res.feedback}</div>`;
+        box.innerHTML = `<div class="trap-box anim-in">🔍 <strong>${L('Diagnostik Pintar:', 'Smart Diagnosis:')}</strong> ${U.renderMixed(res.feedback)}</div>`;
       }
       return;
     }
 
     if (e.target.id === 'btn-start-guided') {
-      guidedActive = true;
-      guidedIndex = 0;
+      saveDraftAnswer();
+      guidedActive = !guidedActive;
+      if (guidedActive) guidedIndex = 0;
       renderMain();
+      if (guidedActive) {
+        document.getElementById('guided-box-anchor')?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
+      return;
+    }
+
+    if (e.target.id === 'btn-hint-step') {
+      const gSteps = currentQuestion.guidedSteps || [];
+      const stepObj = gSteps[guidedIndex];
+      const msg = document.getElementById('guided-step-msg');
+      if (stepObj && msg) {
+        msg.innerHTML = `<span style="color:var(--primary);font-weight:700;">💡 ${U.renderMixed(U.t(stepObj.hint, App.lang))}</span>`;
+      }
       return;
     }
 
     if (e.target.id === 'btn-verify-step') {
+      saveDraftAnswer();
       const gSteps = currentQuestion.guidedSteps || [];
       const stepObj = gSteps[guidedIndex];
       const inp = document.getElementById('guided-step-inp');
@@ -672,32 +794,47 @@ window.AddMathApp = window.AddMathApp || {};
           awardXP(5);
           renderMain();
         } else {
-          msg.innerHTML = `<span style="color:var(--accent);font-weight:800;">🎉 ${L('Semua langkah tepat! Sekarang masukkan jawapan akhir di atas untuk menuntut XP penuh!', 'All steps verified! Enter that final value in the main answer box above for full XP!')}</span>`;
+          draftAnswer = String(stepObj.expected);
+          renderMain();
+          const msgAfter = document.getElementById('guided-step-msg');
+          if (msgAfter) {
+            msgAfter.innerHTML = `<span style="color:var(--accent);font-weight:800;">🎉 ${L('Semua langkah tepat! Jawapan telah diisi di atas — tekan "Semak Jawapan" untuk menuntut XP penuh!', 'All steps verified! Final value filled above — press "Check Answer" for full XP!')}</span>`;
+          }
         }
       } else {
-        msg.innerHTML = `<span style="color:var(--danger);font-weight:700;">💡 ${U.t(stepObj.hint, App.lang)}</span>`;
+        msg.innerHTML = `<span style="color:var(--danger);font-weight:700;">💡 ${U.renderMixed(U.t(stepObj.hint, App.lang))}</span>`;
       }
       return;
     }
 
     if (e.target.id === 'btn-show-sol') {
+      saveDraftAnswer();
       showFullSolution = !showFullSolution;
       renderMain();
+      if (showFullSolution) {
+        document.getElementById('full-sol-anchor')?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
       return;
     }
 
     const intentChip = e.target.closest('[data-intent-ask]');
     if (intentChip) {
-      coachOutput = App.coach.coachOnQuestion(intentChip.getAttribute('data-intent-ask'), currentQuestion, getActiveChapter(), lastWrongAttempt, App.lang);
+      saveDraftAnswer();
+      coachOutput = App.coach.coachOnQuestion(intentChip.getAttribute('data-intent-ask'), currentQuestion, getActiveChapter(), lastWrongAttempt || draftAnswer, App.lang);
+      if (coachOutput.openGuided) guidedActive = true;
       renderMain();
+      document.getElementById('coach-reply-anchor')?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
       return;
     }
 
     if (e.target.id === 'btn-ask-intent') {
+      saveDraftAnswer();
       const inp = document.getElementById('intent-free-inp');
       if (inp && inp.value.trim()) {
-        coachOutput = App.coach.coachOnQuestion(inp.value.trim(), currentQuestion, getActiveChapter(), lastWrongAttempt, App.lang);
+        coachOutput = App.coach.coachOnQuestion(inp.value.trim(), currentQuestion, getActiveChapter(), lastWrongAttempt || draftAnswer, App.lang);
+        if (coachOutput.openGuided) guidedActive = true;
         renderMain();
+        document.getElementById('coach-reply-anchor')?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
       }
       return;
     }
@@ -786,6 +923,7 @@ window.AddMathApp = window.AddMathApp || {};
     if (e.target.id === 'practice-ans-input') document.getElementById('btn-check-ans')?.click();
     else if (e.target.id === 'guided-step-inp') document.getElementById('btn-verify-step')?.click();
     else if (e.target.id === 'intent-free-inp') document.getElementById('btn-ask-intent')?.click();
+    else if (e.target.id === 'custom-eq-inp') document.getElementById('btn-solve-custom-eq')?.click();
     else if (e.target.id === 'tutor-inp') document.getElementById('btn-send-tutor')?.click();
   });
 
