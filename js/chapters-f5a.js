@@ -571,11 +571,11 @@ window.AddMathApp.chapters = window.AddMathApp.chapters || [];
         {
           title: { bm: '1. Pilih Atur ⁿPᵣ — Apabila SUSUNAN / TERTIB Penting!', en: '1. Permutations ⁿPᵣ — When ORDER Matters!' },
           body: {
-            bm: 'Gunakan **Pilih Atur ($^nP_r$)** apabila menyusun huruf, kod kata laluan, nombor digit, atau kedudukan barisan gambar. Ingat takrifan penting: **$0! = 1$**!',
-            en: 'Use **Permutations ($^nP_r$)** when arranging letters, passwords, multi-digit numbers, or seating positions. Remember **$0! = 1$**!'
+            bm: 'Gunakan **Pilih Atur (${}^nP_r$)** apabila menyusun huruf, kod kata laluan, nombor digit, atau kedudukan barisan gambar. Ingat takrifan penting: **$0! = 1$**!',
+            en: 'Use **Permutations (${}^nP_r$)** when arranging letters, passwords, multi-digit numbers, or seating positions. Remember **$0! = 1$**!'
           },
           formulas: [
-            { label: { bm: 'Pilih Atur Linear & Objek Secaman', en: 'Linear Permutations & Identical Objects' }, tex: '^nP_r = \\frac{n!}{(n-r)!}, \\qquad \\text{Huruf berulang} = \\frac{n!}{a!\\,b!\\,\\dots}' },
+            { label: { bm: 'Pilih Atur Linear & Objek Secaman', en: 'Linear Permutations & Identical Objects' }, tex: '{}^nP_r = \\frac{n!}{(n-r)!}, \\qquad \\text{Huruf berulang} = \\frac{n!}{a!\\,b!\\,\\dots}' },
             { label: { bm: 'Susunan Membulat vs Gelang Boleh Terbalik', en: 'Circular vs Flippable Ring/Necklace' }, tex: '\\text{Meja Bulat} = (n-1)!, \\qquad \\text{Gelang/Rantai} = \\frac{(n-1)!}{2}' }
           ],
           tip: {
@@ -586,11 +586,11 @@ window.AddMathApp.chapters = window.AddMathApp.chapters || [];
         {
           title: { bm: '2. Gabungan ⁿCᵣ — Pemilihan Tanpa Mengira Tertib', en: '2. Combinations ⁿCᵣ — Unordered Team/Committee Selection' },
           body: {
-            bm: 'Gunakan **Gabungan ($^nC_r$)** apabila memilih ahli jawatankuasa, pasukan sukan, atau kumpulan objek tanpa jawatan khusus. Kata kunci **"DAN"** = darab ($\\times$); kata kunci **"ATAU"** (kes berasingan) = tambah ($+$).',
-            en: 'Use **Combinations ($^nC_r$)** when choosing committees or teams without specific ranks. **"AND"** = multiply ($\\times$); **"OR"** (mutually exclusive cases) = add ($+$).'
+            bm: 'Gunakan **Gabungan (${}^nC_r$)** apabila memilih ahli jawatankuasa, pasukan sukan, atau kumpulan objek tanpa jawatan khusus. Kata kunci **"DAN"** = darab ($\\times$); kata kunci **"ATAU"** (kes berasingan) = tambah ($+$).',
+            en: 'Use **Combinations (${}^nC_r$)** when choosing committees or teams without specific ranks. **"AND"** = multiply ($\\times$); **"OR"** (mutually exclusive cases) = add ($+$).'
           },
           formulas: [
-            { label: { bm: 'Rumus Gabungan', en: 'Combination Formula' }, tex: '^nC_r = \\frac{n!}{(n-r)!\\,r!} = \\,^nC_{n-r}' }
+            { label: { bm: 'Rumus Gabungan', en: 'Combination Formula' }, tex: '{}^nC_r = \\frac{n!}{(n-r)!\\,r!} = {}^nC_{n-r}' }
           ],
           tip: {
             bm: 'Syarat "BERPISAH": Susun objek lain dahulu, kemudian selitkan objek yang perlu dipisahkan ke dalam ruang kosong (celah) di antaranya!',

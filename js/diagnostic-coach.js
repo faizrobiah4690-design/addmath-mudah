@@ -220,13 +220,27 @@ window.AddMathApp = window.AddMathApp || {};
         `2. **[J1] Result (Always include $+c$!):** $$\\int (${origTex})\\,dx = ${joined} + c$$`;
   }
 
+  function formatSafeMetaMath(str) {
+    if (!str) return '-';
+    const s = String(str).trim();
+    if (s.includes('$')) return s;
+    if (/[²³₁₂₀≥≤⟹⟺ⁿᵣ°&]|(\b(persamaan|kerusi|meja|titik|paksi|julat|naik)\b)/i.test(s)) {
+      return '`' + s + '`';
+    }
+    return '$' + s + '$';
+  }
+
   // Context-Aware Socratic Coach for the ACTIVE Practice Question!
   function coachOnQuestion(userText, question, chapter, lastStudentAnswer, lang) {
     const l = lang || App.lang || 'bm';
     const intent = detectIntent(userText);
     const meta = question.intentMeta || {};
     const gSteps = question.guidedSteps || [];
-    const firstGuided = gSteps[0] ? U.t(gSteps[0].prompt, l) : question.hints[0];
+    const firstGuided = gSteps[0] ? U.t(gSteps[0].prompt, l) : (question.hints && question.hints[0]) || '';
+    const firstStep = (question.steps && question.steps[0]) || { badge: 'P1', title: '', tex: '', why: '' };
+    const givenDisplay = (l === 'bm' && meta.given) ? formatSafeMetaMath(U.t(meta.given, l)) : `$${firstStep.tex}$`;
+    const ruleDisplay = (l === 'bm' && meta.conceptRule) ? U.t(meta.conceptRule, l) : (firstStep.why || question.hints[0] || `$${firstStep.tex}$`);
+    const goalDisplay = (l === 'bm' && meta.goal) ? U.t(meta.goal, l) : (firstStep.title || U.t(question.subtopic, l));
 
     const numInMsgMatch = String(userText || '').match(/(-?\d+(\.\d+)?)/);
     const candidateWrong = lastStudentAnswer || (numInMsgMatch ? numInMsgMatch[1] : '');
@@ -236,7 +250,7 @@ window.AddMathApp = window.AddMathApp || {};
       const stepLines = (question.steps || []).map((st, idx) => {
         const isLast = idx === question.steps.length - 1;
         if (isLast && question.steps.length > 1) {
-          return `${idx + 1}. **[${st.badge}] ${st.title}:** ${l === 'bm' ? 'Permudahkan langkah di atas untuk mendapat jawapan akhir! *(Klik "Lihat Skema Penuh" di atas jika mahu semak angka akhir)*' : 'Simplify the expression above to get the final answer! *(Click "Full SPM Working" above to reveal the final number)*'}`;
+          return `${idx + 1}. **[${st.badge}] ${st.title}:** ${l === 'bm' ? 'Permudahkan langkah di atas untuk mendapat jawapan akhir! *(Klik "Jana Skema Penuh SPM" di atas jika mahu semak angka akhir)*' : 'Simplify the expression above to get the final answer! *(Click "Generate Full SPM Working" above to reveal the final number)*'}`;
         }
         return `${idx + 1}. **[${st.badge}] ${st.title}:** $${st.tex}$ — *${st.why}*`;
       }).join('\n');
@@ -256,8 +270,8 @@ window.AddMathApp = window.AddMathApp || {};
         tag: l === 'bm' ? 'Semangat & Strategi' : 'Mindset & Strategy',
         category: 'mindset',
         reply: l === 'bm'
-          ? `Jangan risau! Rahsia menguasai AddMath ialah **pecahkan soalan kepada langkah-langkah kecil**.\n\n- **Maklumat diberi:** $${meta.given || '-'}$\n- **Langkah kecil pertama:** ${firstGuided}`
-          : `Don't stress! The secret to mastering AddMath is **breaking the problem into small steps**.\n\n- **Given info:** $${meta.given || '-'}$\n- **First micro-step:** ${firstGuided}`
+          ? `Jangan risau! Rahsia menguasai AddMath ialah **pecahkan soalan kepada langkah-langkah kecil**.\n\n- **Langkah permulaan:** ${givenDisplay}\n- **Langkah kecil pertama:** ${firstGuided}`
+          : `Don't stress! The secret to mastering AddMath is **breaking the problem into small steps**.\n\n- **Starting setup:** ${givenDisplay}\n- **First micro-step:** ${firstGuided}`
       };
     }
 
@@ -268,12 +282,12 @@ window.AddMathApp = window.AddMathApp || {};
         openGuided: true,
         reply: l === 'bm'
           ? `Jom kita mulakan langkah pertama bersama-sama:\n` +
-            `- **Apa yang diberi dalam soalan:** $${meta.given || '-'}$\n` +
-            `- **Apa yang kita mahu cari:** ${meta.goal || '-'}\n\n` +
+            `- **Maklumat / Persediaan:** ${givenDisplay}\n` +
+            `- **Sasaran kita:** ${goalDisplay}\n\n` +
             `**Langkah 1:** ${firstGuided}`
           : `Let's kick off Step 1 together:\n` +
-            `- **Given in the problem:** $${meta.given || '-'}$\n` +
-            `- **Our target:** ${meta.goal || '-'}\n\n` +
+            `- **Key setup:** ${givenDisplay}\n` +
+            `- **Our target:** ${goalDisplay}\n\n` +
             `**Step 1:** ${firstGuided}`
       };
     }
@@ -284,13 +298,13 @@ window.AddMathApp = window.AddMathApp || {};
         category: 'P',
         reply: l === 'bm'
           ? `Untuk subtopik **${U.t(question.subtopic, 'bm')}**, hubungan/rumus utama yang perlu digunakan ialah:\n` +
-            `- **Rumus Kunci:** ${meta.conceptRule || ('$' + question.steps[0].tex + '$')}\n` +
-            `- **Nilai daripada soalan:** $${meta.given || '-'}$\n\n` +
-            `Cuba gantikan nilai tersebut ke dalam rumus di atas!`
+            `- **Prinsip / Rumus Kunci:** ${ruleDisplay}\n` +
+            `- **Gantian Awal:** $${firstStep.tex}$\n\n` +
+            `Cuba kira nilai daripada gantian di atas!`
           : `For **${U.t(question.subtopic, 'en')}**, the key governing formula is:\n` +
-            `- **Key Rule:** ${meta.conceptRule || ('$' + question.steps[0].tex + '$')}\n` +
-            `- **Values from question:** $${meta.given || '-'}$\n\n` +
-            `Try substituting those values into the rule above!`
+            `- **Key Principle:** ${ruleDisplay}\n` +
+            `- **Initial Substitution:** $${firstStep.tex}$\n\n` +
+            `Try evaluating the substitution above!`
       };
     }
 
@@ -311,7 +325,7 @@ window.AddMathApp = window.AddMathApp || {};
             tag: l === 'bm' ? 'Diagnostik Punca Gagal Faham' : 'Misconception Root-Cause Found',
             category: 'K',
             openGuided: true,
-            reply: `${evalRes.feedback}\n\n**Langkah pembetulan:** ${firstGuided}`
+            reply: `${evalRes.feedback}\n\n**${l === 'bm' ? 'Langkah pembetulan' : 'Next corrective step'}:** ${firstGuided}`
           };
         }
         return {
@@ -340,12 +354,12 @@ window.AddMathApp = window.AddMathApp || {};
       category: 'P',
       reply: l === 'bm'
         ? `**Konsep Di Sebalik Soalan Ini (${subName}):**\n` +
-          `- Soalan ini memberi $${meta.given || '-'}$ dan meminta kita **${meta.goal || 'menyelesaikan nilai sasaran'}**.\n` +
-          `- Prinsip matematik utamanya ialah **${meta.conceptRule || question.hints[0]}**.\n\n` +
+          `- Persediaan utama: ${givenDisplay} untuk mencari **${goalDisplay}**.\n` +
+          `- Prinsip matematik utamanya ialah **${ruleDisplay}**.\n\n` +
           `Cuba langkah pertama ini: ${firstGuided}`
         : `**Concept Behind This Question (${subName}):**\n` +
-          `- We are given $${meta.given || '-'}$ and asked to find **${meta.goal || 'the target value'}**.\n` +
-          `- The core mathematical principle is **${meta.conceptRule || question.hints[0]}**.\n\n` +
+          `- Key setup: ${givenDisplay} to find **${goalDisplay}**.\n` +
+          `- Core principle: **${ruleDisplay}**.\n\n` +
           `Start with this first check: ${firstGuided}`
     };
   }

@@ -37,7 +37,7 @@ window.AddMathApp.chapters = window.AddMathApp.chapters || [];
             en: 'Models **$n$ independent Bernoulli trials** with two outcomes: **Success ($p$)** or **Failure ($q = 1 - p$)**, where $r \\in \\{0, 1, 2, \\dots, n\\}$.'
           },
           formulas: [
-            { label: { bm: 'Kebarangkalian Binomial', en: 'Binomial Probability' }, tex: 'P(X = r) = \\,^nC_r\\,p^r\\,q^{n-r}, \\qquad p + q = 1' },
+            { label: { bm: 'Kebarangkalian Binomial', en: 'Binomial Probability' }, tex: 'P(X = r) = {}^nC_r\\,p^r\\,q^{n-r}, \\qquad p + q = 1' },
             { label: { bm: 'Min, Varians & Sisihan Piawai', en: 'Mean, Variance & Standard Deviation' }, tex: '\\mu = np, \\qquad \\sigma^2 = npq, \\qquad \\sigma = \\sqrt{npq}' }
           ],
           tip: {

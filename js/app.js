@@ -25,13 +25,15 @@ window.AddMathApp = window.AddMathApp || {};
   let customEqResult = '';
   let tutorMessages = [];
   let blitzTimer = null;
-  let blitzState = { active: false, timeLeft: 60, score: 0, idx: 0 };
+  let blitzAdvanceTimeout = null;
+  let blitzState = { active: false, finished: false, timeLeft: 60, score: 0, correctCount: 0, answeredCount: 0, streak: 0, idx: 0, lockedChoice: null };
   let homeFormFilter = 'all'; // 'all' | '4' | '5'
   let solverRunCount = 0;
   let mbankSearch = '';
   let mbankOpenMistake = {};
   let mbankOpenScheme = {};
   let mbankExpandAll = false;
+  let vaultSearch = '';
 
   function L(bm, en) {
     return App.lang === 'bm' ? bm : en;
@@ -337,14 +339,37 @@ window.AddMathApp = window.AddMathApp || {};
     const ch = getActiveChapter();
     ensureQuestion();
     const chapBank = getChapBankStats(ch.id);
+    const curIdx = App.chapters.findIndex((c) => c.id === ch.id);
+    const prevCh = App.chapters[(curIdx - 1 + App.chapters.length) % App.chapters.length];
+    const nextCh = App.chapters[(curIdx + 1) % App.chapters.length];
+    const f4List = App.chapters.filter((c) => c.form === 4);
+    const f5List = App.chapters.filter((c) => c.form === 5);
 
     const chapSelector = `
-      <div style="display:flex;gap:6px;overflow-x:auto;padding-bottom:8px;margin-bottom:10px;">
-        ${App.chapters.map((c) => `
-          <button class="btn btn-sm ${c.id === ch.id ? 'btn-primary' : 'btn-outline'}" data-switch-chap="${c.id}">
-            ${L('T', 'F')}${c.form}•${c.num} ${U.t(c.title, App.lang)}
+      <div class="card" style="padding:12px 14px;margin-bottom:12px;">
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+          <button type="button" class="btn btn-outline btn-sm" data-switch-chap="${prevCh.id}" title="${U.t(prevCh.title, App.lang)}">◀</button>
+          <select id="learn-chap-select" class="chap-select" aria-label="${L('Pilih Bab', 'Select Chapter')}">
+            <optgroup label="${L('Tingkatan 4 (Bab 1–10)', 'Form 4 (Chapters 1–10)')}">
+              ${f4List.map((c) => `<option value="${c.id}" ${c.id === ch.id ? 'selected' : ''}>${L('T4 Bab', 'F4 Ch')} ${c.num}: ${U.t(c.title, App.lang)}</option>`).join('')}
+            </optgroup>
+            <optgroup label="${L('Tingkatan 5 (Bab 1–8)', 'Form 5 (Chapters 1–8)')}">
+              ${f5List.map((c) => `<option value="${c.id}" ${c.id === ch.id ? 'selected' : ''}>${L('T5 Bab', 'F5 Ch')} ${c.num}: ${U.t(c.title, App.lang)}</option>`).join('')}
+            </optgroup>
+          </select>
+          <button type="button" class="btn btn-outline btn-sm" data-switch-chap="${nextCh.id}" title="${U.t(nextCh.title, App.lang)}">▶</button>
+        </div>
+        <div style="display:flex;gap:5px;flex-wrap:wrap;margin-top:8px;align-items:center;">
+          <span style="font-size:0.74rem;font-weight:800;color:var(--primary);margin-right:2px;">${L(`T${ch.form}:`, `F${ch.form}:`)}</span>
+          ${(ch.form === 4 ? f4List : f5List).map((c) => `
+            <button type="button" class="btn btn-sm ${c.id === ch.id ? 'btn-primary' : 'btn-outline'}" style="padding:4px 9px;min-height:28px;font-size:0.76rem;" data-switch-chap="${c.id}">
+              ${c.num}
+            </button>
+          `).join('')}
+          <button type="button" class="btn btn-outline btn-sm" style="padding:4px 9px;min-height:28px;font-size:0.74rem;margin-left:auto;" data-switch-chap="${ch.form === 4 ? 'f5-c1' : 'f4-c1'}">
+            ⇄ ${ch.form === 4 ? L('Ke T5', 'Go to F5') : L('Ke T4', 'Go to F4')}
           </button>
-        `).join('')}
+        </div>
       </div>
     `;
 
@@ -422,7 +447,7 @@ window.AddMathApp = window.AddMathApp || {};
           <div style="font-size:0.76rem;font-weight:800;color:var(--primary);">${U.t(ch.code, App.lang)} • ${L('BANK SOALAN MASTER SPM', 'MASTER SPM QUESTION BANK')}</div>
           <h2 style="font-size:1.22rem;margin:2px 0 6px;">📋 ${U.t(ch.title, App.lang)} — ${L('Contoh Soalan, Kesilapan Lazim & Skim Pemarkahan', 'Exam Questions, Common Mistakes & Marking Scheme')}</h2>
           <p style="font-size:0.86rem;color:var(--text-muted);">
-            ${L('Cuba fikirkan jalan kerja dahulu, kemudian semak **Kesilapan Lazim Murid** dan **Cara Menjawab Betul (K1 = Kaedah, N1 = Nilai Tepat)** supaya tidak hilang markah dalam peperiksaan sebenar!', 'Attempt mentally or on paper first, then inspect **Common Student Mistakes** and **Correct Analytical Working (K1 = Method, N1 = Accuracy)** so you never drop marks in the exam!')}
+            ${U.renderMixed(L('Cuba fikirkan jalan kerja dahulu, kemudian semak **Kesilapan Lazim Murid** dan **Cara Menjawab Betul (K1 = Kaedah, N1 = Nilai Tepat)** supaya tidak hilang markah dalam peperiksaan sebenar!', 'Attempt mentally or on paper first, then inspect **Common Student Mistakes** and **Correct Analytical Working (K1 = Method, N1 = Accuracy)** so you never drop marks in the exam!'))}
           </p>
           <div id="mbank-prog-wrap">${renderMasterBankProgHtml(ch)}</div>
           <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;">
@@ -722,14 +747,58 @@ window.AddMathApp = window.AddMathApp || {};
     runSolverCard(ch, idx, true);
   }
 
+  function finishBlitzRound() {
+    if (blitzTimer) { clearInterval(blitzTimer); blitzTimer = null; }
+    if (blitzAdvanceTimeout) { clearTimeout(blitzAdvanceTimeout); blitzAdvanceTimeout = null; }
+    blitzState.active = false;
+    blitzState.finished = true;
+    blitzState.lockedChoice = null;
+    if (blitzState.score > (state.highBlitz || 0)) state.highBlitz = blitzState.score;
+    if (blitzState.score > 0) {
+      awardXP(blitzState.score);
+      G.fireConfetti();
+    } else {
+      G.saveState(state);
+    }
+    if (currentView === 'blitz') renderMain();
+  }
+
   function renderBlitzView(container) {
+    if (!blitzState.active && blitzState.finished) {
+      const acc = blitzState.answeredCount ? Math.round((blitzState.correctCount / blitzState.answeredCount) * 100) : 0;
+      container.innerHTML = `
+        <div class="card anim-in" style="text-align:center;padding:28px 18px;">
+          <div style="font-size:2.8rem;">🏆</div>
+          <h2 style="margin:8px 0;">${L('Pusingan Kilat Selesai!', 'Blitz Round Complete!')}</h2>
+          <p style="color:var(--text-muted);margin-bottom:14px;">
+            ${L(`Ketepatan anda: ${blitzState.correctCount} / ${blitzState.answeredCount} betul (${acc}%)`, `Your accuracy: ${blitzState.correctCount} / ${blitzState.answeredCount} correct (${acc}%)`)}
+          </p>
+          <div class="grid-2" style="max-width:460px;margin:0 auto 18px;text-align:center;">
+            <div class="step-item" style="margin-bottom:0;">
+              <div style="font-size:0.76rem;color:var(--text-muted);font-weight:700;">${L('XP Diperoleh', 'XP Earned')}</div>
+              <div style="font-size:1.35rem;font-weight:800;color:var(--accent);">+${blitzState.score} XP</div>
+            </div>
+            <div class="step-item" style="margin-bottom:0;">
+              <div style="font-size:0.76rem;color:var(--text-muted);font-weight:700;">${L('Rekod Tertinggi', 'Best Score')}</div>
+              <div style="font-size:1.35rem;font-weight:800;color:var(--primary);">${state.highBlitz || 0}</div>
+            </div>
+          </div>
+          <div style="display:flex;justify-content:center;gap:10px;flex-wrap:wrap;">
+            <button class="btn btn-primary" id="btn-start-blitz">🔄 ${L('Main Semula!', 'Play Again!')}</button>
+            <button class="btn btn-outline" data-nav="learn">📘 ${L('Kembali ke Belajar', 'Back to Learn')}</button>
+          </div>
+        </div>
+      `;
+      return;
+    }
+
     if (!blitzState.active) {
       container.innerHTML = `
         <div class="card" style="text-align:center;padding:28px 18px;">
           <div style="font-size:2.6rem;">⚡</div>
           <h2 style="margin:8px 0;">${L('Cabaran Kilat Konsep 60 Saat (T4 & T5)!', '60-Second Concept Blitz (Form 4 & 5)!')}</h2>
           <p style="color:var(--text-muted);max-width:480px;margin:0 auto 16px;">
-            ${L('Uji kepantasan ingatan konsep & rumus kesemua 18 bab Tingkatan 4 & 5! Setiap jawapan betul memberi +15 XP.', 'Test your Form 4 & Form 5 concept & formula reflexes across all 18 chapters! Every right hit earns +15 XP.')}
+            ${L('Uji kepantasan ingatan konsep & rumus kesemua 18 bab Tingkatan 4 & 5! Setiap jawapan betul memberi +15 XP dengan maklum balas warna segera.', 'Test your Form 4 & Form 5 concept & formula reflexes across all 18 chapters! Every right hit earns +15 XP with instant visual feedback.')}
           </p>
           <div style="font-weight:800;margin-bottom:16px;color:var(--primary);">🏆 ${L('Skor Tertinggi Anda:', 'Your Best Score:')} ${state.highBlitz || 0}</div>
           <button class="btn btn-primary" id="btn-start-blitz">🚀 ${L('Mula Cabaran Sekarang!', 'Start Blitz Now!')}</button>
@@ -740,16 +809,33 @@ window.AddMathApp = window.AddMathApp || {};
 
     const item = App.blitzBank[blitzState.idx % App.blitzBank.length];
     const opts = App.lang === 'bm' ? item.options.bm : item.options.en;
+    const locked = blitzState.lockedChoice;
     container.innerHTML = `
       <div class="card">
-        <div style="display:flex;justify-content:space-between;font-weight:800;margin-bottom:12px;">
-          <span style="color:var(--danger);">⏱️ ${blitzState.timeLeft}s</span>
-          <span style="color:var(--accent);">⭐ ${L('Skor:', 'Score:')} ${blitzState.score}</span>
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;font-weight:800;margin-bottom:14px;">
+          <span style="color:var(--danger);font-size:1rem;">⏱️ ${blitzState.timeLeft}s</span>
+          <span style="color:var(--accent);">⭐ ${L('Skor:', 'Score:')} ${blitzState.score} ${blitzState.streak >= 2 ? `• 🔥 x${blitzState.streak}` : ''}</span>
+          <button type="button" class="btn btn-outline btn-sm" id="btn-end-blitz">⏹️ ${L('Tamat & Simpan', 'Finish & Save')}</button>
         </div>
-        <h3 style="font-size:1.1rem;margin-bottom:16px;">${U.t(item.q, App.lang)}</h3>
+        <h3 style="font-size:1.08rem;margin-bottom:16px;">${U.renderMixed(U.t(item.q, App.lang))}</h3>
         <div style="display:grid;gap:10px;">
-          ${opts.map((opt, i) => `<button class="btn btn-outline" style="justify-content:flex-start;" data-blitz-opt="${i}">${opt}</button>`).join('')}
+          ${opts.map((opt, i) => {
+            let cls = 'btn btn-outline blitz-opt';
+            let icon = '';
+            if (locked !== null) {
+              if (i === item.ans) { cls += ' blitz-correct'; icon = '✅'; }
+              else if (i === locked) { cls += ' blitz-wrong'; icon = '❌'; }
+            }
+            return `<button type="button" class="${cls}" data-blitz-opt="${i}"><span>${U.renderMixed(opt)}</span><span>${icon}</span></button>`;
+          }).join('')}
         </div>
+        ${locked !== null ? `
+          <div class="anim-in" style="margin-top:12px;font-weight:800;font-size:0.88rem;color:${locked === item.ans ? 'var(--accent)' : 'var(--danger)'};">
+            ${locked === item.ans
+              ? `🎉 ${L('Tepat sekali! +15 XP', 'Spot on! +15 XP')}`
+              : `💡 ${L(`Kurang tepat! Jawapan sebenar ialah: ${opts[item.ans]}`, `Not quite! The right answer is: ${opts[item.ans]}`)}`}
+          </div>
+        ` : ''}
       </div>
     `;
   }
@@ -799,9 +885,41 @@ window.AddMathApp = window.AddMathApp || {};
     if (stream) stream.scrollTop = stream.scrollHeight;
   }
 
+  function renderVaultChaptersHtml() {
+    const kw = vaultSearch.trim().toLowerCase();
+    const list = kw
+      ? App.chapters.filter((c) => {
+          const hay = `${U.t(c.code, App.lang)} ${U.t(c.title, App.lang)} ${c.concepts.flatMap((s) => s.formulas).map((f) => U.t(f.label, App.lang) + ' ' + f.tex).join(' ')}`.toLowerCase();
+          return hay.includes(kw);
+        })
+      : App.chapters;
+
+    if (!list.length) {
+      return `<div style="text-align:center;color:var(--text-muted);padding:14px;">${L('Tiada rumus sepadan dengan kata kunci carian anda.', 'No formulas match your search query.')}</div>`;
+    }
+
+    return list.map((c) => `
+      <div style="margin-bottom:16px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:4px;">
+          <div style="font-weight:800;color:var(--primary);">${U.t(c.code, App.lang)} — ${U.t(c.title, App.lang)}</div>
+          <button type="button" class="btn btn-outline btn-sm" style="padding:3px 9px;min-height:26px;font-size:0.73rem;" data-open-chap="${c.id}">
+            📘 ${L('Buka Bab', 'Open Chapter')}
+          </button>
+        </div>
+        ${c.concepts.flatMap((s) => s.formulas).map((f) => `
+          <div class="formula-box">
+            <small style="color:var(--text-muted);font-weight:700;">${U.t(f.label, App.lang)}</small>
+            <div>${U.renderTex(f.tex, true)}</div>
+          </div>
+        `).join('')}
+      </div>
+    `).join('');
+  }
+
   function renderProfileView(container) {
     const r = state.radar || { P: 0, K: 0, J: 0, ok: 0 };
     const totalBank = getTotalBankStats();
+    const safeVault = vaultSearch.replace(/"/g, '&quot;');
     container.innerHTML = `
       <div class="card">
         <h3 style="font-size:1.08rem;margin-bottom:8px;">📊 ${L('Radar Diagnostik Pembelajaran Anda', 'Your Diagnostic Learning Radar')}</h3>
@@ -818,29 +936,11 @@ window.AddMathApp = window.AddMathApp || {};
       </div>
 
       <div class="card">
-        <h3 style="font-size:1.08rem;margin-bottom:10px;">📖 ${L('Buku Formula Pintar KSSM (18 Bab T4 & T5)', 'KSSM Master Formula Vault (All 18 Chapters)')}</h3>
-        ${App.chapters.map((c) => `
-          <div style="margin-bottom:14px;">
-            <div style="font-weight:800;color:var(--primary);">${U.t(c.code, App.lang)} — ${U.t(c.title, App.lang)}</div>
-            ${c.concepts.flatMap((s) => s.formulas).map((f) => `
-              <div class="formula-box">
-                <small style="color:var(--text-muted);font-weight:700;">${U.t(f.label, App.lang)}</small>
-                <div>${U.renderTex(f.tex, true)}</div>
-              </div>
-            `).join('')}
-          </div>
-        `).join('')}
-        ${App.upcomingStages.map((c) => `
-          <div style="margin-bottom:14px;">
-            <div style="font-weight:800;color:var(--text-muted);">${U.t(c.code, App.lang)} — ${U.t(c.title, App.lang)}</div>
-            ${c.formulas.map((f) => `
-              <div class="formula-box">
-                <small style="color:var(--text-muted);font-weight:700;">${U.t(f.label, App.lang)}</small>
-                <div>${U.renderTex(f.tex, true)}</div>
-              </div>
-            `).join('')}
-          </div>
-        `).join('')}
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:12px;">
+          <h3 style="font-size:1.08rem;">📖 ${L('Buku Formula Pintar KSSM (18 Bab T4 & T5)', 'KSSM Master Formula Vault (All 18 Chapters)')}</h3>
+          <input id="vault-search-inp" type="text" class="math-input" style="max-width:300px;padding:8px 12px;font-size:0.88rem;" value="${safeVault}" placeholder="${L('Cari topik atau nama rumus...', 'Search topic or formula...')}">
+        </div>
+        <div id="vault-list-wrap">${renderVaultChaptersHtml()}</div>
       </div>
     `;
   }
@@ -867,12 +967,26 @@ window.AddMathApp = window.AddMathApp || {};
       if (listWrap) listWrap.innerHTML = renderMasterBankCardsHtml(getActiveChapter());
       return;
     }
+    if (e.target.id === 'vault-search-inp') {
+      vaultSearch = e.target.value;
+      const vWrap = document.getElementById('vault-list-wrap');
+      if (vWrap) vWrap.innerHTML = renderVaultChaptersHtml();
+      return;
+    }
     const liveIdx = e.target.getAttribute && e.target.getAttribute('data-solver-live');
     if (liveIdx !== null && liveIdx !== undefined) {
       const outEl = document.getElementById('solver-out-' + liveIdx);
       if (outEl && outEl.dataset.opened === '1') {
         runSolverCard(getActiveChapter(), Number(liveIdx));
       }
+    }
+  });
+
+  document.addEventListener('change', (e) => {
+    if (e.target.id === 'learn-chap-select') {
+      activeChapterId = e.target.value;
+      currentQuestion = null;
+      renderMain();
     }
   });
 
@@ -1174,30 +1288,57 @@ window.AddMathApp = window.AddMathApp || {};
     }
 
     if (e.target.id === 'btn-start-blitz') {
-      blitzState = { active: true, timeLeft: 60, score: 0, idx: Math.floor(Math.random() * App.blitzBank.length) };
+      if (blitzTimer) clearInterval(blitzTimer);
+      if (blitzAdvanceTimeout) clearTimeout(blitzAdvanceTimeout);
+      blitzState = {
+        active: true,
+        finished: false,
+        timeLeft: 60,
+        score: 0,
+        correctCount: 0,
+        answeredCount: 0,
+        streak: 0,
+        idx: Math.floor(Math.random() * App.blitzBank.length),
+        lockedChoice: null
+      };
       renderMain();
       blitzTimer = setInterval(() => {
+        if (blitzState.lockedChoice !== null) return; // pause countdown briefly while showing answer feedback
         blitzState.timeLeft--;
         if (blitzState.timeLeft <= 0) {
-          clearInterval(blitzTimer);
-          blitzState.active = false;
-          if (blitzState.score > (state.highBlitz || 0)) state.highBlitz = blitzState.score;
-          awardXP(blitzState.score);
-          G.fireConfetti();
+          finishBlitzRound();
+          return;
         }
         if (currentView === 'blitz') renderMain();
       }, 1000);
       return;
     }
 
+    if (e.target.id === 'btn-end-blitz') {
+      finishBlitzRound();
+      return;
+    }
+
     const blitzOpt = e.target.closest('[data-blitz-opt]');
-    if (blitzOpt && blitzState.active) {
+    if (blitzOpt && blitzState.active && blitzState.lockedChoice === null) {
+      const chosen = Number(blitzOpt.getAttribute('data-blitz-opt'));
       const item = App.blitzBank[blitzState.idx % App.blitzBank.length];
-      if (Number(blitzOpt.getAttribute('data-blitz-opt')) === item.ans) {
+      blitzState.lockedChoice = chosen;
+      blitzState.answeredCount++;
+      if (chosen === item.ans) {
         blitzState.score += 15;
+        blitzState.correctCount++;
+        blitzState.streak++;
+      } else {
+        blitzState.streak = 0;
       }
-      blitzState.idx++;
       renderMain();
+      blitzAdvanceTimeout = setTimeout(() => {
+        if (!blitzState.active) return;
+        blitzState.lockedChoice = null;
+        blitzState.idx = (blitzState.idx + 1 + Math.floor(Math.random() * 3)) % App.blitzBank.length;
+        if (currentView === 'blitz') renderMain();
+      }, 600);
       return;
     }
 

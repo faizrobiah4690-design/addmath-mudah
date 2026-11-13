@@ -432,20 +432,37 @@ window.AddMathApp = window.AddMathApp || {};
     return '<span class="math-fallback">' + s + '</span>';
   }
 
+  // Pre-sanitize TeX so prefix superscripts (^nC_r, \,^5P_3) and unescaped '&' inside \text{...} never trigger KaTeX errors
+  function sanitizeTex(rawTex) {
+    if (!rawTex) return '';
+    let s = String(rawTex);
+    // 1. Escape unescaped '&' inside \text{...}
+    s = s.replace(/\\text\{([^}]*)\}/g, (_, inner) => '\\text{' + inner.replace(/(^|[^\\])&/g, '$1\\&') + '}');
+    // 2. Escape standalone '&' if there is no \begin{...} matrix/aligned environment
+    if (!/\\begin\{/.test(s)) {
+      s = s.replace(/(^|[^\\])&/g, '$1\\&');
+    }
+    // 3. Anchor prefix superscripts for nPr / nCr (e.g. \,^nC_r, ^5P_3, \frac{^4C_2}{^9C_2} -> {}^nC_r)
+    s = s.replace(/\\,\s*\^(\{[0-9a-zA-Z+-]+\}|[0-9a-zA-Z]+)/g, '\\,{}^$1');
+    s = s.replace(/(^|[{\s(=+\-:,;/])\^(\{[0-9a-zA-Z+-]+\}|[0-9a-zA-Z]+)(?=[PC])/g, '$1{}^$2');
+    return s;
+  }
+
   function renderTex(tex, displayMode = false) {
     if (!tex) return '';
+    const clean = sanitizeTex(tex);
     if (window.katex && typeof window.katex.renderToString === 'function') {
       try {
-        return window.katex.renderToString(String(tex), {
+        return window.katex.renderToString(clean, {
           displayMode: displayMode,
           throwOnError: false,
           strict: false
         });
       } catch (e) {
-        return fallbackTexToHtml(tex);
+        return fallbackTexToHtml(clean);
       }
     }
-    return fallbackTexToHtml(tex);
+    return fallbackTexToHtml(clean);
   }
 
   // Render mixed text containing $$...$$, $...$, **bold**, *italic*, and `code` into clean HTML

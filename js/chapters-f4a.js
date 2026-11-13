@@ -537,7 +537,7 @@ window.AddMathApp.chapters = [];
             en: 'The discriminant $\\Delta = b^2 - 4ac$ governs x-axis intersection: $\\Delta > 0$ (2 distinct roots), $\\Delta = 0$ (1 tangent root), $\\Delta < 0$ (no real roots).'
           },
           formulas: [
-            { label: { bm: 'Wujud Punca Nyata', en: 'Real Roots Exist' }, tex: 'b^2 - 4ac \\ge 0 \\quad (\\text{merangkumi berbeza & sama})' }
+            { label: { bm: 'Wujud Punca Nyata', en: 'Real Roots Exist' }, tex: 'b^2 - 4ac \\ge 0 \\quad (\\text{berbeza atau sama / distinct or equal})' }
           ],
           tip: {
             bm: 'Jika soalan sebut "mempunyai punca nyata" tanpa perkataan "berbeza", gunakan b² − 4ac ≥ 0!',
