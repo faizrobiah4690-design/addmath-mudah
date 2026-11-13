@@ -360,27 +360,40 @@ body {
 /* Sub-tabs inside a Chapter */
 .mode-tabs {
   display: flex;
+  flex-wrap: wrap;
   gap: 8px;
-  overflow-x: auto;
-  padding-bottom: 6px;
   margin-bottom: 16px;
 }
 
 .mode-tab {
-  flex: 0 0 auto;
-  padding: 9px 15px;
-  border-radius: 999px;
+  flex: 1 1 auto;
+  text-align: center;
+  padding: 9px 14px;
+  border-radius: 12px;
   border: 1px solid var(--border);
   background: var(--surface);
   color: var(--text-muted);
   font-weight: 700;
   font-size: 0.84rem;
   cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
 }
 .mode-tab.active {
   background: var(--primary);
   border-color: var(--primary);
   color: #fff;
+}
+@media (max-width: 680px) {
+  .mode-tabs {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+  .mode-tab {
+    padding: 9px 8px;
+    font-size: 0.78rem;
+    line-height: 1.25;
+  }
 }
 
 /* Formula & Step Boxes */
