@@ -27,6 +27,7 @@ window.AddMathApp = window.AddMathApp || {};
   let blitzTimer = null;
   let blitzState = { active: false, timeLeft: 60, score: 0, idx: 0 };
   let homeFormFilter = 'all'; // 'all' | '4' | '5'
+  let solverRunCount = 0;
 
   function L(bm, en) {
     return App.lang === 'bm' ? bm : en;
@@ -447,20 +448,33 @@ window.AddMathApp = window.AddMathApp || {};
     });
   }
 
-  function runSolverCard(ch, idx) {
+  function runSolverCard(ch, idx, isRandom = false) {
     const solver = ch.solvers[idx];
     const outEl = document.getElementById('solver-out-' + idx);
     if (!solver || !outEl) return;
     outEl.dataset.opened = '1';
+    solverRunCount++;
     const vals = {};
+    const pairs = [];
     document.querySelectorAll('.solver-inp-' + idx).forEach((inp) => {
-      vals[inp.getAttribute('data-inp-id')] = inp.value;
+      const k = inp.getAttribute('data-inp-id');
+      vals[k] = inp.value;
+      pairs.push(`${k}=${inp.value}`);
     });
     const res = solver.solve(vals, App.lang);
+    const badgePrefix = isRandom
+      ? `🎲 ${L('SET RAWAK BARU DIJANA', 'NEW RANDOM VALUES GENERATED')} (#${solverRunCount})`
+      : `⚡ ${L('DIKIRA SECARA DINAMIK', 'COMPUTED LIVE')} (#${solverRunCount})`;
+
+    // Reset DOM briefly so fadeSlideIn animation visibly replays on every click
+    outEl.innerHTML = '';
+    void outEl.offsetWidth;
     outEl.innerHTML = `
       <div class="anim-in">
-        <div class="formula-box" style="margin-bottom:12px;">
-          <div style="font-size:0.74rem;font-weight:800;color:var(--accent);">⚡ ${L('DIKIRA SECARA DINAMIK DARIPADA INPUT ANDA', 'COMPUTED LIVE FROM YOUR INPUTS')}</div>
+        <div class="formula-box" style="margin-bottom:12px;border-left-color:var(--accent);">
+          <div style="font-size:0.75rem;font-weight:800;color:var(--accent);margin-bottom:4px;">
+            ${badgePrefix} • <span style="color:var(--primary);">[${pairs.join(', ')}]</span>
+          </div>
           <div>${U.renderTex(res.problemTex, true)}</div>
         </div>
         ${res.steps.map((st) => `
@@ -476,37 +490,65 @@ window.AddMathApp = window.AddMathApp || {};
         ${res.trapWarning ? `<div class="trap-box">⚠️ ${U.renderMixed(res.trapWarning)}</div>` : ''}
       </div>
     `;
-    outEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+
+  function pickDifferent(prevStr, genFn) {
+    let candidate = genFn();
+    for (let tries = 0; tries < 15 && String(candidate) === String(prevStr); tries++) {
+      candidate = genFn();
+    }
+    return candidate;
   }
 
   function randomizeSolverInputs(ch, idx) {
     const solver = ch.solvers[idx];
     if (!solver) return;
-    document.querySelectorAll('.solver-inp-' + idx).forEach((inp) => {
+    const inputs = Array.from(document.querySelectorAll('.solver-inp-' + idx));
+
+    inputs.forEach((inp) => {
       const id = inp.getAttribute('data-inp-id');
-      if (id === 'mode') inp.value = U.pick([1, 2]);
-      else if (id === 'quad') inp.value = U.pick([1, 2, 3, 4]);
-      else if (id === 'dr') inp.value = U.pick([0.25, 0.5, 2, 3, -2]);
-      else if (id === 'theta') inp.value = U.pick([0.8, 1.2, 1.5, 2.0, 2.4]);
-      else if (id === 'n' || id === 'm') inp.value = U.randInt(4, 9);
-      else if (id === 'r' && solver.id === 'perm-comb-solver') inp.value = U.randInt(2, 4);
-      else if (id === 'r' || id === 'sd' || id === 'T') inp.value = U.randInt(4, 12);
-      else if (id === 'A') inp.value = U.pick([30, 45, 60, 75]);
-      else if (id === 'opp') inp.value = U.pick([3, 4, 5]);
-      else if (id === 'hyp') inp.value = U.pick([6, 8, 10, 13]);
-      else if (id === 'mu') inp.value = U.pick([50, 60, 75, 100]);
-      else if (id === 'x' && solver.id === 'binomial-normal-solver') inp.value = U.randInt(55, 90);
-      else if (id === 'S') inp.value = U.pick([40, 50, 60]);
-      else if (id === 'M') inp.value = U.pick([70, 80, 95]);
-      else if (/^i\d/.test(id)) inp.value = U.randInt(105, 145);
-      else if (/^w\d/.test(id)) inp.value = U.randInt(1, 6);
-      else if (id === 'b' && solver.id === 'surd-rationalizer') inp.value = U.pick([2, 3, 5, 6, 7]);
-      else if (id === 'a' && solver.id === 'log-base-solver') inp.value = U.pick([2, 3, 4, 5]);
-      else if (id === 'b' && solver.id === 'log-base-solver') inp.value = U.pick([8, 16, 27, 64, 81, 125]);
-      else if (solver.id === 'sas-cosine-solver') inp.value = U.randInt(6, 14);
-      else inp.value = U.randInt(-5, 9, true);
+      const prev = inp.value;
+      const nextVal = pickDifferent(prev, () => {
+        if (id === 'mode') return U.pick([1, 2]);
+        if (id === 'quad') return U.pick([1, 2, 3, 4]);
+        if (id === 'dr') return U.pick([0.25, 0.5, 1.5, 2, 3, -2]);
+        if (id === 'theta') return U.pick([0.6, 0.9, 1.2, 1.5, 1.8, 2.2, 2.5]);
+        if (id === 'n' || id === 'm') return U.randInt(4, 10);
+        if (id === 'r' && solver.id === 'perm-comb-solver') return U.randInt(1, 4);
+        if (id === 'r' || id === 'sd' || id === 'T') return U.randInt(3, 12);
+        if (id === 'A') return U.pick([30, 40, 45, 60, 75, 110]);
+        if (id === 'opp') return U.pick([3, 4, 5, 7]);
+        if (id === 'hyp') return U.pick([8, 10, 12, 13, 15]);
+        if (id === 'mu') return U.pick([45, 50, 60, 70, 80, 100]);
+        if (id === 'S') return U.pick([35, 45, 50, 60, 70]);
+        if (id === 'M') return U.pick([70, 80, 90, 105, 120]);
+        if (/^i\d/.test(id)) return U.randInt(105, 155);
+        if (/^w\d/.test(id)) return U.randInt(1, 8);
+        if (id === 'b' && solver.id === 'surd-rationalizer') return U.pick([2, 3, 5, 6, 7, 10]);
+        if (id === 'a' && solver.id === 'log-base-solver') return U.pick([2, 3, 4, 5, 10]);
+        if (id === 'b' && solver.id === 'log-base-solver') return U.pick([8, 16, 25, 27, 64, 81, 125]);
+        if (solver.id === 'sas-cosine-solver') return U.randInt(5, 15);
+        return U.randInt(-6, 10, true);
+      });
+      inp.value = nextVal;
+      inp.classList.remove('inp-flash');
+      void inp.offsetWidth;
+      inp.classList.add('inp-flash');
     });
-    runSolverCard(ch, idx);
+
+    // Keep Normal Z-Score X realistic relative to newly chosen mu & sd
+    if (solver.id === 'binomial-normal-solver') {
+      const muEl = inputs.find((el) => el.getAttribute('data-inp-id') === 'mu');
+      const sdEl = inputs.find((el) => el.getAttribute('data-inp-id') === 'sd');
+      const xEl = inputs.find((el) => el.getAttribute('data-inp-id') === 'x');
+      if (muEl && sdEl && xEl) {
+        const mu = Number(muEl.value) || 60;
+        const sd = Number(sdEl.value) || 5;
+        xEl.value = pickDifferent(xEl.value, () => U.round(mu + U.pick([-1.8, -1.2, -0.6, 0.5, 0.8, 1.25, 1.5, 2.0]) * sd, 1));
+      }
+    }
+
+    runSolverCard(ch, idx, true);
   }
 
   function renderBlitzView(container) {

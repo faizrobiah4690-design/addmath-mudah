@@ -40,6 +40,11 @@
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
+html, body {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
 body {
   font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   background: var(--bg);
@@ -148,16 +153,32 @@ body {
 /* Main Responsive Shell */
 .app-shell {
   max-width: 1240px;
+  width: 100%;
   margin: 0 auto;
   padding: 16px;
   display: grid;
-  grid-template-columns: 1fr;
+  grid-template-columns: minmax(0, 1fr);
   gap: 18px;
+}
+
+#main-view,
+.sidebar,
+.card,
+.grid-2,
+.grid-2 > *,
+.step-item,
+.formula-box,
+.tip-box,
+.trap-box,
+.coach-panel,
+.guided-step-card {
+  min-width: 0;
+  max-width: 100%;
 }
 
 @media (min-width: 900px) {
   body { padding-bottom: 24px; }
-  .app-shell { grid-template-columns: 280px 1fr; padding: 22px; }
+  .app-shell { grid-template-columns: 280px minmax(0, 1fr); padding: 22px; }
   .bottom-nav { display: none !important; }
 }
 
@@ -381,6 +402,36 @@ body {
   border-radius: 12px;
   padding: 12px 14px;
   margin-bottom: 10px;
+  overflow-x: auto;
+}
+
+/* Keep KaTeX equations left-aligned and contained so they NEVER push off-screen */
+.katex-display {
+  display: block !important;
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 6px 2px;
+  margin: 4px 0 !important;
+  text-align: left !important;
+}
+.katex-display > .katex {
+  text-align: left !important;
+}
+.katex {
+  font-size: 1.02em;
+}
+@media (max-width: 640px) {
+  .katex { font-size: 0.94em; }
+}
+
+@keyframes inputFlashPulse {
+  0% { border-color: var(--accent); background: var(--accent-soft); box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.28); }
+  100% { border-color: var(--border); background: var(--surface-alt); box-shadow: none; }
+}
+
+.inp-flash {
+  animation: inputFlashPulse 0.75s ease;
 }
 
 .spm-badge {
