@@ -34,6 +34,151 @@ window.AddMathApp = window.AddMathApp || {};
   let mbankOpenScheme = {};
   let mbankExpandAll = false;
   let vaultSearch = '';
+  let showHomePosterStrip = false;
+  let activePosterModalChapId = null;
+
+  function getClinic(chapId) {
+    return (App.teacherClinic && App.teacherClinic[chapId]) || null;
+  }
+
+  function getPosterChapters() {
+    return App.chapters.filter((c) => {
+      const cl = getClinic(c.id);
+      return cl && cl.poster;
+    });
+  }
+
+  function openPosterModal(chapId) {
+    const cl = getClinic(chapId);
+    const ch = App.chapters.find((c) => c.id === chapId);
+    if (!cl || !cl.poster || !ch) return;
+    activePosterModalChapId = chapId;
+
+    state.postersViewed = state.postersViewed || {};
+    let firstViewBonus = false;
+    if (!state.postersViewed[chapId]) {
+      state.postersViewed[chapId] = true;
+      firstViewBonus = true;
+      awardXP(15);
+    }
+
+    const posterChaps = getPosterChapters();
+    const idx = posterChaps.findIndex((c) => c.id === chapId);
+    const prevP = posterChaps[(idx - 1 + posterChaps.length) % posterChaps.length];
+    const nextP = posterChaps[(idx + 1) % posterChaps.length];
+
+    let modal = document.getElementById('poster-lightbox-root');
+    if (!modal) {
+      modal = document.createElement('div');
+      modal.id = 'poster-lightbox-root';
+      document.body.appendChild(modal);
+    }
+    modal.innerHTML = `
+      <div class="poster-modal-backdrop anim-in" id="poster-modal-backdrop">
+        <div class="poster-modal-box" role="dialog" aria-modal="true" aria-label="${U.t(cl.posterTitle, App.lang)}">
+          <div class="poster-modal-hdr">
+            <div style="font-weight:800;font-size:0.88rem;color:var(--primary);flex:1;min-width:160px;">
+              🖼️ ${U.t(ch.code, App.lang)}: ${U.t(ch.title, App.lang)}
+              ${firstViewBonus ? `<span style="color:var(--accent);margin-left:6px;">+15 XP!</span>` : ''}
+            </div>
+            <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;">
+              <button type="button" class="btn btn-outline btn-sm" data-open-poster="${prevP.id}" title="${U.t(prevP.title, App.lang)}">◀</button>
+              <span style="font-size:0.75rem;font-weight:800;color:var(--text-muted);">${idx + 1}/${posterChaps.length}</span>
+              <button type="button" class="btn btn-outline btn-sm" data-open-poster="${nextP.id}" title="${U.t(nextP.title, App.lang)}">▶</button>
+              <button type="button" class="btn btn-primary btn-sm" data-poster-jump-chap="${ch.id}">🩺 ${L('Buka Klinik Bab', 'Open Chapter Clinic')}</button>
+              <button type="button" class="btn btn-outline btn-sm" id="btn-close-poster-modal">✕</button>
+            </div>
+          </div>
+          <div class="poster-modal-body">
+            <img src="${cl.poster}" alt="${U.t(cl.posterTitle, App.lang)}">
+            <div class="tip-box" style="text-align:left;margin-top:10px;">
+              <strong>🗣️ ${U.renderMixed(U.t(cl.vocabBridge, App.lang))}</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  function closePosterModal() {
+    activePosterModalChapId = null;
+    const modal = document.getElementById('poster-lightbox-root');
+    if (modal) modal.innerHTML = '';
+  }
+
+  function renderTeacherClinicHtml(ch) {
+    const cl = getClinic(ch.id);
+    if (!cl) return '';
+    return `
+      <div class="card clinic-card">
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:10px;">
+          <div>
+            <div style="font-size:0.74rem;font-weight:800;color:var(--primary);">🩺 ${L('KLINIK CIKGU PAKAR & NOTA VISUAL PANTAS', 'EXPERIENCED TEACHER CLINIC & VISUAL POSTER')}</div>
+            <h3 style="font-size:1.08rem;margin-top:2px;">${L('Ubat "Sakit Kepala" Pelajar, Analogi Ingatan & Kamus Ayat SPM', 'Student Pain-Killer Guide, Memory Hooks & SPM Phrase Decoder')}</h3>
+          </div>
+          ${cl.poster ? `<button type="button" class="btn btn-primary btn-sm" data-open-poster="${ch.id}">🔍 ${L('Besarkan Poster Penuh', 'Zoom Full Poster')}</button>` : ''}
+        </div>
+
+        <div class="${cl.poster ? 'clinic-hero-grid' : ''}">
+          ${cl.poster ? `
+            <div class="poster-thumb-wrap" data-open-poster="${ch.id}" title="${L('Klik untuk zum poster penuh', 'Click to zoom full poster')}">
+              <img class="poster-thumb-img" src="${cl.poster}" alt="${U.t(cl.posterTitle, App.lang)}" loading="lazy">
+              <div class="poster-zoom-pill">🔍 ${L('Klik Zum Penuh (+15 XP)', 'Tap to Zoom (+15 XP)')}</div>
+            </div>
+          ` : ''}
+
+          <div>
+            <div class="trap-box" style="margin-top:0;margin-bottom:10px;">
+              <strong>🩹 ${L('Kenapa Ramai Pelajar Sangkut Bab Ini:', 'Why Students Struggle Here:')}</strong><br>
+              ${U.renderMixed(U.t(cl.painSummary, App.lang))}
+            </div>
+            ${cl.vocabBridge ? `
+              <div class="tip-box" style="margin-top:0;margin-bottom:10px;">
+                🗣️ ${U.renderMixed(U.t(cl.vocabBridge, App.lang))}
+              </div>
+            ` : ''}
+
+            <div style="font-weight:800;font-size:0.94rem;margin-top:6px;">🧠 ${L('Analogi Mudah Faham & Mnemonik Ingatan Kekal:', 'Real-Life Mental Models & Memory Hooks:')}</div>
+            <div class="mental-grid">
+              ${(cl.mentalModels || []).map((m) => `
+                <div class="mental-item">
+                  <div class="mental-tag">${m.icon} ${U.t(m.tag, App.lang)}</div>
+                  <div style="font-weight:800;font-size:0.9rem;margin-bottom:4px;">${U.renderMixed(U.t(m.title, App.lang))}</div>
+                  <div style="font-size:0.84rem;color:var(--text-muted);line-height:1.45;">${U.renderMixed(U.t(m.desc, App.lang))}</div>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-top:16px;">
+          <div style="font-weight:800;font-size:0.94rem;margin-bottom:8px;">🔑 ${L('Kamus Ayat Peperiksaan SPM ("Nampak Ayat Ini → Tangan Terus Tulis Ini!"):', 'SPM Exam-Phrase Decoder ("See This Phrase → Write This Step Instantly!"):')}</div>
+          ${(cl.triggers || []).map((tr) => `
+            <div class="trigger-row">
+              <div style="font-weight:800;color:var(--text);margin-bottom:3px;">📌 ${U.renderMixed(U.t(tr.cue, App.lang))}</div>
+              <div style="color:var(--text-muted);">👉 <strong>${L('Tindakan Segera:', 'Instant Step:')}</strong> ${U.renderMixed(U.t(tr.action, App.lang))}</div>
+            </div>
+          `).join('')}
+        </div>
+
+        ${cl.rxFix ? `
+          <div style="margin-top:14px;">
+            <div style="font-weight:800;font-size:0.94rem;">⚖️ ${L('Diagnosis Pantas: Silap Biasa vs Cara Selamat Markah Penuh', 'Quick Rx: Classic Mistake vs Full-Mark Method')}</div>
+            <div class="rx-compare">
+              <div class="rx-wrong">
+                <strong style="color:var(--danger);">❌ ${L('Jangan Tulis Begini:', 'Never Write This:')}</strong><br>
+                ${U.renderMixed(U.t(cl.rxFix.wrong, App.lang))}
+              </div>
+              <div class="rx-right">
+                <strong style="color:var(--accent);">✅ ${L('Cara Cikgu Cemerlang:', 'Experienced Teacher Way:')}</strong><br>
+                ${U.renderMixed(U.t(cl.rxFix.right, App.lang))}
+              </div>
+            </div>
+          </div>
+        ` : ''}
+      </div>
+    `;
+  }
 
   function L(bm, en) {
     return App.lang === 'bm' ? bm : en;
@@ -188,6 +333,43 @@ window.AddMathApp = window.AddMathApp || {};
         </div>
       </div>
 
+      ${getPosterChapters().length ? `
+        <div class="card" style="border-color:var(--accent);">
+          <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
+            <div style="flex:1;min-width:220px;">
+              <div style="font-size:0.75rem;font-weight:800;color:var(--accent);">🩺 ${L('KLINIK CIKGU PAKAR • ULANG KAJI VISUAL PANTAS', 'EXPERIENCED TEACHER CLINIC • VISUAL REVISION')}</div>
+              <h3 style="font-size:1.05rem;margin:2px 0 4px;">🖼️ ${L(`Galeri Poster Infografik & Ubat Sakit Pelajar (${getPosterChapters().length} Bab Aktif)`, `Visual Poster Gallery & Student Pain-Killer Clinic (${getPosterChapters().length} Chapters Live)`)}</h3>
+              <div style="font-size:0.84rem;color:var(--text-muted);">
+                ${L('Lengkap dengan analogi dunia sebenar, mnemonik ingatan kekal & kamus ayat peperiksaan SPM untuk setiap bab Tingkatan 4!', 'Equipped with real-life mental models, retention mnemonics & SPM exam-phrase decoders across Form 4!')}
+              </div>
+            </div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;">
+              <button type="button" class="btn btn-outline btn-sm" id="btn-toggle-poster-gallery">
+                ${showHomePosterStrip ? `🙈 ${L('Tutup Galeri', 'Hide Gallery')}` : `🖼️ ${L('Lihat Semua Poster', 'Browse All Posters')}`}
+              </button>
+              <button type="button" class="btn btn-accent btn-sm" data-open-poster="${getClinic(activeChapterId) ? activeChapterId : getPosterChapters()[0].id}">
+                🔍 ${L('Zum Poster Semasa', 'Zoom Active Poster')}
+              </button>
+            </div>
+          </div>
+          ${showHomePosterStrip ? `
+            <div class="poster-strip anim-in">
+              ${getPosterChapters().map((pc) => {
+                const pcl = getClinic(pc.id);
+                return `
+                  <div class="poster-mini-card" data-open-poster="${pc.id}">
+                    <img src="${pcl.poster}" alt="${U.t(pc.title, App.lang)}" loading="lazy">
+                    <div class="poster-mini-lbl">
+                      <span style="color:var(--primary);">${L('T' + pc.form + '•B' + pc.num, 'F' + pc.form + '•C' + pc.num)}:</span> ${U.t(pc.title, App.lang)}
+                    </div>
+                  </div>
+                `;
+              }).join('')}
+            </div>
+          ` : ''}
+        </div>
+      ` : ''}
+
       <div class="card">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;flex-wrap:wrap;gap:8px;">
           <h3 style="font-size:1.02rem;">🎯 ${L('Misi Motivasi Harian', 'Daily Motivation Quests')}</h3>
@@ -226,9 +408,16 @@ window.AddMathApp = window.AddMathApp || {};
               <div>
                 <div style="display:flex;justify-content:space-between;align-items:center;gap:6px;margin-bottom:6px;flex-wrap:wrap;">
                   <span style="font-size:0.75rem;font-weight:700;">${L('Penguasaan TP1–TP6', 'TP1–TP6 Mastery')}: ${m}%</span>
-                  <button type="button" class="btn btn-outline btn-sm" style="padding:3px 9px;min-height:26px;font-size:0.73rem;" data-open-bank-chap="${c.id}">
-                    📋 ${L(`Contoh SPM (${bSt.done}/${bSt.total})`, `SPM Bank (${bSt.done}/${bSt.total})`)}
-                  </button>
+                  <div style="display:flex;gap:5px;flex-wrap:wrap;">
+                    ${getClinic(c.id) && getClinic(c.id).poster ? `
+                      <button type="button" class="btn btn-outline btn-sm" style="padding:3px 8px;min-height:26px;font-size:0.73rem;" data-open-poster="${c.id}">
+                        🖼️ ${L('Poster', 'Poster')}
+                      </button>
+                    ` : ''}
+                    <button type="button" class="btn btn-outline btn-sm" style="padding:3px 9px;min-height:26px;font-size:0.73rem;" data-open-bank-chap="${c.id}">
+                      📋 ${L(`Contoh SPM (${bSt.done}/${bSt.total})`, `SPM Bank (${bSt.done}/${bSt.total})`)}
+                    </button>
+                  </div>
                 </div>
                 <div class="xp-bar-wrap" style="background:var(--border);height:7px;">
                   <div class="xp-bar-fill" style="width:${m}%;background:${c.color};"></div>
@@ -392,6 +581,8 @@ window.AddMathApp = window.AddMathApp || {};
           <h2 style="font-size:1.3rem;margin:2px 0 6px;">${U.t(ch.title, App.lang)}</h2>
           <p style="font-size:0.9rem;color:var(--text-muted);">${U.t(ch.subtitle, App.lang)}</p>
         </div>
+
+        ${renderTeacherClinicHtml(ch)}
 
         ${lab ? `
         <div class="card">
@@ -588,6 +779,7 @@ window.AddMathApp = window.AddMathApp || {};
               <button class="intent-chip" data-intent-ask="${L('Rumus mana perlu saya guna?', 'Which formula should I use?')}">📐 ${L('Rumus mana?', 'Which formula?')}</button>
               <button class="intent-chip" data-intent-ask="${L('Kenapa jawapan saya salah?', 'Why was I wrong?')}">🔍 ${L('Kenapa saya salah?', 'Why was I wrong?')}</button>
               <button class="intent-chip" data-intent-ask="${L('Terangkan konsep soalan ini', 'Explain the concept behind this')}">💡 ${L('Terangkan konsep', 'Explain concept')}</button>
+              ${getClinic(ch.id) ? `<button class="intent-chip" data-intent-ask="${L('Berikan analogi mudah ingat dan mnemonik klinik cikgu', 'Give me the teacher memory trick and mental model')}">🩺 ${L('Analogi Cikgu', 'Memory Trick')}</button>` : ''}
             </div>
             <div style="display:flex;gap:8px;margin-top:6px;">
               <input id="intent-free-inp" type="text" class="math-input" style="background:var(--surface);" placeholder="${L('Taip masalah awak (cth: jana step / keliru tanda negatif)...', 'Type what you need (e.g. show steps / confused about sign)...')}">
@@ -868,6 +1060,7 @@ window.AddMathApp = window.AddMathApp || {};
         </div>
 
         <div class="intent-chips" style="margin-top:10px;">
+          ${getClinic(ch.id) ? `<button class="intent-chip" data-tutor-chip="${L('Berikan analogi mudah ingat dan kata kunci peperiksaan bab ini', 'Give me the mental models and exam-phrase decoder for this chapter')}">🩺 ${L('Klinik & Analogi Cikgu', 'Teacher Clinic & Tricks')}</button>` : ''}
           <button class="intent-chip" data-tutor-chip="${L('Apakah kesilapan lazim dan contoh soalan SPM bab ini?', 'What are the common mistakes and SPM examples for this chapter?')}">⚠️ ${L('Kesilapan Lazim & Skim SPM', 'Common Mistakes & SPM Scheme')}</button>
           <button class="intent-chip" data-tutor-chip="2x^2 - 7x + 3 = 0">2x² − 7x + 3 = 0</button>
           <button class="intent-chip" data-tutor-chip="d/dx(3x^3 - 5x^2 + 4x)">d/dx(3x³ − 5x² + 4x)</button>
@@ -902,9 +1095,16 @@ window.AddMathApp = window.AddMathApp || {};
       <div style="margin-bottom:16px;">
         <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:4px;">
           <div style="font-weight:800;color:var(--primary);">${U.t(c.code, App.lang)} — ${U.t(c.title, App.lang)}</div>
-          <button type="button" class="btn btn-outline btn-sm" style="padding:3px 9px;min-height:26px;font-size:0.73rem;" data-open-chap="${c.id}">
-            📘 ${L('Buka Bab', 'Open Chapter')}
-          </button>
+          <div style="display:flex;gap:6px;flex-wrap:wrap;">
+            ${getClinic(c.id) && getClinic(c.id).poster ? `
+              <button type="button" class="btn btn-outline btn-sm" style="padding:3px 9px;min-height:26px;font-size:0.73rem;" data-open-poster="${c.id}">
+                🖼️ ${L('Poster Visual', 'Visual Poster')}
+              </button>
+            ` : ''}
+            <button type="button" class="btn btn-outline btn-sm" style="padding:3px 9px;min-height:26px;font-size:0.73rem;" data-open-chap="${c.id}">
+              📘 ${L('Buka Bab', 'Open Chapter')}
+            </button>
+          </div>
         </div>
         ${c.concepts.flatMap((s) => s.formulas).map((f) => `
           <div class="formula-box">
@@ -990,7 +1190,42 @@ window.AddMathApp = window.AddMathApp || {};
     }
   });
 
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && activePosterModalChapId) {
+      closePosterModal();
+    }
+  });
+
   document.addEventListener('click', async (e) => {
+    if (e.target.id === 'btn-close-poster-modal' || e.target.id === 'poster-modal-backdrop') {
+      closePosterModal();
+      return;
+    }
+
+    const jumpFromPoster = e.target.closest('[data-poster-jump-chap]');
+    if (jumpFromPoster) {
+      activeChapterId = jumpFromPoster.getAttribute('data-poster-jump-chap');
+      activeSubTab = 'concept';
+      currentView = 'learn';
+      closePosterModal();
+      renderMain();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
+
+    const openPosterBtn = e.target.closest('[data-open-poster]');
+    if (openPosterBtn) {
+      e.stopPropagation();
+      openPosterModal(openPosterBtn.getAttribute('data-open-poster'));
+      return;
+    }
+
+    if (e.target.id === 'btn-toggle-poster-gallery') {
+      showHomePosterStrip = !showHomePosterStrip;
+      renderMain();
+      return;
+    }
+
     const navBtn = e.target.closest('[data-nav]');
     if (navBtn) {
       currentView = navBtn.getAttribute('data-nav');

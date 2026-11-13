@@ -32,6 +32,9 @@ window.AddMathApp = window.AddMathApp || {};
     if (/(kenapa salah|why was i wrong|saya dapat|jawapan saya|i got|why wrong|tanda|negatif|positif|silap kat mana|sangkut)/i.test(s)) {
       return 'diagnose_wrong';
     }
+    if (/(analogi|cara ingat|mudah ingat|mnemonik|mnemonic|memory trick|mental model|explain like|klinik cikgu)/i.test(s)) {
+      return 'mental_model';
+    }
     if (/(kenapa|why|apa maksud|beza|difference|konsep|concept|explain|terangkan)/i.test(s)) {
       return 'why_concept';
     }
@@ -347,19 +350,40 @@ window.AddMathApp = window.AddMathApp || {};
       };
     }
 
+    // Mental model / Guru Cemerlang memory hook ('mental_model')
+    const clinic = App.teacherClinic && App.teacherClinic[chapter.id];
+    if (intent === 'mental_model' && clinic && clinic.mentalModels && clinic.mentalModels.length) {
+      const m0 = clinic.mentalModels[0];
+      const m1 = clinic.mentalModels[1] || m0;
+      return {
+        tag: l === 'bm' ? '🩺 Analogi & Mnemonik Cikgu Pakar' : '🩺 Teacher Memory Trick & Analogy',
+        category: 'P',
+        reply: l === 'bm'
+          ? `**${m0.icon} ${U.t(m0.title, 'bm')}**\n${U.t(m0.desc, 'bm')}\n\n` +
+            (m1 !== m0 ? `**${m1.icon} ${U.t(m1.title, 'bm')}**\n${U.t(m1.desc, 'bm')}\n\n` : '') +
+            `👉 **Aplikasi terus pada soalan ini:** ${firstGuided}`
+          : `**${m0.icon} ${U.t(m0.title, 'en')}**\n${U.t(m0.desc, 'en')}\n\n` +
+            (m1 !== m0 ? `**${m1.icon} ${U.t(m1.title, 'en')}**\n${U.t(m1.desc, 'en')}\n\n` : '') +
+            `👉 **Apply directly to this question:** ${firstGuided}`
+      };
+    }
+
     // Concept explanation ('why_concept') — explain clearly using chapter & subtopic context!
     const subName = question.subtopic ? U.t(question.subtopic, l) : U.t(chapter.title, l);
+    const rxTip = clinic && clinic.rxFix
+      ? (l === 'bm' ? `\n- ⚠️ **Elakkan Silap Biasa:** Jangan buat ${U.t(clinic.rxFix.wrong, 'bm')}` : `\n- ⚠️ **Avoid Common Trap:** Never do ${U.t(clinic.rxFix.wrong, 'en')}`)
+      : '';
     return {
       tag: l === 'bm' ? 'Penerangan Konsep Jelas' : 'Clear Concept Explanation',
       category: 'P',
       reply: l === 'bm'
         ? `**Konsep Di Sebalik Soalan Ini (${subName}):**\n` +
           `- Persediaan utama: ${givenDisplay} untuk mencari **${goalDisplay}**.\n` +
-          `- Prinsip matematik utamanya ialah **${ruleDisplay}**.\n\n` +
+          `- Prinsip matematik utamanya ialah **${ruleDisplay}**.${rxTip}\n\n` +
           `Cuba langkah pertama ini: ${firstGuided}`
         : `**Concept Behind This Question (${subName}):**\n` +
           `- Key setup: ${givenDisplay} to find **${goalDisplay}**.\n` +
-          `- Core principle: **${ruleDisplay}**.\n\n` +
+          `- Core principle: **${ruleDisplay}**.${rxTip}\n\n` +
           `Start with this first check: ${firstGuided}`
     };
   }
@@ -435,6 +459,14 @@ window.AddMathApp = window.AddMathApp || {};
     }
 
     const chTitle = U.t(activeChapter.title, l);
+    const activeClinic = App.teacherClinic && App.teacherClinic[activeChapter.id];
+    if (activeClinic && /(analogi|cara ingat|mudah ingat|mnemonik|mnemonic|memory|klinik|kata kunci|trigger|sakit kepala|tak faham)/i.test(lower)) {
+      const mmText = (activeClinic.mentalModels || []).map((m) => `- ${m.icon} **${U.t(m.title, l)}:** ${U.t(m.desc, l)}`).join('\n\n');
+      const trText = (activeClinic.triggers || []).slice(0, 2).map((tr) => `- 🔑 *${U.t(tr.cue, l)}* $\\rightarrow$ ${U.t(tr.action, l)}`).join('\n');
+      return l === 'bm'
+        ? `**🩺 Klinik Cikgu Pakar — ${chTitle}:**\n\n${mmText}\n\n**Terjemahan Pantas Ayat Peperiksaan:**\n${trText}`
+        : `**🩺 Teacher's Pain-Killer Clinic — ${chTitle}:**\n\n${mmText}\n\n**Exam-Phrase Trigger Decoder:**\n${trText}`;
+    }
     if (/(kesilapan|lazim|mistake|trap|perangkap|contoh soalan|skim|markah|k1|n1)/i.test(lower)) {
       const bankList = (App.masterBank && App.masterBank[activeChapter.id]) || [];
       if (bankList.length) {
