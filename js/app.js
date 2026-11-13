@@ -340,7 +340,7 @@ window.AddMathApp = window.AddMathApp || {};
               <div style="font-size:0.75rem;font-weight:800;color:var(--accent);">🩺 ${L('KLINIK CIKGU PAKAR • ULANG KAJI VISUAL PANTAS', 'EXPERIENCED TEACHER CLINIC • VISUAL REVISION')}</div>
               <h3 style="font-size:1.05rem;margin:2px 0 4px;">🖼️ ${L(`Galeri Poster Infografik & Ubat Sakit Pelajar (${getPosterChapters().length} Bab Aktif)`, `Visual Poster Gallery & Student Pain-Killer Clinic (${getPosterChapters().length} Chapters Live)`)}</h3>
               <div style="font-size:0.84rem;color:var(--text-muted);">
-                ${L('Lengkap dengan analogi dunia sebenar, mnemonik ingatan kekal & kamus ayat peperiksaan SPM untuk setiap bab Tingkatan 4!', 'Equipped with real-life mental models, retention mnemonics & SPM exam-phrase decoders across Form 4!')}
+                ${L('Lengkap dengan analogi dunia sebenar, mnemonik ingatan kekal & kamus ayat peperiksaan SPM untuk kesemua 18 bab Tingkatan 4 & Tingkatan 5!', 'Equipped with real-life mental models, retention mnemonics & SPM exam-phrase decoders across all 18 Form 4 & Form 5 chapters!')}
               </div>
             </div>
             <div style="display:flex;gap:8px;flex-wrap:wrap;">
