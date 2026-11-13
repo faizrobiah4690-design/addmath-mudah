@@ -158,6 +158,68 @@ window.AddMathApp = window.AddMathApp || {};
     return null;
   }
 
+  // Live Polynomial Calculus Solver: e.g. "d/dx(3x^3 - 5x^2 + 4x - 2)" or "int(6x^2 - 4x + 5)"
+  function trySolveLiveCalculus(text, lang) {
+    const raw = String(text || '').trim();
+    const isDiff = /^(d\/dx|bezakan|differentiate)\b/i.test(raw);
+    const isInt = /^(int|∫|kamirkan|integrate)\b/i.test(raw);
+    if (!isDiff && !isInt) return null;
+
+    let body = raw
+      .replace(/^(d\/dx|bezakan|differentiate|int|∫|kamirkan|integrate)/i, '')
+      .replace(/dx$/i, '')
+      .trim();
+    if (body.startsWith('(') && body.endsWith(')')) body = body.slice(1, -1);
+    body = body.replace(/²/g, '^2').replace(/³/g, '^3').replace(/\s+/g, '');
+    if (!body) return null;
+
+    const tokens = body.match(/([+-]?[^+-]+)/g);
+    if (!tokens) return null;
+
+    const terms = [];
+    for (const tk of tokens) {
+      const m = tk.match(/^([+-]?\d*\.?\d*)x(?:\^([+-]?\d+))?$/i);
+      if (m) {
+        const c = (!m[1] || m[1] === '+') ? 1 : (m[1] === '-' ? -1 : parseFloat(m[1]));
+        const p = m[2] !== undefined ? parseInt(m[2], 10) : 1;
+        if (!Number.isFinite(c) || !Number.isFinite(p)) return null;
+        terms.push({ c, p });
+      } else {
+        const num = parseFloat(tk);
+        if (!Number.isFinite(num)) return null;
+        terms.push({ c: num, p: 0 });
+      }
+    }
+
+    const origTex = U.polyTex(terms);
+    if (isDiff) {
+      const dTerms = terms.filter((t) => t.p !== 0).map((t) => ({ c: U.round(t.c * t.p, 4), p: t.p - 1 }));
+      const dTex = dTerms.length ? U.polyTex(dTerms) : '0';
+      return lang === 'bm'
+        ? `**Pembezaan Simbolik Langsung** bagi $y = ${origTex}$:\n` +
+          `1. **[P1] Petua Kuasa:** $\\frac{d}{dx}(ax^n) = anx^{n-1}$ (pemalar menjadi $0$)\n` +
+          `2. **[J1] Terbitan Pertama:** $$\\frac{dy}{dx} = ${dTex}$$`
+        : `**Live Symbolic Differentiation** for $y = ${origTex}$:\n` +
+          `1. **[P1] Power Rule:** $\\frac{d}{dx}(ax^n) = anx^{n-1}$ (constants vanish to $0$)\n` +
+          `2. **[J1] First Derivative:** $$\\frac{dy}{dx} = ${dTex}$$`;
+    }
+    const iParts = terms.map((t) => {
+      if (t.p === -1) return `${U.roundStr(t.c)}\\ln|x|`;
+      const np = t.p + 1;
+      const nc = t.c / np;
+      const coeffStr = Number.isInteger(nc) ? (nc === 1 ? '' : (nc === -1 ? '-' : String(nc))) : U.fracTex(t.c, np);
+      return np === 1 ? `${coeffStr}x` : `${coeffStr}x^{${np}}`;
+    });
+    const joined = iParts.join(' + ').replace(/\+\s*-/g, '- ');
+    return lang === 'bm'
+      ? `**Pengamiran Tak Tentu Langsung** bagi $\\int (${origTex})\\,dx$:\n` +
+        `1. **[P1] Petua Songsang Kuasa:** Tambah kuasa dengan $1$ dan bahagi kuasa baru\n` +
+        `2. **[J1] Hasil Kamiran (Wajib tulis $+c$!):** $$\\int (${origTex})\\,dx = ${joined} + c$$`
+      : `**Live Indefinite Integration** for $\\int (${origTex})\\,dx$:\n` +
+        `1. **[P1] Reverse Power Rule:** Add $1$ to each exponent and divide by new power\n` +
+        `2. **[J1] Result (Always include $+c$!):** $$\\int (${origTex})\\,dx = ${joined} + c$$`;
+  }
+
   // Context-Aware Socratic Coach for the ACTIVE Practice Question!
   function coachOnQuestion(userText, question, chapter, lastStudentAnswer, lang) {
     const l = lang || App.lang || 'bm';
@@ -306,6 +368,9 @@ window.AddMathApp = window.AddMathApp || {};
     const seqOut = trySolveLiveSequence(msg, l);
     if (seqOut) return seqOut;
 
+    const calcOut = trySolveLiveCalculus(msg, l);
+    if (calcOut) return calcOut;
+
     // 2. Optional Gemini API Key if configured
     const apiKey = localStorage.getItem('addmath_gemini_key');
     if (apiKey && navigator.onLine) {
@@ -356,18 +421,53 @@ window.AddMathApp = window.AddMathApp || {};
     }
 
     const chTitle = U.t(activeChapter.title, l);
+    if (/(kalkulus|beza|differentiate|dy\/dx|kamir|integrate|tangen|pusingan)/i.test(lower)) {
+      return l === 'bm'
+        ? `**Peta Pantas Kalkulus SPM (Pembezaan & Pengamiran):**\n` +
+          `- **Pembezaan ($dy/dx$):** Kecerunan tangen; titik pusingan apabila $dy/dx = 0$ ($d^2y/dx^2 > 0$ minimum, $< 0$ maksimum).\n` +
+          `- **Pengamiran ($\\int y\\,dx$):** Songsangan pembezaan (+c untuk tak tentu); luas bawah lengkung $= \\int_a^b |y|\\,dx$; isi padu kisaran $= \\pi\\int_a^b y^2\\,dx$.\n\n` +
+          `*Cuba taip \`d/dx(3x^3 - 5x^2 + 4x)\` atau \`int(6x^2 - 4x + 5)\` untuk pengiraan langsung!*`
+        : `**SPM Calculus Cheat-Sheet:**\n` +
+          `- **Differentiation ($dy/dx$):** Tangent gradient; turning points at $dy/dx = 0$ ($d^2y/dx^2 > 0$ min, $< 0$ max).\n` +
+          `- **Integration ($\\int y\\,dx$):** Anti-derivative (+c for indefinite); area $= \\int_a^b |y|\\,dx$; volume $= \\pi\\int_a^b y^2\\,dx$.\n\n` +
+          `*Try typing \`d/dx(3x^3 - 5x^2 + 4x)\` or \`int(6x^2 - 4x + 5)\` for live symbolic steps!*`;
+    }
+
+    if (/(kinematik|zarah|halaju|pecutan|sesaran|velocity|displacement|acceleration)/i.test(lower)) {
+      return l === 'bm'
+        ? `**Jambatan Kinematik ($s \\leftrightarrow v \\leftrightarrow a$):**\n` +
+          `- **Bezakan** ikut masa $t$: $s \\xrightarrow{d/dt} v \\xrightarrow{d/dt} a$\n` +
+          `- **Kamirkan** ikut masa $t$: $a \\xrightarrow{\\int dt} v \\xrightarrow{\\int dt} s$\n` +
+          `- **Perangkap Jumlah Jarak:** Semak bila zarah berhenti/berpusing arah ($v = 0$) dahulu, dan jumlahkan kedua-dua keratan perjalanan!`
+        : `**Kinematics Bridge ($s \\leftrightarrow v \\leftrightarrow a$):**\n` +
+          `- **Differentiate** w.r.t. $t$: $s \\to v \\to a$; **Integrate** w.r.t. $t$: $a \\to v \\to s$.\n` +
+          `- **Total Distance Trap:** Always solve $v = 0$ for turnaround time inside $[0, T]$ and sum each leg's absolute distance!`;
+    }
+
+    if (/(binomial|normal|kebarangkalian|skor-z|z-score|pilih atur|gabungan|npr|ncr)/i.test(lower)) {
+      return l === 'bm'
+        ? `**Panduan Pantas Statistik & Kebarangkalian T5:**\n` +
+          `- **$^nP_r$ vs $^nC_r$:** Tertib penting (kod/jawatan) $\\to \\,^nP_r$; pasukan/jawatankuasa tanpa jawatan $\\to \\,^nC_r$.\n` +
+          `- **Binomial $B(n,p)$:** Diskret; $P(X=r) = \\,^nC_r p^r q^{n-r}$, $\\mu = np$, $\\sigma = \\sqrt{npq}$.\n` +
+          `- **Normal $N(\\mu, \\sigma^2)$:** Selanjar; ingat nombor kedua ialah varians $\\sigma^2$, jadi bahagi dengan $\\sigma = \\sqrt{\\sigma^2}$ dalam $Z = \\frac{X-\\mu}{\\sigma}$!`
+        : `**Form 5 Combinatorics & Distributions Guide:**\n` +
+          `- **$^nP_r$ vs $^nC_r$:** Order matters $\\to \\,^nP_r$; unordered committee $\\to \\,^nC_r$.\n` +
+          `- **Binomial $B(n,p)$:** $P(X=r) = \\,^nC_r p^r q^{n-r}$, $\\mu = np$, $\\sigma = \\sqrt{npq}$.\n` +
+          `- **Normal $N(\\mu, \\sigma^2)$:** Watch $\\sigma^2$! Standardize using $\\sigma = \\sqrt{\\sigma^2}$ in $Z = \\frac{X-\\mu}{\\sigma}$.`;
+    }
+
     return l === 'bm'
       ? `Saya boleh mengira dan menjana langkah kerja secara langsung! Cuba taip:\n` +
         `- Persamaan kuadratik: \`2x^2 - 5x - 3 = 0\`\n` +
-        `- Nilai mutlak: \`|2x - 4| = 10\`\n` +
-        `- Fungsi songsang: \`f(x) = 4x - 7\`\n` +
+        `- Kalkulus pembezaan / pengamiran: \`d/dx(3x^3 - 5x^2 + 4x)\` atau \`int(6x^2 - 4x + 5)\`\n` +
+        `- Nilai mutlak / fungsi: \`|2x - 4| = 10\` atau \`f(x) = 4x - 7\`\n` +
         `- Jujukan janjang: \`24, 12, 6\` atau \`4, 11, 18\`\n` +
         `- Atau tanya sebarang konsep berkaitan **${chTitle}**!`
       : `I can calculate and generate live working steps! Try typing:\n` +
         `- A quadratic: \`2x^2 - 5x - 3 = 0\`\n` +
-        `- A modulus equation: \`|2x - 4| = 10\`\n` +
-        `- A function: \`f(x) = 4x - 7\`\n` +
-        `- A progression sequence: \`24, 12, 6\` or \`4, 11, 18\`\n` +
+        `- Calculus derivative / integral: \`d/dx(3x^3 - 5x^2 + 4x)\` or \`int(6x^2 - 4x + 5)\`\n` +
+        `- Modulus / function: \`|2x - 4| = 10\` or \`f(x) = 4x - 7\`\n` +
+        `- Progression sequence: \`24, 12, 6\` or \`4, 11, 18\`\n` +
         `- Or ask any concept question about **${chTitle}**!`;
   }
 

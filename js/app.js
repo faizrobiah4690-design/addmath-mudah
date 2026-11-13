@@ -26,6 +26,7 @@ window.AddMathApp = window.AddMathApp || {};
   let tutorMessages = [];
   let blitzTimer = null;
   let blitzState = { active: false, timeLeft: 60, score: 0, idx: 0 };
+  let homeFormFilter = 'all'; // 'all' | '4' | '5'
 
   function L(bm, en) {
     return App.lang === 'bm' ? bm : en;
@@ -98,14 +99,20 @@ window.AddMathApp = window.AddMathApp || {};
     `).join('') + `<div style="margin-top:10px;font-size:0.76rem;color:var(--text-muted);padding:0 8px;">Lv.${rank.level} • ${rank.title}</div>`;
 
     const schaps = document.getElementById('side-chap-list');
-    schaps.innerHTML = `<div style="font-size:0.75rem;font-weight:800;color:var(--text-muted);margin-bottom:6px;">${L('FASA 1: TINGKATAN 4 (AKTIF)', 'STAGE 1: FORM 4 (ACTIVE)')}</div>` +
-      App.chapters.map((c) => {
-        const m = state.mastery[c.id] || 0;
-        return `<button class="chap-mini-btn ${currentView === 'learn' && activeChapterId === c.id ? 'active' : ''}" data-open-chap="${c.id}">
-          <span><strong>${c.num}.</strong> ${U.t(c.title, App.lang)}</span>
-          <span style="font-size:0.74rem;color:var(--accent);font-weight:800;">${m}%</span>
-        </button>`;
-      }).join('');
+    const f4Chaps = App.chapters.filter((c) => c.form === 4);
+    const f5Chaps = App.chapters.filter((c) => c.form === 5);
+    const renderSideGroup = (list) => list.map((c) => {
+      const m = state.mastery[c.id] || 0;
+      return `<button class="chap-mini-btn ${currentView === 'learn' && activeChapterId === c.id ? 'active' : ''}" data-open-chap="${c.id}">
+        <span><strong>${c.num}.</strong> ${U.t(c.title, App.lang)}</span>
+        <span style="font-size:0.74rem;color:var(--accent);font-weight:800;">${m}%</span>
+      </button>`;
+    }).join('');
+    schaps.innerHTML =
+      `<div style="font-size:0.74rem;font-weight:800;color:var(--primary);margin-bottom:5px;">${L('TINGKATAN 4 (BAB 1–10)', 'FORM 4 (CH 1–10)')}</div>` +
+      renderSideGroup(f4Chaps) +
+      `<div style="font-size:0.74rem;font-weight:800;color:var(--primary);margin:12px 0 5px;">${L('TINGKATAN 5 (BAB 1–8)', 'FORM 5 (CH 1–8)')}</div>` +
+      renderSideGroup(f5Chaps);
   }
 
   function renderHomeView(container) {
@@ -113,6 +120,9 @@ window.AddMathApp = window.AddMathApp || {};
     const q1 = state.quests.lab ? '✅' : '⬜';
     const q2 = state.quests.solve3 ? '✅' : '⬜';
     const q3 = state.quests.kbat1 ? '✅' : '⬜';
+    const visibleChaps = homeFormFilter === 'all'
+      ? App.chapters
+      : App.chapters.filter((c) => String(c.form) === homeFormFilter);
 
     container.innerHTML = `
       <div class="hero-banner">
@@ -122,8 +132,8 @@ window.AddMathApp = window.AddMathApp || {};
           </span>
           <span style="font-size:0.82rem;font-weight:700;">Combo 🔥 x${state.combo || 0}</span>
         </div>
-        <h1 style="margin-top:10px;">${L('Kuasai AddMath Secara Visual & Berpandu!', 'Master AddMath Visually & Step-by-Step!')}</h1>
-        <p>${L('Enjin pintar mengira secara langsung, mengesan di mana awak sangkut, dan membimbing setiap langkah mengikut skema SPM (P, K, J).', 'Our live math engine calculates dynamically, detects where you get stuck, and guides every step using SPM (P, K, J) logic.')}</p>
+        <h1 style="margin-top:10px;">${L('Kuasai Semua 18 Bab AddMath T4 & T5 Secara Visual!', 'Master All 18 Form 4 & 5 AddMath Chapters Visually!')}</h1>
+        <p>${L('Silibus penuh KSSM (Tingkatan 4 Bab 1–10 & Tingkatan 5 Bab 1–8) kini 100% lengkap dengan Makmal Graf, Smart Solver Dinamik & Bimbingan Skema SPM (P, K, J).', 'Complete KSSM syllabus (Form 4 Ch 1–10 & Form 5 Ch 1–8) unlocked with Interactive Graph Labs, Live Smart Solvers & SPM (P, K, J) Coaching.')}</p>
         <div style="font-size:0.78rem;font-weight:700;">${L('Kemajuan Tahap Seterusnya', 'Next Rank Progress')} (${state.xp} XP)</div>
         <div class="xp-bar-wrap"><div class="xp-bar-fill" style="width:${rank.pct}%"></div></div>
       </div>
@@ -140,9 +150,17 @@ window.AddMathApp = window.AddMathApp || {};
         </div>
       </div>
 
-      <h3 style="margin:14px 0 10px;font-size:1.08rem;">🚀 ${L('Fasa 1 Aktif: Tingkatan 4 (Bab 1 – Bab 5)', 'Active Stage 1: Form 4 (Chapters 1 – 5)')}</h3>
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin:14px 0 12px;">
+        <h3 style="font-size:1.08rem;">📚 ${L('Silibus Lengkap KSSM (18/18 Bab Aktif!)', 'Complete KSSM Syllabus (18/18 Chapters Unlocked!)')}</h3>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;">
+          <button class="btn btn-sm ${homeFormFilter === 'all' ? 'btn-primary' : 'btn-outline'}" data-form-filter="all">${L('Semua (18)', 'All (18)')}</button>
+          <button class="btn btn-sm ${homeFormFilter === '4' ? 'btn-primary' : 'btn-outline'}" data-form-filter="4">${L('Tingkatan 4 (10)', 'Form 4 (10)')}</button>
+          <button class="btn btn-sm ${homeFormFilter === '5' ? 'btn-primary' : 'btn-outline'}" data-form-filter="5">${L('Tingkatan 5 (8)', 'Form 5 (8)')}</button>
+        </div>
+      </div>
+
       <div class="grid-2">
-        ${App.chapters.map((c) => {
+        ${visibleChaps.map((c) => {
           const m = state.mastery[c.id] || 0;
           return `
             <div class="chap-card" data-open-chap="${c.id}">
@@ -166,24 +184,6 @@ window.AddMathApp = window.AddMathApp || {};
           `;
         }).join('')}
       </div>
-
-      <h3 style="margin:22px 0 10px;font-size:1.02rem;color:var(--text-muted);">🗺️ ${L('Peta Fasa Seterusnya (Fasa 2, 3 & 4 — 13 Bab Akan Datang)', 'Upcoming Syllabus Stages (Stages 2, 3 & 4 — 13 Chapters)')}</h3>
-      <div class="grid-2">
-        ${App.upcomingStages.map((c) => `
-          <div class="chap-card locked">
-            <div style="display:flex;gap:12px;align-items:center;">
-              <div class="chap-icon" style="background:${c.color};opacity:0.8;">${c.icon}</div>
-              <div>
-                <span style="font-size:0.7rem;font-weight:800;background:var(--surface-alt);border:1px solid var(--border);padding:2px 8px;border-radius:999px;">
-                  ${L('Fasa ' + c.stage, 'Stage ' + c.stage)} • ${U.t(c.code, App.lang)}
-                </span>
-                <div style="font-weight:800;font-size:0.94rem;margin-top:4px;">${U.t(c.title, App.lang)}</div>
-                <div style="font-size:0.78rem;color:var(--text-muted);">${U.t(c.subtitle, App.lang)}</div>
-              </div>
-            </div>
-          </div>
-        `).join('')}
-      </div>
     `;
   }
 
@@ -195,7 +195,7 @@ window.AddMathApp = window.AddMathApp || {};
       <div style="display:flex;gap:6px;overflow-x:auto;padding-bottom:8px;margin-bottom:10px;">
         ${App.chapters.map((c) => `
           <button class="btn btn-sm ${c.id === ch.id ? 'btn-primary' : 'btn-outline'}" data-switch-chap="${c.id}">
-            ${c.num}. ${U.t(c.title, App.lang)}
+            ${L('T', 'F')}${c.form}•${c.num} ${U.t(c.title, App.lang)}
           </button>
         `).join('')}
       </div>
@@ -268,12 +268,13 @@ window.AddMathApp = window.AddMathApp || {};
         <div class="card" style="border-color:var(--primary);">
           <h3 style="font-size:1.05rem;">✨ ${L('Penyelesai Persamaan Bebas (Taip Soalan Sendiri)', 'Free-Form Equation Solver (Type Your Own Problem)')}</h3>
           <p style="font-size:0.84rem;color:var(--text-muted);margin:4px 0 10px;">
-            ${L('Taip sebarang kuadratik, nilai mutlak, fungsi, atau jujukan janjang — enjin akan mengira langkah demi langkah secara langsung:', 'Type any quadratic, modulus, linear function, or sequence — the engine computes every step live:')}
+            ${L('Taip sebarang kuadratik, kalkulus (d/dx atau int), nilai mutlak, fungsi, atau jujukan janjang — enjin mengira langkah secara langsung:', 'Type any quadratic, calculus (d/dx or int), modulus, function, or sequence — the engine computes every step live:')}
           </p>
           <div class="intent-chips">
             <button class="intent-chip" data-sample-eq="3x^2 - 11x - 4 = 0">3x² − 11x − 4 = 0</button>
+            <button class="intent-chip" data-sample-eq="d/dx(3x^3 - 5x^2 + 4x)">d/dx(3x³ − 5x² + 4x)</button>
+            <button class="intent-chip" data-sample-eq="int(6x^2 - 4x + 5)">∫(6x² − 4x + 5) dx</button>
             <button class="intent-chip" data-sample-eq="|3x - 6| = 12">|3x − 6| = 12</button>
-            <button class="intent-chip" data-sample-eq="f(x) = 4x - 9">f(x) = 4x − 9</button>
             <button class="intent-chip" data-sample-eq="32, 16, 8">32, 16, 8</button>
           </div>
           <div style="display:flex;gap:8px;margin-top:6px;">
@@ -484,12 +485,26 @@ window.AddMathApp = window.AddMathApp || {};
     document.querySelectorAll('.solver-inp-' + idx).forEach((inp) => {
       const id = inp.getAttribute('data-inp-id');
       if (id === 'mode') inp.value = U.pick([1, 2]);
+      else if (id === 'quad') inp.value = U.pick([1, 2, 3, 4]);
       else if (id === 'dr') inp.value = U.pick([0.25, 0.5, 2, 3, -2]);
-      else if (id === 'n') inp.value = U.randInt(4, 10);
+      else if (id === 'theta') inp.value = U.pick([0.8, 1.2, 1.5, 2.0, 2.4]);
+      else if (id === 'n' || id === 'm') inp.value = U.randInt(4, 9);
+      else if (id === 'r' && solver.id === 'perm-comb-solver') inp.value = U.randInt(2, 4);
+      else if (id === 'r' || id === 'sd' || id === 'T') inp.value = U.randInt(4, 12);
+      else if (id === 'A') inp.value = U.pick([30, 45, 60, 75]);
+      else if (id === 'opp') inp.value = U.pick([3, 4, 5]);
+      else if (id === 'hyp') inp.value = U.pick([6, 8, 10, 13]);
+      else if (id === 'mu') inp.value = U.pick([50, 60, 75, 100]);
+      else if (id === 'x' && solver.id === 'binomial-normal-solver') inp.value = U.randInt(55, 90);
+      else if (id === 'S') inp.value = U.pick([40, 50, 60]);
+      else if (id === 'M') inp.value = U.pick([70, 80, 95]);
+      else if (/^i\d/.test(id)) inp.value = U.randInt(105, 145);
+      else if (/^w\d/.test(id)) inp.value = U.randInt(1, 6);
       else if (id === 'b' && solver.id === 'surd-rationalizer') inp.value = U.pick([2, 3, 5, 6, 7]);
       else if (id === 'a' && solver.id === 'log-base-solver') inp.value = U.pick([2, 3, 4, 5]);
       else if (id === 'b' && solver.id === 'log-base-solver') inp.value = U.pick([8, 16, 27, 64, 81, 125]);
-      else inp.value = U.randInt(-6, 9, true);
+      else if (solver.id === 'sas-cosine-solver') inp.value = U.randInt(6, 14);
+      else inp.value = U.randInt(-5, 9, true);
     });
     runSolverCard(ch, idx);
   }
@@ -499,9 +514,9 @@ window.AddMathApp = window.AddMathApp || {};
       container.innerHTML = `
         <div class="card" style="text-align:center;padding:28px 18px;">
           <div style="font-size:2.6rem;">⚡</div>
-          <h2 style="margin:8px 0;">${L('Cabaran Kilat Konsep 60 Saat!', '60-Second Concept Blitz!')}</h2>
+          <h2 style="margin:8px 0;">${L('Cabaran Kilat Konsep 60 Saat (T4 & T5)!', '60-Second Concept Blitz (Form 4 & 5)!')}</h2>
           <p style="color:var(--text-muted);max-width:480px;margin:0 auto 16px;">
-            ${L('Uji kepantasan ingatan konsep & rumus Tingkatan 4! Setiap jawapan betul memberi +15 XP.', 'Test your Form 4 concept & formula reflexes! Every right hit earns +15 XP.')}
+            ${L('Uji kepantasan ingatan konsep & rumus kesemua 18 bab Tingkatan 4 & 5! Setiap jawapan betul memberi +15 XP.', 'Test your Form 4 & Form 5 concept & formula reflexes across all 18 chapters! Every right hit earns +15 XP.')}
           </p>
           <div style="font-weight:800;margin-bottom:16px;color:var(--primary);">🏆 ${L('Skor Tertinggi Anda:', 'Your Best Score:')} ${state.highBlitz || 0}</div>
           <button class="btn btn-primary" id="btn-start-blitz">🚀 ${L('Mula Cabaran Sekarang!', 'Start Blitz Now!')}</button>
@@ -532,8 +547,8 @@ window.AddMathApp = window.AddMathApp || {};
       tutorMessages.push({
         role: 'bot',
         text: L(
-          `Hai! Saya **Cikgu Pintar AddMath** awak 👋\nTaip sebarang persamaan anda sendiri seperti \`2x^2 - 7x + 3 = 0\`, \`|2x - 4| = 10\`, \`f(x) = 3x - 5\`, atau jujukan \`18, 6, 2\` untuk pengiraan langkah demi langkah secara langsung!`,
-          `Hi! I'm your **Smart AddMath Coach** 👋\nType any equation of your own like \`2x^2 - 7x + 3 = 0\`, \`|2x - 4| = 10\`, \`f(x) = 3x - 5\`, or sequence \`18, 6, 2\` for live step-by-step calculation!`
+          `Hai! Saya **Cikgu Pintar AddMath** awak 👋\nTaip sebarang persamaan anda sendiri seperti \`2x^2 - 7x + 3 = 0\`, \`d/dx(3x^3 - 5x^2 + 4x)\`, \`int(6x^2 - 4x + 5)\`, \`|2x - 4| = 10\`, atau jujukan \`18, 6, 2\` untuk pengiraan langkah demi langkah secara langsung!`,
+          `Hi! I'm your **Smart AddMath Coach** 👋\nType any equation of your own like \`2x^2 - 7x + 3 = 0\`, \`d/dx(3x^3 - 5x^2 + 4x)\`, \`int(6x^2 - 4x + 5)\`, \`|2x - 4| = 10\`, or sequence \`18, 6, 2\` for live step-by-step calculation!`
         )
       });
     }
@@ -555,9 +570,9 @@ window.AddMathApp = window.AddMathApp || {};
 
         <div class="intent-chips" style="margin-top:10px;">
           <button class="intent-chip" data-tutor-chip="2x^2 - 7x + 3 = 0">2x² − 7x + 3 = 0</button>
-          <button class="intent-chip" data-tutor-chip="|2x - 5| = 9">|2x − 5| = 9</button>
-          <button class="intent-chip" data-tutor-chip="18, 6, 2">18, 6, 2</button>
-          <button class="intent-chip" data-tutor-chip="${L('Macam mana nak cari fungsi songsang?', 'How do I find an inverse function?')}">${L('Fungsi Songsang', 'Inverse Function')}</button>
+          <button class="intent-chip" data-tutor-chip="d/dx(3x^3 - 5x^2 + 4x)">d/dx(3x³ − 5x² + 4x)</button>
+          <button class="intent-chip" data-tutor-chip="int(6x^2 - 4x + 5)">∫(6x² − 4x + 5) dx</button>
+          <button class="intent-chip" data-tutor-chip="${L('Bagaimana kira jumlah jarak kinematik?', 'How to find total distance in kinematics?')}">${L('Kinematik v=0', 'Kinematics v=0')}</button>
         </div>
 
         <div style="display:flex;gap:8px;margin-top:8px;">
@@ -646,6 +661,13 @@ window.AddMathApp = window.AddMathApp || {};
       if (currentView !== 'blitz' && blitzTimer) { clearInterval(blitzTimer); blitzState.active = false; }
       renderMain();
       window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
+
+    const formBtn = e.target.closest('[data-form-filter]');
+    if (formBtn) {
+      homeFormFilter = formBtn.getAttribute('data-form-filter');
+      renderMain();
       return;
     }
 
