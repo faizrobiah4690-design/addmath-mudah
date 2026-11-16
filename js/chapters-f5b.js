@@ -52,8 +52,8 @@ window.AddMathApp.chapters = window.AddMathApp.chapters || [];
             en: 'For continuous variables (height, mass, time), the bell curve is symmetric about $\\mu$ with total area $1$. Standardize $X$ to **$Z \\sim N(0, 1)$**!'
           },
           formulas: [
-            { label: { bm: 'Pembolehubah Piawai Skor-Z', en: 'Standard Normal Z-Score' }, tex: 'Z = \\frac{X - \\mu}{\\sigma}' },
-            { label: { bm: 'Simetri Ekor Lengkung Normal', en: 'Bell Curve Symmetry Rules' }, tex: 'P(Z < -a) = P(Z > a), \\qquad P(Z > -a) = 1 - P(Z > a)' }
+            { label: { bm: 'Pemboleh Ubah Piawai Skor-Z', en: 'Standard Normal Z-Score' }, tex: 'Z = \\frac{X - \\mu}{\\sigma}' },
+            { label: { bm: 'Simetri Hujung Lengkung Normal', en: 'Bell Curve Symmetry Rules' }, tex: 'P(Z < -a) = P(Z > a), \\qquad P(Z > -a) = 1 - P(Z > a)' }
           ],
           tip: {
             bm: 'Hati-hati tatatanda N(μ, σ²): nombor kedua ialah VARIANS σ², jadi punca kuasakan dahulu untuk mendapatkan sisihan piawai σ!',
@@ -73,27 +73,30 @@ window.AddMathApp.chapters = window.AddMathApp.chapters || [];
       solvers: [
         {
           id: 'binomial-normal-solver',
-          title: { bm: 'Solver Taburan Normal Skor-Z & Kebarangkalian Ekor', en: 'Normal Z-Score & Tail Probability Solver' },
+          title: { bm: 'Solver Taburan Normal Skor-Z & Kebarangkalian', en: 'Normal Z-Score & Tail Probability Solver' },
           desc: {
             bm: 'Masukkan nilai X, min μ, dan sisihan piawai σ untuk menjana skor-Z, P(Z < z), dan P(Z > z).',
             en: 'Enter X, mean μ, and standard deviation σ to compute Z-score, P(Z < z), and P(Z > z).'
           },
           inputs: [
-            { id: 'x', label: 'Nilai X', default: 68 },
-            { id: 'mu', label: 'Min μ', default: 60 },
+            { id: 'x', label: { bm: 'Nilai X', en: 'Value X' }, default: 68 },
+            { id: 'mu', label: { bm: 'Min (Purata) μ', en: 'Mean μ' }, default: 60 },
             { id: 'sd', label: { bm: 'Sisihan piawai σ', en: 'Std Dev σ' }, default: 5 }
           ],
           solve: function (v, lang) {
-            const x = Number(v.x) || 0, mu = Number(v.mu) || 0, sd = Math.max(0.1, Math.abs(Number(v.sd) || 1));
+            const rawX = Number(v.x), rawMu = Number(v.mu), rawSd = Number(v.sd);
+            const x = Number.isFinite(rawX) ? rawX : 68;
+            const mu = Number.isFinite(rawMu) ? rawMu : 60;
+            const sd = Math.max(0.1, Math.abs(Number.isFinite(rawSd) && rawSd !== 0 ? rawSd : 5));
             const z = (x - mu) / sd;
             const pLess = U.normalCDF(z);
             const pGreater = 1 - pLess;
             return {
               problemTex: `X \\sim N(${mu},\\; ${U.roundStr(sd * sd)}), \\quad X = ${x}`,
               steps: [
-                { badge: 'P1', title: lang === 'bm' ? 'Langkah 1: Piawaikan kepada Skor-Z' : 'Step 1: Standardize to Z-Score', tex: `Z = \\frac{${x} - ${mu}}{${sd}} = ${U.roundStr(z, 3)}`, why: lang === 'bm' ? 'Guna Z = (X − μ) / σ.' : 'Apply Z = (X − μ) / σ.' },
-                { badge: 'K1', title: lang === 'bm' ? 'Langkah 2: Kebarangkalian kumulatif kiri P(X < x)' : 'Step 2: Left cumulative probability P(X < x)', tex: `P(Z < ${U.roundStr(z, 3)}) = ${U.roundStr(pLess, 4)}`, why: lang === 'bm' ? 'Luas di sebelah kiri garis Z.' : 'Area to the left of Z.' },
-                { badge: 'J1', title: lang === 'bm' ? 'Langkah 3: Kebarangkalian ekor kanan P(X > x)' : 'Step 3: Right-tail probability P(X > x)', tex: `P(Z > ${U.roundStr(z, 3)}) = 1 - ${U.roundStr(pLess, 4)} = ${U.roundStr(pGreater, 4)}`, why: lang === 'bm' ? 'Jumlah luas lengkung normal ialah 1.' : 'Total area under normal curve is 1.' }
+                { badge: 'P1', title: lang === 'bm' ? 'Langkah 1: Tukar kepada Skor-Z' : 'Step 1: Standardize to Z-Score', tex: `Z = \\frac{${x} - ${mu}}{${sd}} = ${U.roundStr(z, 3)}`, why: lang === 'bm' ? 'Guna Z = (X − μ) / σ.' : 'Apply Z = (X − μ) / σ.' },
+                { badge: 'K1', title: lang === 'bm' ? 'Langkah 2: Kebarangkalian kawasan kiri P(X < x)' : 'Step 2: Left cumulative probability P(X < x)', tex: `P(Z < ${U.roundStr(z, 3)}) = ${U.roundStr(pLess, 4)}`, why: lang === 'bm' ? 'Luas di sebelah kiri garis Z.' : 'Area to the left of Z.' },
+                { badge: 'J1', title: lang === 'bm' ? 'Langkah 3: Kebarangkalian kawasan kanan P(X > x)' : 'Step 3: Right-tail probability P(X > x)', tex: `P(Z > ${U.roundStr(z, 3)}) = 1 - ${U.roundStr(pLess, 4)} = ${U.roundStr(pGreater, 4)}`, why: lang === 'bm' ? 'Jumlah luas lengkung normal ialah 1.' : 'Total area under normal curve is 1.' }
               ],
               finalTex: `Z = ${U.roundStr(z, 2)}, \\quad P(X > ${x}) = ${U.roundStr(pGreater, 4)}`
             };
@@ -102,7 +105,6 @@ window.AddMathApp.chapters = window.AddMathApp.chapters || [];
       ],
       generateQuestion: function (tier, lang) {
         if (tier === 1) {
-          // Binomial mean & variance -> find SD or variance! Let's make exact clean numbers: n=100, p=0.2 (q=0.8 -> npq=16 -> sd=4) or n=25, p=0.2 (npq=4, sd=2) or n=36, p=0.5 (npq=9, sd=3) or n=64, p=0.5 (npq=16, sd=4)
           const cfg = U.pick([
             { n: 25, p: 0.2, sd: 2 },
             { n: 36, p: 0.5, sd: 3 },
@@ -129,9 +131,9 @@ window.AddMathApp.chapters = window.AddMathApp.chapters || [];
             ],
             hints: [lang === 'bm' ? 'Cari q = 1 − p, kemudian kira √(npq).' : 'Find q = 1 − p, then compute √(npq).'],
             steps: [
-              { badge: 'P1', title: lang === 'bm' ? 'Kira q = 1 − p' : 'Find q = 1 − p', tex: `q = 1 - ${cfg.p} = ${qVal}`, why: 'Kebarangkalian gagal.' },
-              { badge: 'K1', title: lang === 'bm' ? 'Kira varians npq' : 'Compute variance npq', tex: `\\sigma^2 = (${cfg.n})(${cfg.p})(${qVal}) = ${varVal}`, why: 'Rumus varians binomial.' },
-              { badge: 'J1', title: lang === 'bm' ? 'Sisihan piawai σ' : 'Standard deviation σ', tex: `\\sigma = \\sqrt{${varVal}} = ${cfg.sd}`, why: 'Punca kuasa dua varians.' }
+              { badge: 'P1', title: lang === 'bm' ? 'Kira q = 1 − p' : 'Find q = 1 − p', tex: `q = 1 - ${cfg.p} = ${qVal}`, why: lang === 'bm' ? 'Kebarangkalian gagal.' : 'Probability of failure.' },
+              { badge: 'K1', title: lang === 'bm' ? 'Kira varians npq' : 'Compute variance npq', tex: `\\sigma^2 = (${cfg.n})(${cfg.p})(${qVal}) = ${varVal}`, why: lang === 'bm' ? 'Rumus varians binomial.' : 'Binomial variance formula.' },
+              { badge: 'J1', title: lang === 'bm' ? 'Sisihan piawai σ' : 'Standard deviation σ', tex: `\\sigma = \\sqrt{${varVal}} = ${cfg.sd}`, why: lang === 'bm' ? 'Punca kuasa dua varians.' : 'Square root of variance.' }
             ]
           };
         }
@@ -150,16 +152,16 @@ window.AddMathApp.chapters = window.AddMathApp.chapters || [];
             answerType: 'number', tolerance: 0.002, correctValue: prob, displayAnswerTex: `P(X=${r}) = ${prob}`,
             intentMeta: { given: `n = ${n}, p = ${p}, q = ${q}, r = ${r}`, goal: 'Kira ⁵Cᵣ pʳ q⁵⁻ʳ', conceptRule: 'P(X = r) = ⁿCᵣ pʳ qⁿ⁻ʳ' },
             guidedSteps: [
-              { prompt: { bm: `Berapakah nilai pekali gabungan $^{${n}}C_{${r}}$?`, en: `What is the combination coefficient $^{${n}}C_{${r}}$?` }, expected: U.nCr(n, r), hint: { bm: `⁵C₂ = 10 dan ⁵C₃ = 10.`, en: `⁵C₂ = 10 and ⁵C₃ = 10.` } },
-              { prompt: { bm: `Darabkan $^{${n}}C_{${r}} \\times (${p})^{${r}} \\times (${q})^{${n - r}}$ (4 t.p.):`, en: `Multiply $^{${n}}C_{${r}} \\times (${p})^{${r}} \\times (${q})^{${n - r}}$ (4 d.p.):` }, expected: prob, hint: { bm: `Kira ${U.nCr(n, r)} × ${U.roundStr(Math.pow(p, r), 4)} × ${U.roundStr(Math.pow(q, n - r), 4)}.`, en: `Evaluate ${U.nCr(n, r)} × ${U.roundStr(Math.pow(p, r), 4)} × ${U.roundStr(Math.pow(q, n - r), 4)}.` } }
+              { prompt: { bm: `Berapakah nilai pekali gabungan $\\,{}^{${n}}C_{${r}}$?`, en: `What is the combination coefficient $\\,{}^{${n}}C_{${r}}$?` }, expected: U.nCr(n, r), hint: { bm: `⁵C₂ = 10 dan ⁵C₃ = 10.`, en: `⁵C₂ = 10 and ⁵C₃ = 10.` } },
+              { prompt: { bm: `Darabkan $\\,{}^{${n}}C_{${r}} \\times (${p})^{${r}} \\times (${q})^{${n - r}}$ (4 t.p.):`, en: `Multiply $\\,{}^{${n}}C_{${r}} \\times (${p})^{${r}} \\times (${q})^{${n - r}}$ (4 d.p.):` }, expected: prob, hint: { bm: `Kira ${U.nCr(n, r)} × ${U.roundStr(Math.pow(p, r), 4)} × ${U.roundStr(Math.pow(q, n - r), 4)}.`, en: `Evaluate ${U.nCr(n, r)} × ${U.roundStr(Math.pow(p, r), 4)} × ${U.roundStr(Math.pow(q, n - r), 4)}.` } }
             ],
             traps: [
               { value: U.round(Math.pow(p, r) * Math.pow(q, n - r), 4), message: { bm: 'Perangkap [P]: Anda terlupa mendarab pekali gabungan ⁿCᵣ di hadapan!', en: 'Trap [P]: You forgot the ⁿCᵣ combination factor in front!' } }
             ],
             hints: [lang === 'bm' ? 'Guna P(X = r) = ⁿCᵣ pʳ (1 − p)ⁿ⁻ʳ.' : 'Apply P(X = r) = ⁿCᵣ pʳ (1 − p)ⁿ⁻ʳ.'],
             steps: [
-              { badge: 'P1', title: lang === 'bm' ? 'Gantikan ke dalam rumus Binomial' : 'Substitute into Binomial formula', tex: `P(X=${r}) = \\,^{${n}}C_{${r}}(${p})^{${r}}(${q})^{${n - r}}`, why: 'q = 1 − p.' },
-              { badge: 'J1', title: lang === 'bm' ? 'Kebarangkalian tepat' : 'Exact probability', tex: `= ${U.nCr(n, r)} \\times ${U.roundStr(Math.pow(p, r), 4)} \\times ${U.roundStr(Math.pow(q, n - r), 4)} = ${prob}`, why: '4 t.p.' }
+              { badge: 'P1', title: lang === 'bm' ? 'Gantikan ke dalam rumus Binomial' : 'Substitute into Binomial formula', tex: `P(X=${r}) = {}^{${n}}C_{${r}}(${p})^{${r}}(${q})^{${n - r}}`, why: 'q = 1 − p.' },
+              { badge: 'J1', title: lang === 'bm' ? 'Kebarangkalian tepat' : 'Exact probability', tex: `= ${U.nCr(n, r)} \\times ${U.roundStr(Math.pow(p, r), 4)} \\times ${U.roundStr(Math.pow(q, n - r), 4)} = ${prob}`, why: lang === 'bm' ? '4 t.p.' : '4 d.p.' }
             ]
           };
         }
@@ -177,19 +179,19 @@ window.AddMathApp.chapters = window.AddMathApp.chapters || [];
             ? `Markah ujian sekumpulan pelajar bertaburan secara normal mengikut $X \\sim N(${mu},\\; ${sd * sd})$. Cari kebarangkalian seorang pelajar yang dipilih secara rawak mendapat markah **melebihi $${xCut}$**, iaitu $P(X > ${xCut})$ (bundarkan kepada 4 tempat perpuluhan).`
             : `Test scores of students follow a normal distribution $X \\sim N(${mu},\\; ${sd * sd})$. Find the probability that a randomly chosen student scores **more than $${xCut}$**, i.e. $P(X > ${xCut})$ (to 4 d.p.).`,
           answerType: 'number', tolerance: 0.002, correctValue: ans, displayAnswerTex: `P(Z > ${zTarget}) = ${ans}`,
-          intentMeta: { given: `X \\sim N(${mu}, ${sd * sd}) \\implies \\mu=${mu}, \\sigma=${sd}`, goal: 'Tukar X kepada Z dan kira ekor kanan P(Z > z)', conceptRule: 'Ingat σ = √(σ²)! Z = (X − μ) / σ' },
+          intentMeta: { given: `X \\sim N(${mu}, ${sd * sd}) \\implies \\mu=${mu}, \\sigma=${sd}`, goal: 'Tukar X kepada Z dan kira kawasan kanan P(Z > z)', conceptRule: 'Ingat σ = √(σ²)! Z = (X − μ) / σ' },
           guidedSteps: [
             { prompt: { bm: `Perhatikan tatatanda $N(${mu}, ${sd * sd})$ memberi $\\sigma^2 = ${sd * sd}$, maka $\\sigma = ${sd}$. Kira skor-$Z = \\frac{${xCut} - ${mu}}{${sd}}$:`, en: `Note $N(${mu}, ${sd * sd})$ gives $\\sigma^2 = ${sd * sd}$, so $\\sigma = ${sd}$. Compute $Z = \\frac{${xCut} - ${mu}}{${sd}}$:` }, expected: zTarget, hint: { bm: `Bahagi ${xCut - mu} dengan ${sd}.`, en: `Divide ${xCut - mu} by ${sd}.` } },
-            { prompt: { bm: `Cari kebarangkalian ekor kanan $P(Z > ${zTarget})$ (4 t.p.):`, en: `Find the upper-tail probability $P(Z > ${zTarget})$ (4 d.p.):` }, expected: ans, hint: { bm: `Daripada jadual normal piawai, P(Z > ${zTarget}) ≈ ${ans}.`, en: `From standard normal table, P(Z > ${zTarget}) ≈ ${ans}.` } }
+            { prompt: { bm: `Cari kebarangkalian kawasan kanan $P(Z > ${zTarget})$ (4 t.p.):`, en: `Find the right-tail probability $P(Z > ${zTarget})$ (4 d.p.):` }, expected: ans, hint: { bm: `Daripada jadual normal piawai, P(Z > ${zTarget}) ≈ ${ans}.`, en: `From standard normal table, P(Z > ${zTarget}) ≈ ${ans}.` } }
           ],
           traps: [
             { value: varTrapAns, message: { bm: `Perangkap Klasik SPM [P]: Dalam N(${mu}, ${sd * sd}), nombor ${sd * sd} ialah VARIANS σ²! Anda mesti membahagi dengan sisihan piawai σ = √${sd * sd} = ${sd}.`, en: `Classic SPM Trap [P]: In N(${mu}, ${sd * sd}), ${sd * sd} is VARIANCE σ²! Divide by σ = √${sd * sd} = ${sd}.` } },
-            { value: U.round(U.normalCDF(zTarget), 4), message: { bm: 'Perangkap [K]: Itu ialah luas kiri P(Z < z)! Bagi P(Z > z), tolak daripada 1.', en: 'Trap [K]: That is left area P(Z < z)! Subtract from 1 for upper tail P(Z > z).' } }
+            { value: U.round(U.normalCDF(zTarget), 4), message: { bm: 'Perangkap [K]: Itu ialah luas sebelah kiri P(Z < z)! Bagi P(Z > z), tolak daripada 1.', en: 'Trap [K]: That is left area P(Z < z)! Subtract from 1 for P(Z > z).' } }
           ],
-          hints: [lang === 'bm' ? 'Ambil σ = √(σ²) dahulu, kira Z, kemudian cari ekor atas P(Z > z).' : 'Take σ = √(σ²) first, compute Z, then find upper tail P(Z > z).'],
+          hints: [lang === 'bm' ? 'Ambil σ = √(σ²) dahulu, kira Z, kemudian cari kawasan kanan P(Z > z).' : 'Take σ = √(σ²) first, compute Z, then find right-tail area P(Z > z).'],
           steps: [
-            { badge: 'P1', title: lang === 'bm' ? 'Kenal pasti σ dan tukar ke skor-Z' : 'Identify σ and standardize to Z', tex: `\\sigma = \\sqrt{${sd * sd}} = ${sd}, \\qquad Z = \\frac{${xCut} - ${mu}}{${sd}} = ${zTarget}`, why: 'Elak perangkap varians!' },
-            { badge: 'J1', title: lang === 'bm' ? 'Kebarangkalian ekor kanan' : 'Upper-tail probability', tex: `P(X > ${xCut}) = P(Z > ${zTarget}) = ${ans}`, why: 'Jadual Taburan Normal Piawai.' }
+            { badge: 'P1', title: lang === 'bm' ? 'Kenal pasti σ dan tukar ke skor-Z' : 'Identify σ and standardize to Z', tex: `\\sigma = \\sqrt{${sd * sd}} = ${sd}, \\qquad Z = \\frac{${xCut} - ${mu}}{${sd}} = ${zTarget}`, why: lang === 'bm' ? 'Elak perangkap varians!' : 'Avoid the variance trap!' },
+            { badge: 'J1', title: lang === 'bm' ? 'Kebarangkalian kawasan kanan' : 'Right-tail probability', tex: `P(X > ${xCut}) = P(Z > ${zTarget}) = ${ans}`, why: lang === 'bm' ? 'Jadual Taburan Normal Piawai.' : 'Standard Normal Distribution Table.' }
           ]
         };
       }
@@ -210,13 +212,13 @@ window.AddMathApp.chapters = window.AddMathApp.chapters || [];
       category: 'trigo',
       title: { bm: 'Fungsi Trigonometri', en: 'Trigonometric Functions' },
       subtitle: {
-        bm: 'Suku ASTC, sec/csc/cot, identiti Pythagoras, sudut majmuk/berganda & lakaran gelombang',
+        bm: 'Sukuan ASTC, sec/csc/cot, identiti Pythagoras, sudut majmuk/berganda & lakaran gelombang',
         en: 'ASTC quadrants, sec/csc/cot, Pythagorean identities, compound/double angles & wave graphs'
       },
       spmWeight: { bm: 'Kertas 1 & Kertas 2 (8–12 markah)', en: 'Paper 1 & Paper 2 (8–12 marks)' },
       concepts: [
         {
-          title: { bm: '1. Suku ASTC, Nisbah Salingan & Identiti Pythagoras', en: '1. ASTC Quadrants, Reciprocal Ratios & Pythagorean Identities' },
+          title: { bm: '1. Sukuan ASTC, Nisbah Salingan & Identiti Pythagoras', en: '1. ASTC Quadrants, Reciprocal Ratios & Pythagorean Identities' },
           body: {
             bm: 'Gunakan peraturan **ASTC** (*Add Sugar To Coffee*): Sukuan I (**Semua +**), Sukuan II (**sin +**), Sukuan III (**tan +**), Sukuan IV (**kos +**). Perhatikan huruf ketiga bagi nisbah salingan!',
             en: 'Use **ASTC** (*All Students Take Calculus*): Q1 (**All +**), Q2 (**sin +**), Q3 (**tan +**), Q4 (**cos +**). Check the 3rd letter for reciprocal functions!'
@@ -258,10 +260,10 @@ window.AddMathApp.chapters = window.AddMathApp.chapters || [];
       solvers: [
         {
           id: 'trig-double-solver',
-          title: { bm: 'Solver Segi Tiga Suku ASTC & Sudut Berganda (sin 2A, kos 2A)', en: 'ASTC Quadrant & Double-Angle Exact Solver' },
+          title: { bm: 'Solver Segi Tiga Sukuan ASTC & Sudut Berganda (sin 2A, kos 2A)', en: 'ASTC Quadrant & Double-Angle Exact Solver' },
           desc: {
-            bm: 'Diberi sin A = p/q dan sukuan A (1–4), jana nilai tepat kos A, tan A, sin 2A & kos 2A.',
-            en: 'Given sin A = p/q and quadrant (1–4), generate exact cos A, tan A, sin 2A & cos 2A.'
+            bm: 'Diberi |sin A| = p/q dan sukuan A (1–4), jana nilai tepat kos A, tan A, sin 2A & kos 2A.',
+            en: 'Given |sin A| = p/q and quadrant (1–4), generate exact cos A, tan A, sin 2A & cos 2A.'
           },
           inputs: [
             { id: 'opp', label: { bm: 'Pengangka |p|', en: 'Numerator |p|' }, default: 3 },
@@ -269,7 +271,7 @@ window.AddMathApp.chapters = window.AddMathApp.chapters || [];
             { id: 'quad', label: { bm: 'Sukuan (1, 2, 3, 4)', en: 'Quadrant (1, 2, 3, 4)' }, default: 2 }
           ],
           solve: function (v, lang) {
-            const pAbs = Math.abs(Number(v.opp) || 3);
+            const pAbs = Math.max(1, Math.abs(Number(v.opp) || 3));
             const q = Math.max(pAbs + 1, Math.abs(Number(v.hyp) || 5));
             const quad = [1, 2, 3, 4].includes(Math.round(Number(v.quad))) ? Math.round(Number(v.quad)) : 2;
             const adjAbs = Math.sqrt(q * q - pAbs * pAbs);
@@ -277,16 +279,19 @@ window.AddMathApp.chapters = window.AddMathApp.chapters || [];
             const cosSgn = (quad === 1 || quad === 4) ? 1 : -1;
             const sinA = (sinSgn * pAbs) / q;
             const cosA = (cosSgn * adjAbs) / q;
+            const tanA = sinA / cosA;
             const sin2A = 2 * sinA * cosA;
             const cos2A = cosA * cosA - sinA * sinA;
+            const quadWord = lang === 'bm' ? 'Sukuan' : 'Quadrant';
+            const adjWord = lang === 'bm' ? 'Sisi bersebelahan' : 'Adjacent side';
             return {
-              problemTex: `|\\sin A| = \\frac{${pAbs}}{${q}}, \\quad \\text{Sukuan } ${quad}`,
+              problemTex: `|\\sin A| = \\frac{${pAbs}}{${q}}, \\quad \\text{${quadWord} } ${quad}`,
               steps: [
-                { badge: 'P1', title: lang === 'bm' ? 'Langkah 1: Teorem Pythagoras & tanda ASTC' : 'Step 1: Pythagoras & ASTC signs', tex: `\\text{Sisi bersebelahan} = \\sqrt{${q}^2 - ${pAbs}^2} = ${U.roundStr(adjAbs, 3)} \\implies \\sin A = ${U.roundStr(sinA, 4)},\\; \\cos A = ${U.roundStr(cosA, 4)}`, why: lang === 'bm' ? `Sukuan ${quad} menentukan tanda positif/negatif.` : `Quadrant ${quad} fixes the ASTC signs.` },
+                { badge: 'P1', title: lang === 'bm' ? 'Langkah 1: Teorem Pythagoras & tanda ASTC' : 'Step 1: Pythagoras & ASTC signs', tex: `\\text{${adjWord}} = \\sqrt{${q}^2 - ${pAbs}^2} = ${U.roundStr(adjAbs, 3)} \\implies \\sin A = ${U.roundStr(sinA, 4)},\\; \\cos A = ${U.roundStr(cosA, 4)},\\; \\tan A = ${U.roundStr(tanA, 4)}`, why: lang === 'bm' ? `Sukuan ${quad} menentukan tanda positif/negatif.` : `Quadrant ${quad} fixes the ASTC signs.` },
                 { badge: 'K1', title: lang === 'bm' ? 'Langkah 2: Kira sin 2A = 2 sin A kos A' : 'Step 2: Compute sin 2A = 2 sin A cos A', tex: `\\sin 2A = 2(${U.roundStr(sinA, 4)})(${U.roundStr(cosA, 4)}) = ${U.roundStr(sin2A, 4)}`, why: lang === 'bm' ? 'Rumus sudut berganda sinus.' : 'Sine double-angle identity.' },
                 { badge: 'J1', title: lang === 'bm' ? 'Langkah 3: Kira kos 2A = kos²A − sin²A' : 'Step 3: Compute cos 2A = cos²A − sin²A', tex: `\\cos 2A = (${U.roundStr(cosA, 4)})^2 - (${U.roundStr(sinA, 4)})^2 = ${U.roundStr(cos2A, 4)}`, why: lang === 'bm' ? 'Rumus sudut berganda kosinus.' : 'Cosine double-angle identity.' }
               ],
-              finalTex: `\\sin 2A = ${U.roundStr(sin2A, 4)}, \\quad \\cos 2A = ${U.roundStr(cos2A, 4)}`
+              finalTex: `\\tan A = ${U.roundStr(tanA, 4)},\\; \\sin 2A = ${U.roundStr(sin2A, 4)},\\; \\cos 2A = ${U.roundStr(cos2A, 4)}`
             };
           }
         }
@@ -313,19 +318,17 @@ window.AddMathApp.chapters = window.AddMathApp.chapters || [];
             ],
             hints: [lang === 'bm' ? 'Nilai maksimum ialah |a| + c.' : 'Maximum value is |a| + c.'],
             steps: [
-              { badge: 'P1', title: lang === 'bm' ? 'Amplitud |a|' : 'Amplitude |a|', tex: `|a| = |${a}| = ${Math.abs(a)}`, why: 'Julat sin(bx) ialah [−1, 1].' },
-              { badge: 'J1', title: lang === 'bm' ? 'Nilai maksimum y' : 'Maximum y', tex: `y_{\\max} = ${Math.abs(a)} + ${c} = ${yMax}`, why: 'Puncak gelombang.' }
+              { badge: 'P1', title: lang === 'bm' ? 'Amplitud |a|' : 'Amplitude |a|', tex: `|a| = |${a}| = ${Math.abs(a)}`, why: lang === 'bm' ? 'Julat sin(bx) ialah [−1, 1].' : 'Range of sin(bx) is [−1, 1].' },
+              { badge: 'J1', title: lang === 'bm' ? 'Nilai maksimum y' : 'Maximum y', tex: `y_{\\max} = ${Math.abs(a)} + ${c} = ${yMax}`, why: lang === 'bm' ? 'Puncak gelombang.' : 'Peak of the wave.' }
             ]
           };
         }
         if (tier === 2) {
-          // Double angle exact value in Quadrant II (obtuse angle): sin A = 3/5 or 5/13 or 4/5 -> find sin 2A or cos 2A
           const trip = U.pick([
             { opp: 3, adj: 4, hyp: 5 },
             { opp: 4, adj: 3, hyp: 5 },
             { opp: 5, adj: 12, hyp: 13 }
           ]);
-          // Angle A is obtuse (90° < A < 180°, Quadrant II): sin A = +opp/hyp, cos A = -adj/hyp -> sin 2A = -2*opp*adj / hyp^2
           const sin2A = U.round((-2 * trip.opp * trip.adj) / (trip.hyp * trip.hyp), 4);
           return {
             tier: 2, tpLabel: 'TP3–TP4', subtopic: { bm: '6.5 Sudut Berganda & Sukuan ASTC', en: '6.5 Double-Angle & ASTC Quadrant' }, marks: 4,
@@ -343,22 +346,21 @@ window.AddMathApp.chapters = window.AddMathApp.chapters || [];
             ],
             hints: [lang === 'bm' ? 'Dalam Sukuan II, kos A = −bersebelahan/hipotenus. Kemudian guna 2 sin A kos A.' : 'In Q2, cos A is negative. Then apply 2 sin A cos A.'],
             steps: [
-              { badge: 'P1', title: lang === 'bm' ? 'Tentukan kos A dalam Sukuan II' : 'Find cos A in Quadrant II', tex: `\\cos A = -\\frac{${trip.adj}}{${trip.hyp}}`, why: 'Hanya sin positif dalam Sukuan II.' },
-              { badge: 'K1', title: lang === 'bm' ? 'Ganti ke dalam sin 2A = 2 sin A kos A' : 'Substitute into sin 2A = 2 sin A cos A', tex: `\\sin 2A = 2\\left(\\frac{${trip.opp}}{${trip.hyp}}\\right)\\left(-\\frac{${trip.adj}}{${trip.hyp}}\\right)`, why: 'Rumus sudut berganda.' },
-              { badge: 'J1', title: lang === 'bm' ? 'Nilai tepat' : 'Exact value', tex: `= ${U.fracTex(-2 * trip.opp * trip.adj, trip.hyp * trip.hyp)}`, why: 'Tepat.' }
+              { badge: 'P1', title: lang === 'bm' ? 'Tentukan kos A dalam Sukuan II' : 'Find cos A in Quadrant II', tex: `\\cos A = -\\frac{${trip.adj}}{${trip.hyp}}`, why: lang === 'bm' ? 'Hanya sin positif dalam Sukuan II.' : 'Only sin is positive in Quadrant II.' },
+              { badge: 'K1', title: lang === 'bm' ? 'Ganti ke dalam sin 2A = 2 sin A kos A' : 'Substitute into sin 2A = 2 sin A cos A', tex: `\\sin 2A = 2\\left(\\frac{${trip.opp}}{${trip.hyp}}\\right)\\left(-\\frac{${trip.adj}}{${trip.hyp}}\\right)`, why: lang === 'bm' ? 'Rumus sudut berganda.' : 'Double-angle identity.' },
+              { badge: 'J1', title: lang === 'bm' ? 'Nilai tepat' : 'Exact value', tex: `= ${U.fracTex(-2 * trip.opp * trip.adj, trip.hyp * trip.hyp)}`, why: lang === 'bm' ? 'Tepat.' : 'Exact.' }
             ]
           };
         }
-        // Tier 3 KBAT: Number of solutions of |2 sin(bx)| = k or 2 cos(bx) + 1 = 0 on [0, 2pi]
+        // Tier 3 KBAT: Number of solutions of 2 sin(bx) - 1 = 0 on [0, 360°]
         const b = U.pick([2, 3]);
-        // Equation: sin(bx) = 1/2 for 0 <= x <= 360° -> each cycle of sin has 2 solutions for 1/2, so b cycles give 2b solutions!
         const rootsCount = 2 * b;
         return {
           tier: 3, tpLabel: 'TP5–TP6 (KBAT)', subtopic: { bm: '6.6 Bilangan Penyelesaian Persamaan Trigonometri', en: '6.6 Counting Roots via Wave Sketching' }, marks: 4,
           prompt: lang === 'bm'
             ? `Berapakah **bilangan penyelesaian** bagi persamaan $2\\sin(${b}x) - 1 = 0$ dalam julat $0^\\circ \\le x \\le 360^\\circ$?`
             : `How many **solutions (roots)** does the equation $2\\sin(${b}x) - 1 = 0$ have in the interval $0^\\circ \\le x \\le 360^\\circ$?`,
-          answerType: 'number', correctValue: rootsCount, displayAnswerTex: `${rootsCount}\\text{ penyelesaian}`,
+          answerType: 'number', correctValue: rootsCount, displayAnswerTex: `${rootsCount}\\text{ ${lang === 'bm' ? 'penyelesaian' : 'solutions'}}`,
           intentMeta: { given: `\\sin(${b}x) = \\frac{1}{2},\\; 0^\\circ \\le x \\le 360^\\circ`, goal: 'Kira bilangan persilangan gelombang sin(bx) dengan garis y = 1/2', conceptRule: 'Terdapat b kitaran penuh dalam 360°, setiap kitaran memotong y = 0.5 sebanyak 2 kali' },
           guidedSteps: [
             { prompt: { bm: `Berapakah **bilangan kitaran penuh** bagi $y = \\sin(${b}x)$ dalam $0^\\circ \\le x \\le 360^\\circ$?`, en: `How many **complete cycles** does $y = \\sin(${b}x)$ make on $0^\\circ \\le x \\le 360^\\circ$?` }, expected: b, hint: { bm: `Pekali sudut ialah b = ${b}.`, en: `Coefficient of x is b = ${b}.` } },
@@ -369,9 +371,9 @@ window.AddMathApp.chapters = window.AddMathApp.chapters || [];
           ],
           hints: [lang === 'bm' ? 'Tulis semula sin(bx) = 0.5. Setiap satu daripada b kitaran memberi 2 persilangan!' : 'Rewrite sin(bx) = 0.5. Each of the b cycles yields 2 intersections!'],
           steps: [
-            { badge: 'P1', title: lang === 'bm' ? 'Susun semula persamaan garis' : 'Rearrange for line intersection', tex: `\\sin(${b}x) = \\frac{1}{2}`, why: 'Persilangan gelombang y = sin(bx) dengan y = 0.5.' },
-            { badge: 'K1', title: lang === 'bm' ? 'Kira kitaran dalam 0° ≤ x ≤ 360°' : 'Count cycles in 0° ≤ x ≤ 360°', tex: `\\text{Bilangan kitaran} = ${b}`, why: 'Setiap kitaran memotong y = 0.5 pada Q1 & Q2.' },
-            { badge: 'J1', title: lang === 'bm' ? 'Jumlah penyelesaian' : 'Total number of roots', tex: `${b} \\times 2 = ${rootsCount}`, why: 'Tepat.' }
+            { badge: 'P1', title: lang === 'bm' ? 'Susun semula persamaan garis' : 'Rearrange for line intersection', tex: `\\sin(${b}x) = \\frac{1}{2}`, why: lang === 'bm' ? 'Persilangan gelombang y = sin(bx) dengan y = 0.5.' : 'Intersection of y = sin(bx) with y = 0.5.' },
+            { badge: 'K1', title: lang === 'bm' ? 'Kira kitaran dalam 0° ≤ x ≤ 360°' : 'Count cycles in 0° ≤ x ≤ 360°', tex: `\\text{${lang === 'bm' ? 'Bilangan kitaran' : 'Number of cycles'}} = ${b}`, why: lang === 'bm' ? 'Setiap kitaran memotong y = 0.5 pada Q1 & Q2.' : 'Each cycle crosses y = 0.5 in Q1 & Q2.' },
+            { badge: 'J1', title: lang === 'bm' ? 'Jumlah penyelesaian' : 'Total number of roots', tex: `${b} \\times 2 = ${rootsCount}`, why: lang === 'bm' ? 'Tepat.' : 'Exact.' }
           ]
         };
       }
@@ -392,7 +394,7 @@ window.AddMathApp.chapters = window.AddMathApp.chapters || [];
       category: 'aplikasi',
       title: { bm: 'Pengaturcaraan Linear', en: 'Linear Programming' },
       subtitle: {
-        bm: 'Menterjemah kekangan ketaksamaan, melorek rantau tersaur R & mengoptimumkan k = ax + by',
+        bm: 'Menterjemah kekangan ketaksamaan, melorek rantau R (feasible region) & mengoptimumkan k = ax + by',
         en: 'Translating constraint inequalities, shading feasible region R & optimizing k = ax + by'
       },
       spmWeight: { bm: 'Kertas 2 Bhg C Pilihan Popular (10 markah!)', en: 'Paper 2 Sec C Top Scorer (10 marks!)' },
@@ -406,7 +408,7 @@ window.AddMathApp.chapters = window.AddMathApp.chapters || [];
           formulas: [
             { label: { bm: 'Selebih-lebihnya / Tidak Melebihi / Maksimum', en: 'At Most / Does Not Exceed / Maximum' }, tex: 'x + y \\le k \\quad (\\text{Garis padu } \\le,\\; \\text{lorek bawah})' },
             { label: { bm: 'Sekurang-kurangnya / Tidak Kurang Daripada', en: 'At Least / Minimum / Not Less Than' }, tex: 'x + y \\ge k \\quad (\\text{Garis padu } \\ge,\\; \\text{lorek atas})' },
-            { label: { bm: 'Ketaksamaan Tegas (< atau >)', en: 'Strict Inequality (< or >)' }, tex: 'y < 2x \\quad (\\text{Garis SEMPADAN PUTUS-PUTUS!})' }
+            { label: { bm: 'Ketaksamaan < atau > (Garis Putus-putus)', en: 'Strict Inequality (< or >)' }, tex: 'y < 2x \\quad (\\text{Garis SEMPADAN PUTUS-PUTUS!})' }
           ],
           tip: {
             bm: 'Sentiasa semak: "y melebihi x selebih-lebihnya k" bermaksud y − x ≤ k!',
@@ -414,9 +416,9 @@ window.AddMathApp.chapters = window.AddMathApp.chapters || [];
           }
         },
         {
-          title: { bm: '2. Rantau Tersaur R & Pengoptimuman Bucu k = ax + by', en: '2. Feasible Region R & Corner Vertex Optimization' },
+          title: { bm: '2. Rantau Berlorek R (Feasible Region) & Nilai Optimum pada Bucu', en: '2. Feasible Region R & Corner Vertex Optimization' },
           body: {
-            bm: 'Nilai maksimum atau minimum bagi fungsi objektif $k = ax + by$ berlaku pada **bucu-bucu (verteks)** rantau tersaur $R$. Jika $x$ dan $y$ mewakili bilangan orang, kerusi, atau bungkusan, koordinat $(x, y)$ **wajib bernilai integer** di dalam $R$!',
+            bm: 'Nilai maksimum atau minimum bagi fungsi objektif $k = ax + by$ berlaku pada **bucu-bucu** rantau berlorek $R$ (*feasible region*). Jika $x$ dan $y$ mewakili bilangan orang, kerusi, atau bungkusan, koordinat $(x, y)$ **wajib bernilai integer (nombor bulat)** di dalam $R$!',
             en: 'Optimal values of $k = ax + by$ occur at the **corner vertices** of feasible region $R$. If $x, y$ represent discrete objects (people, chairs, boxes), only **integer coordinates $(x, y)$ inside $R$** are valid!'
           },
           formulas: [
@@ -430,9 +432,9 @@ window.AddMathApp.chapters = window.AddMathApp.chapters || [];
       ],
       traps: [
         {
-          title: { bm: 'Memilih Koordinat Perpuluhan bagi Objek Diskret', en: 'Picking Non-Integer Coordinates for Discrete Items' },
+          title: { bm: 'Memilih Koordinat Perpuluhan bagi Objek Bilangan Bulat', en: 'Picking Non-Integer Coordinates for Discrete Items' },
           desc: {
-            bm: 'Jika bucu persilangan ialah (12.5, 17.5) bagi bilangan meja dan kerusi, anda TIDAK boleh membeli 12.5 meja! Pilih titik integer terdekat DI DALAM rantau R.',
+            bm: 'Jika bucu persilangan ialah (12.5, 17.5) bagi bilangan meja dan kerusi, anda TIDAK boleh membeli 12.5 meja! Pilih titik nombor bulat terdekat DI DALAM rantau R.',
             en: 'If lines intersect at (12.5, 17.5) tables and chairs, you cannot make 0.5 tables! Test nearby integer points INSIDE region R.'
           }
         }
@@ -440,27 +442,27 @@ window.AddMathApp.chapters = window.AddMathApp.chapters || [];
       solvers: [
         {
           id: 'lp-vertex-optimizer',
-          title: { bm: 'Pengoptimum Bucu Rantau Tersaur (k = ax + by)', en: 'Feasible Region Corner Optimizer (k = ax + by)' },
+          title: { bm: 'Kalkulator Nilai Optimum Bucu Rantau R (k = ax + by)', en: 'Feasible Region Corner Optimizer (k = ax + by)' },
           desc: {
             bm: 'Bagi kekangan x ≥ 0, y ≥ 0, x + y ≤ S, dan 2x + y ≤ M, cari kesemua bucu R dan keuntungan maksimum k = px + qy.',
             en: 'For x ≥ 0, y ≥ 0, x + y ≤ S, and 2x + y ≤ M, find all corner vertices and maximize profit k = px + qy.'
           },
           inputs: [
-            { id: 'S', label: 'Had x + y ≤ S', default: 50 },
-            { id: 'M', label: 'Had 2x + y ≤ M', default: 80 },
-            { id: 'p', label: 'Untung x (RM p)', default: 30 },
-            { id: 'q', label: 'Untung y (RM q)', default: 20 }
+            { id: 'S', label: { bm: 'Had x + y ≤ S', en: 'Limit x + y ≤ S' }, default: 50 },
+            { id: 'M', label: { bm: 'Had 2x + y ≤ M', en: 'Limit 2x + y ≤ M' }, default: 80 },
+            { id: 'p', label: { bm: 'Untung x (RM p)', en: 'Profit x (RM p)' }, default: 30 },
+            { id: 'q', label: { bm: 'Untung y (RM q)', en: 'Profit y (RM q)' }, default: 20 }
           ],
           solve: function (v, lang) {
             const S = Math.max(5, Number(v.S) || 50);
             const M = Math.max(5, Number(v.M) || 80);
-            const p = Number(v.p) || 30, q = Number(v.q) || 20;
+            const p = Number.isFinite(Number(v.p)) ? Number(v.p) : 30;
+            const q = Number.isFinite(Number(v.q)) ? Number(v.q) : 20;
             const candidates = [
               [0, 0],
               [0, Math.min(S, M)],
               [Math.min(S, M / 2), 0]
             ];
-            // Intersection of x + y = S and 2x + y = M -> x = M - S, y = 2S - M
             const ix = M - S, iy = 2 * S - M;
             if (ix >= 0 && iy >= 0) candidates.push([ix, iy]);
 
@@ -470,40 +472,66 @@ window.AddMathApp.chapters = window.AddMathApp.chapters || [];
               if (kv > bestK) { bestK = kv; bestPt = [cx, cy]; }
               return `(${U.roundStr(cx)}, ${U.roundStr(cy)}) \\to ${U.roundStr(kv)}`;
             });
+            const atWord = lang === 'bm' ? 'pada' : 'at';
 
             return {
               problemTex: `x+y \\le ${S},\\; 2x+y \\le ${M},\\; x,y \\ge 0; \\quad \\max k = ${p}x + ${q}y`,
               steps: [
                 { badge: 'P1', title: lang === 'bm' ? 'Langkah 1: Kenal pasti bucu-bucu rantau R' : 'Step 1: Identify corner vertices of R', tex: candidates.map((pt) => `(${U.roundStr(pt[0])}, ${U.roundStr(pt[1])})`).join(',\\; '), why: lang === 'bm' ? 'Pintasan paksi & persilangan dua sempadan.' : 'Axis intercepts & boundary intersection.' },
                 { badge: 'K1', title: lang === 'bm' ? 'Langkah 2: Uji fungsi objektif k pada setiap bucu' : 'Step 2: Evaluate objective k at each vertex', tex: evalRows.join(', \\quad '), why: lang === 'bm' ? 'Bandingkan nilai k = px + qy.' : 'Compare k = px + qy at every vertex.' },
-                { badge: 'J1', title: lang === 'bm' ? 'Langkah 3: Titik & nilai optimum' : 'Step 3: Optimal point & maximum k', tex: `k_{\\max} = ${U.roundStr(bestK)} \\quad \\text{pada } (${U.roundStr(bestPt[0])}, ${U.roundStr(bestPt[1])})`, why: lang === 'bm' ? 'Nilai tertinggi dalam rantau R.' : 'Highest objective value in R.' }
+                { badge: 'J1', title: lang === 'bm' ? 'Langkah 3: Titik & nilai optimum' : 'Step 3: Optimal point & maximum k', tex: `k_{\\max} = ${U.roundStr(bestK)} \\quad \\text{${atWord} } (${U.roundStr(bestPt[0])}, ${U.roundStr(bestPt[1])})`, why: lang === 'bm' ? 'Nilai tertinggi dalam rantau R.' : 'Highest objective value in R.' }
               ],
-              finalTex: `k_{\\max} = \\text{RM }${U.roundStr(bestK)} \\text{ pada } (${U.roundStr(bestPt[0])}, ${U.roundStr(bestPt[1])})`
+              finalTex: `k_{\\max} = \\text{RM }${U.roundStr(bestK)} \\text{ ${atWord} } (${U.roundStr(bestPt[0])}, ${U.roundStr(bestPt[1])})`
             };
           }
         }
       ],
       generateQuestion: function (tier, lang) {
         if (tier === 1) {
+          const variant = U.pick([
+            {
+              bm: `Sebuah bengkel menghasilkan $x$ buah meja dan $y$ buah kerusi. Bilangan kerusi adalah **sekurang-kurangnya $2$ kali** bilangan meja. Pilih ketaksamaan yang betul:\n**1)** $y \\ge 2x$   |   **2)** $y \\le 2x$   |   **3)** $x \\ge 2y$`,
+              en: `A workshop produces $x$ tables and $y$ chairs. The number of chairs is **at least twice** the number of tables. Choose the correct inequality:\n**1)** $y \\ge 2x$   |   **2)** $y \\le 2x$   |   **3)** $x \\ge 2y$`,
+              ans: '1', ansTex: '1)\\; y \\ge 2x', trapVal: 2,
+              trapBm: 'Perangkap [P]: y ≤ 2x bermaksud "selebih-lebihnya 2 kali"! "Sekurang-kurangnya" ialah ≥.',
+              trapEn: 'Trap [P]: y ≤ 2x means "at most twice"! "At least" requires ≥.',
+              rule: '"Sekurang-kurangnya" bermaksud ≥, maka y ≥ 2x',
+              stepTex: '\\text{Kerusi }(y) \\ge 2 \\times \\text{Meja }(x) \\implies y \\ge 2x'
+            },
+            {
+              bm: `Sebuah kedai kek membuat $x$ biji kek coklat dan $y$ biji kek keju. **Jumlah kedua-dua kek tidak melebihi $60$ biji**. Pilih ketaksamaan yang betul:\n**1)** $x + y \\ge 60$   |   **2)** $x + y \\le 60$   |   **3)** $x + y < 60$`,
+              en: `A bakery bakes $x$ chocolate cakes and $y$ cheesecakes. The **total number of cakes does not exceed $60$**. Choose the correct inequality:\n**1)** $x + y \\ge 60$   |   **2)** $x + y \\le 60$   |   **3)** $x + y < 60$`,
+              ans: '2', ansTex: '2)\\; x + y \\le 60', trapVal: 3,
+              trapBm: 'Perangkap [P]: "Tidak melebihi 60" masih membenarkan nilai tepat 60, jadi wajib guna ≤ (bukan <)!',
+              trapEn: 'Trap [P]: "Does not exceed 60" includes 60 itself, so use ≤ (not strict <)!',
+              rule: '"Tidak melebihi" termasuk nilai had → guna ≤',
+              stepTex: 'x + y \\le 60'
+            },
+            {
+              bm: `Bilangan peserta perempuan ($y$) **melebihi bilangan peserta lelaki ($x$) selebih-lebihnya $15$ orang**. Pilih ketaksamaan yang betul:\n**1)** $y - x \\ge 15$   |   **2)** $x - y \\le 15$   |   **3)** $y - x \\le 15$`,
+              en: `The number of female participants ($y$) **exceeds male participants ($x$) by at most $15$**. Choose the correct inequality:\n**1)** $y - x \\ge 15$   |   **2)** $x - y \\le 15$   |   **3)** $y - x \\le 15$`,
+              ans: '3', ansTex: '3)\\; y - x \\le 15', trapVal: 1,
+              trapBm: 'Perangkap [P]: "Selebih-lebihnya 15" bermaksud beza maksimum ialah 15, jadi y − x ≤ 15!',
+              trapEn: 'Trap [P]: "By at most 15" caps the difference at 15, giving y − x ≤ 15!',
+              rule: '"y melebihi x selebih-lebihnya 15" → y − x ≤ 15',
+              stepTex: 'y - x \\le 15'
+            }
+          ]);
           return {
             tier: 1, tpLabel: 'TP1–TP2', subtopic: { bm: '7.1 Menterjemah Kekangan Ayat kepada Ketaksamaan', en: '7.1 Translating Verbal Constraints to Inequalities' }, marks: 2,
-            prompt: lang === 'bm'
-              ? `Sebuah bengkel menghasilkan $x$ buah meja dan $y$ buah kerusi. Bilangan kerusi adalah **sekurang-kurangnya $2$ kali** bilangan meja. Pilih ketaksamaan yang betul:\n` +
-                `**1)** $y \\ge 2x$   |   **2)** $y \\le 2x$   |   **3)** $x \\ge 2y$\n*(Taip nombor pilihan 1, 2, atau 3)*`
-              : `A workshop produces $x$ tables and $y$ chairs. The number of chairs is **at least twice** the number of tables. Choose the correct inequality:\n` +
-                `**1)** $y \\ge 2x$   |   **2)** $y \\le 2x$   |   **3)** $x \\ge 2y$\n*(Enter option 1, 2, or 3)*`,
-            answerType: 'choice', correctValue: '1', displayAnswerTex: '1)\\; y \\ge 2x',
-            placeholder: { bm: 'Taip 1, 2, atau 3', en: 'Enter 1, 2, or 3' },
-            intentMeta: { given: 'kerusi = y, meja = x, sekurang-kurangnya 2 kali', goal: 'Terjemah kepada ketaksamaan', conceptRule: '"Sekurang-kurangnya" bermaksud ≥, maka y ≥ 2x' },
+            prompt: lang === 'bm' ? variant.bm : variant.en,
+            answerType: 'choice', correctValue: variant.ans, displayAnswerTex: variant.ansTex,
+            placeholder: { bm: 'Pilih atau taip 1, 2, atau 3', en: 'Pick or type 1, 2, or 3' },
+            intentMeta: { given: 'Kekangan ayat pengaturcaraan linear', goal: 'Terjemah kata kunci kepada tanda ≤, ≥, <, atau >', conceptRule: variant.rule },
             guidedSteps: [
-              { prompt: { bm: `Apakah pilihan yang mewakili $y$ lebih besar atau sama dengan $2x$ (taip 1, 2, atau 3)?`, en: `Which option states $y$ is greater than or equal to $2x$ (enter 1, 2, or 3)?` }, expected: 1, hint: { bm: `"Sekurang-kurangnya" ialah ≥, jadi y ≥ 2x (Pilihan 1).`, en: `"At least" means ≥, giving y ≥ 2x (Option 1).` } }
+              { prompt: { bm: `Pilih nombor jawapan yang tepat (1, 2, atau 3):`, en: `Choose the matching option number (1, 2, or 3):` }, expected: Number(variant.ans), hint: { bm: variant.rule, en: variant.en.includes('at least') ? '"At least" means ≥.' : 'Check whether the boundary is ≤ or ≥.' } }
             ],
             traps: [
-              { value: 2, message: { bm: 'Perangkap [P]: y ≤ 2x bermaksud "selebih-lebihnya 2 kali"! "Sekurang-kurangnya" ialah ≥.', en: 'Trap [P]: y ≤ 2x means "at most twice"! "At least" requires ≥.' } }
+              { value: variant.trapVal, message: { bm: variant.trapBm, en: variant.trapEn } }
             ],
-            hints: [lang === 'bm' ? '"Sekurang-kurangnya" = ≥, jadi y ≥ 2x.' : '"At least" = ≥, so y ≥ 2x.'],
+            hints: [lang === 'bm' ? variant.rule : 'Match the verbal keyword carefully (at least = ≥, does not exceed / at most = ≤).'],
             steps: [
-              { badge: 'P1', title: lang === 'bm' ? 'Terjemah kata kunci' : 'Translate keyword', tex: `\\text{Kerusi } (y) \\ge 2 \\times \\text{Meja } (x) \\implies y \\ge 2x`, why: 'Pilihan 1.' }
+              { badge: 'P1', title: lang === 'bm' ? 'Terjemah kata kunci' : 'Translate keyword', tex: variant.stepTex, why: lang === 'bm' ? 'Pilihan ' + variant.ans + '.' : 'Option ' + variant.ans + '.' }
             ]
           };
         }
@@ -518,7 +546,7 @@ window.AddMathApp.chapters = window.AddMathApp.chapters || [];
           return {
             tier: 2, tpLabel: 'TP3–TP4', subtopic: { bm: '7.1 Mengoptimumkan Fungsi Objektif pada Bucu R', en: '7.1 Optimizing Objective Function at Vertices' }, marks: 3,
             prompt: lang === 'bm'
-              ? `Bucu-bucu bagi suatu rantau tersaur $R$ ialah $A(10, 40)$, $B(30, 25)$, dan $C(45, 10)$. Cari **keuntungan maksimum** bagi fungsi objektif $k = ${p}x + ${q}y$.`
+              ? `Bucu-bucu bagi suatu rantau berlorek $R$ (*feasible region*) ialah $A(10, 40)$, $B(30, 25)$, dan $C(45, 10)$. Cari **keuntungan maksimum** bagi fungsi objektif $k = ${p}x + ${q}y$.`
               : `The vertices of a feasible region $R$ are $A(10, 40)$, $B(30, 25)$, and $C(45, 10)$. Find the **maximum profit** for the objective function $k = ${p}x + ${q}y$.`,
             answerType: 'number', correctValue: kMax, displayAnswerTex: `k_{\\max} = ${kMax}`,
             intentMeta: { given: `A(10,40), B(30,25), C(45,10); k = ${p}x + ${q}y`, goal: 'Uji ketiga-tiga bucu dan pilih k terbesar', conceptRule: 'Nilai maksimum berlaku pada salah satu bucu rantau R' },
@@ -529,15 +557,15 @@ window.AddMathApp.chapters = window.AddMathApp.chapters || [];
             traps: [],
             hints: [lang === 'bm' ? 'Gantikan setiap bucu (x, y) ke dalam k = px + qy dan pilih nilai tertinggi.' : 'Substitute each vertex (x, y) into k = px + qy and pick the highest.'],
             steps: [
-              { badge: 'K1', title: lang === 'bm' ? 'Uji setiap bucu' : 'Test each vertex', tex: `k_A = ${k1}, \\quad k_B = ${k2}, \\quad k_C = ${k3}`, why: 'Gantikan x dan y.' },
-              { badge: 'J1', title: lang === 'bm' ? 'Nilai maksimum' : 'Maximum value', tex: `k_{\\max} = ${kMax}`, why: 'Tertinggi.' }
+              { badge: 'K1', title: lang === 'bm' ? 'Uji setiap bucu' : 'Test each vertex', tex: `k_A = ${k1}, \\quad k_B = ${k2}, \\quad k_C = ${k3}`, why: lang === 'bm' ? 'Gantikan x dan y.' : 'Substitute x and y.' },
+              { badge: 'J1', title: lang === 'bm' ? 'Nilai maksimum' : 'Maximum value', tex: `k_{\\max} = ${kMax}`, why: lang === 'bm' ? 'Nilai tertinggi.' : 'Highest value.' }
             ]
           };
         }
         // Tier 3 KBAT: Full LP Modeling & Optimization
         const S = U.pick([40, 50, 60]);
         const M = S + U.pick([20, 30]);
-        const ix = M - S, iy = 2 * S - M; // Both positive! e.g. S=50, M=80 -> (30, 20)
+        const ix = M - S, iy = 2 * S - M;
         const p = 50, q = 30;
         const maxProfit = Math.max(q * S, p * (M / 2), p * ix + q * iy);
         return {
@@ -551,7 +579,7 @@ window.AddMathApp.chapters = window.AddMathApp.chapters || [];
               `- Total bags at most $${S}$: $x + y \\le ${S}$\n` +
               `- Sewing hours: $2x + y \\le ${M}$ with $x \\ge 0, y \\ge 0$.\n` +
               `Given profit is $\\text{RM }${p}$ per Grade-A bag and $\\text{RM }${q}$ per Grade-B bag, find the **maximum daily profit** (in RM).`,
-          answerType: 'number', correctValue: maxProfit, displayAnswerTex: `\\text{RM }${maxProfit} \\quad \\text{pada } (${ix}, ${iy})`,
+          answerType: 'number', correctValue: maxProfit, displayAnswerTex: `\\text{RM }${maxProfit} \\quad \\text{${lang === 'bm' ? 'pada' : 'at'} } (${ix}, ${iy})`,
           intentMeta: { given: `x+y \\le ${S},\\; 2x+y \\le ${M},\\; k = ${p}x + ${q}y`, goal: 'Cari bucu persilangan (x, y) dan maksimumkan keuntungan k', conceptRule: 'Selesaikan persamaan serentak sempadan, kemudian uji semua bucu R' },
           guidedSteps: [
             { prompt: { bm: `Cari koordinat-$x$ bagi persilangan garis $x + y = ${S}$ dan $2x + y = ${M}$:`, en: `Find the $x$-coordinate where $x + y = ${S}$ and $2x + y = ${M}$ intersect:` }, expected: ix, hint: { bm: `Tolak persamaan pertama daripada persamaan kedua: x = ${M} − ${S}.`, en: `Subtract eq 1 from eq 2: x = ${M} − ${S}.` } },
@@ -562,9 +590,9 @@ window.AddMathApp.chapters = window.AddMathApp.chapters || [];
           ],
           hints: [lang === 'bm' ? 'Cari bucu persilangan (x, y) dahulu, kemudian uji k = 50x + 30y pada semua bucu.' : 'Find intersection vertex (x, y), then test k = 50x + 30y across all vertices.'],
           steps: [
-            { badge: 'P1', title: lang === 'bm' ? 'Cari bucu persilangan sempadan' : 'Find boundary intersection vertex', tex: `(2x+y) - (x+y) = ${M} - ${S} \\implies x = ${ix},\\; y = ${iy}`, why: 'Bucu utama rantau R.' },
-            { badge: 'K1', title: lang === 'bm' ? 'Uji kesemua bucu pada k = 50x + 30y' : 'Evaluate k = 50x + 30y at all vertices', tex: `(0,${S})\\to ${q * S}, \\quad (${M / 2},0)\\to ${p * (M / 2)}, \\quad (${ix},${iy})\\to ${p * ix + q * iy}`, why: 'Kaedah bucu.' },
-            { badge: 'J1', title: lang === 'bm' ? 'Keuntungan maksimum' : 'Maximum profit', tex: `\\text{RM }${maxProfit}`, why: 'Optimum.' }
+            { badge: 'P1', title: lang === 'bm' ? 'Cari bucu persilangan sempadan' : 'Find boundary intersection vertex', tex: `(2x+y) - (x+y) = ${M} - ${S} \\implies x = ${ix},\\; y = ${iy}`, why: lang === 'bm' ? 'Bucu utama rantau R.' : 'Interior corner vertex of R.' },
+            { badge: 'K1', title: lang === 'bm' ? 'Uji kesemua bucu pada k = 50x + 30y' : 'Evaluate k = 50x + 30y at all vertices', tex: `(0,${S})\\to ${q * S}, \\quad (${M / 2},0)\\to ${p * (M / 2)}, \\quad (${ix},${iy})\\to ${p * ix + q * iy}`, why: lang === 'bm' ? 'Kaedah bucu.' : 'Corner-point method.' },
+            { badge: 'J1', title: lang === 'bm' ? 'Keuntungan maksimum' : 'Maximum profit', tex: `\\text{RM }${maxProfit}`, why: lang === 'bm' ? 'Nilai optimum.' : 'Optimal value.' }
           ]
         };
       }
@@ -585,7 +613,7 @@ window.AddMathApp.chapters = window.AddMathApp.chapters || [];
       category: 'kalkulus',
       title: { bm: 'Kinematik Gerakan Linear', en: 'Kinematics of Linear Motion' },
       subtitle: {
-        bm: 'Sesaran s(t), halaju v = ds/dt, pecutan a = dv/dt, rehat seketika v = 0 & jumlah jarak lalui',
+        bm: 'Sesaran s(t), halaju v = ds/dt, pecutan a = dv/dt, rehat seketika v = 0 & jumlah jarak dilalui',
         en: 'Displacement s(t), velocity v = ds/dt, acceleration a = dv/dt, instantaneous rest v = 0 & total distance'
       },
       spmWeight: { bm: 'Wajib Kertas 2 Bhg C (10 markah penuh!)', en: 'Paper 2 Sec C Classic (10 full marks!)' },
@@ -638,37 +666,45 @@ window.AddMathApp.chapters = window.AddMathApp.chapters || [];
             en: 'For v(t) = pt − q (starting at O, s(0) = 0), compute s(t), turnaround time v = 0, net displacement & total distance in first T seconds.'
           },
           inputs: [
-            { id: 'p', label: 'p (dlm v = pt − q)', default: 2 },
+            { id: 'p', label: { bm: 'p (dlm v = pt − q)', en: 'p (in v = pt − q)' }, default: 2 },
             { id: 'q', label: 'q', default: 6 },
             { id: 'T', label: { bm: 'Selang masa T (s)', en: 'Time T (s)' }, default: 5 }
           ],
           solve: function (v, lang) {
-            const p = Number(v.p) || 2, q = Number(v.q) || 6, T = Math.max(1, Number(v.T) || 5);
+            const rawP = Number(v.p), rawQ = Number(v.q);
+            const p = Number.isFinite(rawP) && rawP !== 0 ? rawP : 2;
+            const q = Number.isFinite(rawQ) ? rawQ : 6;
+            const T = Math.max(1, Number(v.T) || 5);
             const sFn = (t) => 0.5 * p * t * t - q * t;
-            const tTurn = p !== 0 ? q / p : -1;
+            const tTurn = q / p;
             const sT = sFn(T);
+            const vExpr = `${p}t ${U.signedNum(-q)}`;
+            const sExpr = `${U.roundStr(0.5 * p)}t^2 ${U.signedNum(-q)}t`;
             let dist = Math.abs(sT);
-            let turnNote = lang === 'bm' ? 'Tiada pusingan arah dalam [0, T].' : 'No turnaround inside [0, T].';
+            let turnNote = lang === 'bm'
+              ? `\\text{Tiada pusingan arah dalam } (0, ${T}) \\implies \\text{Jarak} = |${U.roundStr(sT)}| = ${U.roundStr(dist)}\\text{ m}`
+              : `\\text{No turnaround inside } (0, ${T}) \\implies \\text{Distance} = |${U.roundStr(sT)}| = ${U.roundStr(dist)}\\text{ m}`;
             if (tTurn > 0 && tTurn < T) {
               const sTurn = sFn(tTurn);
               dist = Math.abs(sTurn - 0) + Math.abs(sT - sTurn);
               turnNote = `t_p = ${U.roundStr(tTurn)}\\text{ s},\\; s(t_p) = ${U.roundStr(sTurn)}\\text{ m} \\implies |${U.roundStr(sTurn)}| + |${U.roundStr(sT)} - (${U.roundStr(sTurn)})| = ${U.roundStr(dist)}\\text{ m}`;
             }
+            const dispWord = lang === 'bm' ? 'Sesaran' : 'Displacement';
+            const distWord = lang === 'bm' ? 'Jumlah Jarak' : 'Total Distance';
             return {
-              problemTex: `v(t) = ${p}t - ${q}, \\quad s(0) = 0, \\quad [0,\\; ${T}]`,
+              problemTex: `v(t) = ${vExpr}, \\quad s(0) = 0, \\quad [0,\\; ${T}]`,
               steps: [
-                { badge: 'P1', title: lang === 'bm' ? 'Langkah 1: Kamirkan v(t) untuk fungsi sesaran s(t)' : 'Step 1: Integrate v(t) for displacement s(t)', tex: `s(t) = \\int (${p}t - ${q})\\,dt = ${U.roundStr(0.5 * p)}t^2 - ${q}t \\quad (c=0)`, why: lang === 'bm' ? 'Melalui titik tetap O pada t = 0.' : 'Starts at O at t = 0.' },
-                { badge: 'K1', title: lang === 'bm' ? 'Langkah 2: Semak masa rehat seketika / pusingan arah (v = 0)' : 'Step 2: Check turnaround time (v = 0)', tex: `${p}t - ${q} = 0 \\implies t = ${U.roundStr(tTurn)}\\text{ s}, \\qquad s(${T}) = ${U.roundStr(sT)}\\text{ m}`, why: lang === 'bm' ? 'Pecahkan selang jika 0 < t < T.' : 'Split interval if 0 < t < T.' },
+                { badge: 'P1', title: lang === 'bm' ? 'Langkah 1: Kamirkan v(t) untuk fungsi sesaran s(t)' : 'Step 1: Integrate v(t) for displacement s(t)', tex: `s(t) = \\int (${vExpr})\\,dt = ${sExpr} \\quad (c=0)`, why: lang === 'bm' ? 'Melalui titik tetap O pada t = 0.' : 'Starts at O at t = 0.' },
+                { badge: 'K1', title: lang === 'bm' ? 'Langkah 2: Semak masa rehat seketika / pusingan arah (v = 0)' : 'Step 2: Check turnaround time (v = 0)', tex: `${vExpr} = 0 \\implies t = ${U.roundStr(tTurn)}\\text{ s}, \\qquad s(${T}) = ${U.roundStr(sT)}\\text{ m}`, why: lang === 'bm' ? 'Pecahkan selang jika 0 < t < T.' : 'Split interval if 0 < t < T.' },
                 { badge: 'J1', title: lang === 'bm' ? 'Langkah 3: Jumlah jarak dalam ' + T + ' saat pertama' : 'Step 3: Total distance in first ' + T + ' seconds', tex: turnNote, why: lang === 'bm' ? 'Jumlahkan jarak pergi dan patah balik!' : 'Add forward and return leg distances!' }
               ],
-              finalTex: `\\text{Sesaran } s(${T}) = ${U.roundStr(sT)}\\text{ m}, \\quad \\text{Jumlah Jarak} = ${U.roundStr(dist)}\\text{ m}`
+              finalTex: `\\text{${dispWord} } s(${T}) = ${U.roundStr(sT)}\\text{ m}, \\quad \\text{${distWord}} = ${U.roundStr(dist)}\\text{ m}`
             };
           }
         }
       ],
       generateQuestion: function (tier, lang) {
         if (tier === 1) {
-          // Given s = t^2 - 2kt, find velocity at t = t0 or time of instantaneous rest
           const k = U.randInt(2, 6);
           return {
             tier: 1, tpLabel: 'TP1–TP2', subtopic: { bm: '8.2 Halaju v = ds/dt & Rehat Seketika', en: '8.2 Velocity v = ds/dt & Instantaneous Rest' }, marks: 3,
@@ -687,12 +723,11 @@ window.AddMathApp.chapters = window.AddMathApp.chapters || [];
             hints: [lang === 'bm' ? 'Berhenti seketika bermaksud v = ds/dt = 0.' : 'Instantaneously at rest means v = ds/dt = 0.'],
             steps: [
               { badge: 'P1', title: lang === 'bm' ? 'Bezakan sesaran untuk halaju' : 'Differentiate displacement for velocity', tex: `v = \\frac{ds}{dt} = 2t - ${2 * k}`, why: 'v = ds/dt.' },
-              { badge: 'J1', title: lang === 'bm' ? 'Selesaikan v = 0' : 'Solve v = 0', tex: `2t - ${2 * k} = 0 \\implies t = ${k}\\text{ s}`, why: 'Masa berhenti seketika.' }
+              { badge: 'J1', title: lang === 'bm' ? 'Selesaikan v = 0' : 'Solve v = 0', tex: `2t - ${2 * k} = 0 \\implies t = ${k}\\text{ s}`, why: lang === 'bm' ? 'Masa berhenti seketika.' : 'Time at instantaneous rest.' }
             ]
           };
         }
         if (tier === 2) {
-          // Maximum velocity when a = dv/dt = 0: v = ct - t^2 -> a = c - 2t = 0 -> t = c/2 -> v_max = c^2 / 4
           const halfC = U.randInt(2, 5);
           const c = 2 * halfC;
           const vMax = halfC * halfC;
@@ -701,7 +736,7 @@ window.AddMathApp.chapters = window.AddMathApp.chapters || [];
             prompt: lang === 'bm'
               ? `Halaju suatu zarah, $v\\text{ m s}^{-1}$, diberi oleh $v = ${c}t - t^2$, dengan $t$ ialah masa dalam saat selepas melalui $O$. Cari **halaju maksimum** zarah tersebut.`
               : `The velocity of a particle, $v\\text{ m s}^{-1}$, is given by $v = ${c}t - t^2$, where $t$ is time in seconds after passing $O$. Find the **maximum velocity** of the particle.`,
-            answerType: 'number', correctValue: vMax, displayAnswerTex: `v_{\\max} = ${vMax}\\text{ m s}^{-1} \\quad (\\text{pada } t = ${halfC}\\text{ s})`,
+            answerType: 'number', correctValue: vMax, displayAnswerTex: `v_{\\max} = ${vMax}\\text{ m s}^{-1} \\quad (\\text{${lang === 'bm' ? 'pada' : 'at'} } t = ${halfC}\\text{ s})`,
             intentMeta: { given: `v = ${c}t - t^2`, goal: 'Cari masa apabila pecutan a = dv/dt = 0, kemudian gantikan t ke dalam v', conceptRule: 'Halaju mencapai nilai maksimum apabila pecutan a = dv/dt = 0' },
             guidedSteps: [
               { prompt: { bm: `Tetapkan pecutan $a = \\frac{dv}{dt} = ${c} - 2t = 0$. Apakah masa $t$?`, en: `Set acceleration $a = \\frac{dv}{dt} = ${c} - 2t = 0$. What is time $t$?` }, expected: halfC, hint: { bm: `2t = ${c}.`, en: `2t = ${c}.` } },
@@ -712,37 +747,36 @@ window.AddMathApp.chapters = window.AddMathApp.chapters || [];
             ],
             hints: [lang === 'bm' ? 'Cari a = dv/dt = 0 untuk dapat t, kemudian ganti t ke dalam v.' : 'Solve a = dv/dt = 0 for t, then substitute into v.'],
             steps: [
-              { badge: 'P1', title: lang === 'bm' ? 'Pecutan a = dv/dt = 0' : 'Set acceleration a = dv/dt = 0', tex: `a = ${c} - 2t = 0 \\implies t = ${halfC}\\text{ s}`, why: 'Syarat halaju maksimum.' },
-              { badge: 'J1', title: lang === 'bm' ? 'Nilaikan halaju maksimum' : 'Evaluate maximum velocity', tex: `v_{\\max} = ${c}(${halfC}) - (${halfC})^2 = ${vMax}\\text{ m s}^{-1}`, why: 'Jawapan tepat.' }
+              { badge: 'P1', title: lang === 'bm' ? 'Pecutan a = dv/dt = 0' : 'Set acceleration a = dv/dt = 0', tex: `a = ${c} - 2t = 0 \\implies t = ${halfC}\\text{ s}`, why: lang === 'bm' ? 'Syarat halaju maksimum.' : 'Condition for maximum velocity.' },
+              { badge: 'J1', title: lang === 'bm' ? 'Nilaikan halaju maksimum' : 'Evaluate maximum velocity', tex: `v_{\\max} = ${c}(${halfC}) - (${halfC})^2 = ${vMax}\\text{ m s}^{-1}`, why: lang === 'bm' ? 'Jawapan tepat.' : 'Exact answer.' }
             ]
           };
         }
         // Tier 3 KBAT: Total distance travelled in the first T seconds when particle reverses direction!
-        // v = 2t - 2k (starts at O -> s = t^2 - 2kt). Turnaround at t = k, s(k) = -k^2. Ask total distance in first T = k + 2 seconds!
         const k = U.pick([2, 3, 4]);
         const T = k + 2;
-        const sTurn = -k * k; // at t = k
+        const sTurn = -k * k;
         const sFinal = T * T - 2 * k * T;
-        const totalDist = Math.abs(sTurn) + Math.abs(sFinal - sTurn); // k^2 + 4
+        const totalDist = Math.abs(sTurn) + Math.abs(sFinal - sTurn);
         return {
           tier: 3, tpLabel: 'TP5–TP6 (KBAT)', subtopic: { bm: '8.4 Jumlah Jarak dengan Pusingan Arah (v = 0)', en: '8.4 Total Distance with Turnaround (v = 0)' }, marks: 5,
           prompt: lang === 'bm'
             ? `Suatu zarah bermula dari titik tetap $O$ ($s = 0$ apabila $t = 0$) dan bergerak dengan halaju $v = 2t - ${2 * k}\\;\\text{m s}^{-1}$. Cari **jumlah jarak** (dalam $\\text{m}$) yang dilalui oleh zarah itu dalam **$${T}$ saat pertama**.`
             : `A particle starts from fixed point $O$ ($s = 0$ at $t = 0$) and moves with velocity $v = 2t - ${2 * k}\\;\\text{m s}^{-1}$. Find the **total distance** (in $\\text{m}$) travelled by the particle in the **first $${T}$ seconds**.`,
           answerType: 'number', correctValue: totalDist, displayAnswerTex: `|${sTurn}| + |${sFinal} - (${sTurn})| = ${totalDist}\\text{ m}`,
-          intentMeta: { given: `v = 2t - ${2 * k}, s(0)=0, \\text{selang }[0, ${T}]`, goal: 'Kamirkan s(t), cari pusingan arah v = 0, dan jumlahkan kedua-dua keratan jarak', conceptRule: 'Jumlah Jarak = |s(t_p) − s(0)| + |s(T) − s(t_p)|' },
+          intentMeta: { given: `v = 2t - ${2 * k}, s(0)=0, \\text{selang }[0, ${T}]`, goal: 'Kamirkan s(t), cari pusingan arah v = 0, dan jumlahkan jarak pergi & patah balik', conceptRule: 'Jumlah Jarak = |s(t_p) − s(0)| + |s(T) − s(t_p)|' },
           guidedSteps: [
-            { prompt: { bm: `Kamirkan untuk dapat $s(t) = t^2 - ${2 * k}t$. Zarah berpusing arah apabila $v = 0 \\implies t = ${k}$. Berapakah jarak keratan pertama $|s(${k}) - s(0)|$?`, en: `Integrate to get $s(t) = t^2 - ${2 * k}t$. Turnaround occurs at $v = 0 \\implies t = ${k}$. What is the first-leg distance $|s(${k}) - s(0)|$?` }, expected: Math.abs(sTurn), hint: { bm: `s(${k}) = (${k})² − ${2 * k}(${k}) = ${sTurn}, ambil nilai mutlaknya.`, en: `s(${k}) = (${k})² − ${2 * k}(${k}) = ${sTurn}; take its absolute value.` } },
+            { prompt: { bm: `Kamirkan untuk dapat $s(t) = t^2 - ${2 * k}t$. Zarah berpusing arah apabila $v = 0 \\implies t = ${k}$. Berapakah jarak bahagian pertama $|s(${k}) - s(0)|$?`, en: `Integrate to get $s(t) = t^2 - ${2 * k}t$. Turnaround occurs at $v = 0 \\implies t = ${k}$. What is the first-leg distance $|s(${k}) - s(0)|$?` }, expected: Math.abs(sTurn), hint: { bm: `s(${k}) = (${k})² − ${2 * k}(${k}) = ${sTurn}, ambil nilai mutlaknya.`, en: `s(${k}) = (${k})² − ${2 * k}(${k}) = ${sTurn}; take its absolute value.` } },
             { prompt: { bm: `Pada $t = ${T}$, sesaran ialah $s(${T}) = ${sFinal}$. Tambahkan jarak patah balik $|${sFinal} - (${sTurn})|$ kepada jarak pertama tadi:`, en: `At $t = ${T}$, $s(${T}) = ${sFinal}$. Add the return-leg distance $|${sFinal} - (${sTurn})|$ to the first leg:` }, expected: totalDist, hint: { bm: `Kira ${Math.abs(sTurn)} + ${Math.abs(sFinal - sTurn)}.`, en: `Compute ${Math.abs(sTurn)} + ${Math.abs(sFinal - sTurn)}.` } }
           ],
           traps: [
-            { value: Math.abs(sFinal), message: { bm: `Perangkap Klasik SPM [P]: |s(${T})| = ${Math.abs(sFinal)} m hanyalah sesaran bersih! Zarah telah berpusing arah pada t = ${k} s (di s = ${sTurn} m), jadi wajib jumlahkan jarak pergi dan balik!`, en: `Classic SPM Trap [P]: |s(${T})| = ${Math.abs(sFinal)} m is only net displacement! Split at turnaround t = ${k} s.` } }
+            { value: Math.abs(sFinal), message: { bm: `Perangkap Klasik SPM [P]: |s(${T})| = ${Math.abs(sFinal)} m hanyalah sesaran bersih! Zarah telah berpusing arah pada t = ${k} s (di s = ${sTurn} m), jadi wajib jumlahkan jarak pergi dan patah balik!`, en: `Classic SPM Trap [P]: |s(${T})| = ${Math.abs(sFinal)} m is only net displacement! Split at turnaround t = ${k} s.` } }
           ],
           hints: [lang === 'bm' ? 'Cari s(t) = t² − 2kt, semak pusingan arah t = ' + k + ', dan kira |s(' + k + ')| + |s(' + T + ') − s(' + k + ')|.' : 'Find s(t), split at turnaround t = ' + k + ', and sum both legs.'],
           steps: [
-            { badge: 'P1', title: lang === 'bm' ? 'Fungsi sesaran & masa pusingan arah' : 'Displacement & turnaround time', tex: `s(t) = t^2 - ${2 * k}t; \\qquad v = 0 \\implies t = ${k}\\text{ s}`, why: 's(0) = 0 memberi c = 0.' },
-            { badge: 'K1', title: lang === 'bm' ? 'Kedudukan pada t = 0, ' + k + ', dan ' + T : 'Positions at t = 0, ' + k + ', and ' + T, tex: `s(0) = 0, \\quad s(${k}) = ${sTurn}\\text{ m}, \\quad s(${T}) = ${sFinal}\\text{ m}`, why: 'Jejak kedudukan zarah.' },
-            { badge: 'J1', title: lang === 'bm' ? 'Jumlah jarak dilalui' : 'Total distance travelled', tex: `|${sTurn} - 0| + |${sFinal} - (${sTurn})| = ${Math.abs(sTurn)} + ${Math.abs(sFinal - sTurn)} = ${totalDist}\\text{ m}`, why: 'Jumlah jarak sebenar.' }
+            { badge: 'P1', title: lang === 'bm' ? 'Fungsi sesaran & masa pusingan arah' : 'Displacement & turnaround time', tex: `s(t) = t^2 - ${2 * k}t; \\qquad v = 0 \\implies t = ${k}\\text{ s}`, why: lang === 'bm' ? 's(0) = 0 memberi c = 0.' : 's(0) = 0 gives c = 0.' },
+            { badge: 'K1', title: lang === 'bm' ? 'Kedudukan pada t = 0, ' + k + ', dan ' + T : 'Positions at t = 0, ' + k + ', and ' + T, tex: `s(0) = 0, \\quad s(${k}) = ${sTurn}\\text{ m}, \\quad s(${T}) = ${sFinal}\\text{ m}`, why: lang === 'bm' ? 'Jejak kedudukan zarah.' : 'Track particle positions.' },
+            { badge: 'J1', title: lang === 'bm' ? 'Jumlah jarak dilalui' : 'Total distance travelled', tex: `|${sTurn} - 0| + |${sFinal} - (${sTurn})| = ${Math.abs(sTurn)} + ${Math.abs(sFinal - sTurn)} = ${totalDist}\\text{ m}`, why: lang === 'bm' ? 'Jumlah jarak sebenar.' : 'Actual total distance.' }
           ]
         };
       }

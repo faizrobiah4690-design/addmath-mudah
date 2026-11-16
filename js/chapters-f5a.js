@@ -123,7 +123,7 @@ window.AddMathApp.chapters = window.AddMathApp.chapters || [];
             hints: [lang === 'bm' ? 'Kira s = rθ dahulu, kemudian tambah 2r.' : 'Find s = rθ first, then add 2r.'],
             steps: [
               { badge: 'P1', title: lang === 'bm' ? 'Panjang lengkok' : 'Arc length', tex: `s = (${r})(${th}) = ${U.roundStr(r * th, 2)}\\text{ cm}`, why: 's = rθ.' },
-              { badge: 'J1', title: lang === 'bm' ? 'Perimeter sektor' : 'Sector perimeter', tex: `P = 2(${r}) + ${U.roundStr(r * th, 2)} = ${perim}\\text{ cm}`, why: 'Jumlah 2 jejari + lengkok.' }
+              { badge: 'J1', title: lang === 'bm' ? 'Perimeter sektor' : 'Sector perimeter', tex: `P = 2(${r}) + ${U.roundStr(r * th, 2)} = ${perim}\\text{ cm}`, why: lang === 'bm' ? 'Jumlah 2 jejari + lengkok.' : 'Sum of 2 radii + arc length.' }
             ]
           };
         }
@@ -136,7 +136,7 @@ window.AddMathApp.chapters = window.AddMathApp.chapters || [];
           return {
             tier: 2, tpLabel: 'TP3–TP4', subtopic: { bm: '1.3 Penukaran Radian & Luas Sektor', en: '1.3 Radian Conversion & Sector Area' }, marks: 4,
             prompt: lang === 'bm'
-              ? `Sebuah sektor bulatan berjejari $${r}\\text{ cm}$ mencangkum sudut pusat $${deg}^\\circ$. Menggunakan $\\pi = 3.142$, cari **luas sektor** itu kepada 2 tempat perpuluhan.`
+              ? `Sebuah sektor bulatan berjejari $${r}\\text{ cm}$ mempunyai sudut pusat $${deg}^\\circ$. Menggunakan $\\pi = 3.142$, cari **luas sektor** itu kepada 2 tempat perpuluhan.`
               : `A circular sector of radius $${r}\\text{ cm}$ subtends a central angle of $${deg}^\\circ$. Using $\\pi = 3.142$, find the **area of the sector** to 2 decimal places.`,
             answerType: 'number', tolerance: 0.15, correctValue: area, displayAnswerTex: `${area}\\text{ cm}^2`,
             intentMeta: { given: `r = ${r}, \\theta = ${deg}^\\circ, \\pi = 3.142`, goal: 'Tukar ke radian & kira luas sektor', conceptRule: 'θ(rad) = θ° × (3.142/180), A = ½r²θ' },
@@ -151,7 +151,7 @@ window.AddMathApp.chapters = window.AddMathApp.chapters || [];
             steps: [
               { badge: 'P1', title: lang === 'bm' ? 'Tukar sudut kepada radian' : 'Convert angle to radians', tex: `\\theta = ${deg}^\\circ \\times \\frac{3.142}{180^\\circ} = ${U.roundStr(th, 4)}\\text{ rad}`, why: 'π rad = 180°.' },
               { badge: 'K1', title: lang === 'bm' ? 'Ganti ke dalam rumus luas sektor' : 'Substitute into sector area', tex: `A = \\frac{1}{2}(${r})^2(${U.roundStr(th, 4)})`, why: 'A = ½r²θ.' },
-              { badge: 'J1', title: lang === 'bm' ? 'Luas sektor' : 'Sector area', tex: `A = ${area}\\text{ cm}^2`, why: 'Bundarkan ke 2 t.p.' }
+              { badge: 'J1', title: lang === 'bm' ? 'Luas sektor' : 'Sector area', tex: `A = ${area}\\text{ cm}^2`, why: lang === 'bm' ? 'Bundarkan ke 2 t.p.' : 'Rounded to 2 d.p.' }
             ]
           };
         }
@@ -163,7 +163,7 @@ window.AddMathApp.chapters = window.AddMathApp.chapters || [];
         return {
           tier: 3, tpLabel: 'TP5–TP6 (KBAT)', subtopic: { bm: '1.4 Aplikasi Luas Tembereng Berlorek', en: '1.4 Shaded Circular Segment Area' }, marks: 4,
           prompt: lang === 'bm'
-            ? `Dalam sebuah bulatan berjejari $${r}\\text{ cm}$, satu perentas $AB$ mencangkum sudut pusat $\\theta = ${th}\\text{ rad}$ di pusat $O$. Cari **luas tembereng berlorek** yang dibatasi oleh perentas $AB$ dan lengkok minor $AB$ (bundarkan kepada 2 tempat perpuluhan).`
+            ? `Dalam sebuah bulatan berjejari $${r}\\text{ cm}$, satu perentas $AB$ membentuk sudut pusat $\\theta = ${th}\\text{ rad}$ di pusat $O$. Cari **luas tembereng berlorek** yang dibatasi oleh perentas $AB$ dan lengkok minor $AB$ (bundarkan kepada 2 tempat perpuluhan).`
             : `In a circle of radius $${r}\\text{ cm}$, chord $AB$ subtends a central angle $\\theta = ${th}\\text{ rad}$ at centre $O$. Find the **area of the minor segment** bounded by chord $AB$ and arc $AB$ (to 2 d.p.).`,
           answerType: 'number', tolerance: 0.15, correctValue: seg, displayAnswerTex: `${seg}\\text{ cm}^2`,
           intentMeta: { given: `r = ${r}, \\theta = ${th}\\text{ rad}`, goal: 'Cari luas tembereng ½r²(θ − sin θ)', conceptRule: 'A_temb = ½r²(θ − sin θ) dengan kalkulator dalam mod RAD' },
@@ -177,8 +177,8 @@ window.AddMathApp.chapters = window.AddMathApp.chapters || [];
           hints: [lang === 'bm' ? 'Guna ½r²(θ − sin θ) dalam mod RAD.' : 'Use ½r²(θ − sin θ) in RAD mode.'],
           steps: [
             { badge: 'P1', title: lang === 'bm' ? 'Luas sektor OAB' : 'Area of sector OAB', tex: `A_{\\text{sektor}} = \\frac{1}{2}(${r})^2(${th}) = ${U.roundStr(0.5 * r * r * th, 3)}`, why: '½r²θ.' },
-            { badge: 'K1', title: lang === 'bm' ? 'Tolak luas segi tiga OAB (mod RAD)' : 'Subtract triangle OAB (RAD mode)', tex: `A_{\\text{temb}} = \\frac{1}{2}(${r})^2(${th} - \\sin ${th})`, why: 'sin θ dalam mod radian.' },
-            { badge: 'J1', title: lang === 'bm' ? 'Luas tembereng berlorek' : 'Shaded segment area', tex: `A_{\\text{temb}} = ${seg}\\text{ cm}^2`, why: '2 tempat perpuluhan.' }
+            { badge: 'K1', title: lang === 'bm' ? 'Tolak luas segi tiga OAB (mod RAD)' : 'Subtract triangle OAB (RAD mode)', tex: `A_{\\text{temb}} = \\frac{1}{2}(${r})^2(${th} - \\sin ${th})`, why: lang === 'bm' ? 'sin θ dalam mod radian.' : 'Evaluate sin θ in radian mode.' },
+            { badge: 'J1', title: lang === 'bm' ? 'Luas tembereng berlorek' : 'Shaded segment area', tex: `A_{\\text{temb}} = ${seg}\\text{ cm}^2`, why: lang === 'bm' ? '2 tempat perpuluhan.' : 'Rounded to 2 d.p.' }
           ]
         };
       }
@@ -249,8 +249,8 @@ window.AddMathApp.chapters = window.AddMathApp.chapters || [];
           id: 'diff-tangent-solver',
           title: { bm: 'Solver Pembezaan, Tangen, Normal & Titik Pegun', en: 'Cubic Derivative, Tangent & Normal Solver' },
           desc: {
-            bm: 'Bagi y = ax³ + bx² + cx + d pada x = x₀, jana dy/dx, d²y/dx², persamaan tangen & kecerunan normal.',
-            en: 'For y = ax³ + bx² + cx + d at x = x₀, generate dy/dx, d²y/dx², tangent equation & normal gradient.'
+            bm: 'Bagi y = ax³ + bx² + cx pada x = x₀, jana dy/dx, d²y/dx², persamaan tangen & kecerunan normal.',
+            en: 'For y = ax³ + bx² + cx at x = x₀, generate dy/dx, d²y/dx², tangent equation & normal gradient.'
           },
           inputs: [
             { id: 'a', label: 'a (x³)', default: 1 },
@@ -266,14 +266,16 @@ window.AddMathApp.chapters = window.AddMathApp.chapters || [];
             const cTan = y0 - mTan * x0;
             const polyStr = U.polyTex([{ c: a, p: 3 }, { c: b, p: 2 }, { c: c, p: 1 }]);
             const d1Str = U.polyTex([{ c: 3 * a, p: 2 }, { c: 2 * b, p: 1 }, { c: c, p: 0 }]);
+            const atWord = lang === 'bm' ? 'pada' : 'at';
+            const tanWord = lang === 'bm' ? 'Tangen' : 'Tangent';
             return {
-              problemTex: `y = ${polyStr} \\quad \\text{pada } x = ${x0}`,
+              problemTex: `y = ${polyStr} \\quad \\text{${atWord} } x = ${x0}`,
               steps: [
                 { badge: 'P1', title: lang === 'bm' ? 'Langkah 1: Bezakan terhadap x' : 'Step 1: Differentiate w.r.t. x', tex: `\\frac{dy}{dx} = ${d1Str}, \\qquad \\frac{d^2y}{dx^2} = ${U.polyTex([{ c: 6 * a, p: 1 }, { c: 2 * b, p: 0 }])}`, why: lang === 'bm' ? 'Guna petua kuasa nxⁿ⁻¹.' : 'Apply power rule nxⁿ⁻¹.' },
-                { badge: 'K1', title: lang === 'bm' ? 'Langkah 2: Nilaikan y₀ dan kecerunan tangen m_T' : 'Step 2: Evaluate y₀ and tangent gradient m_T', tex: `y(${x0}) = ${U.roundStr(y0)}, \\qquad m_T = \\left.\\frac{dy}{dx}\\right|_{x=${x0}} = ${U.roundStr(mTan)}`, why: lang === 'bm' ? 'Gantikan x = x₀ ke dalam dy/dx.' : 'Substitute x = x₀ into dy/dx.' },
-                { badge: 'J1', title: lang === 'bm' ? 'Langkah 3: Persamaan Tangen' : 'Step 3: Tangent Line Equation', tex: `y - (${U.roundStr(y0)}) = ${U.roundStr(mTan)}(x - ${x0}) \\implies y = ${U.roundStr(mTan)}x ${U.signedNum(U.round(cTan, 3))}`, why: mTan !== 0 ? `m_{\\text{normal}} = ${U.roundStr(-1 / mTan, 3)}` : 'Tangen mengufuk (titik pegun!).' }
+                { badge: 'K1', title: lang === 'bm' ? 'Langkah 2: Nilaikan $y_0$ dan kecerunan tangen $m_T$' : 'Step 2: Evaluate $y_0$ and tangent gradient $m_T$', tex: `y(${x0}) = ${U.roundStr(y0)}, \\qquad m_T = \\left.\\frac{dy}{dx}\\right|_{x=${x0}} = ${U.roundStr(mTan)}`, why: lang === 'bm' ? 'Gantikan x = x₀ ke dalam dy/dx.' : 'Substitute x = x₀ into dy/dx.' },
+                { badge: 'J1', title: lang === 'bm' ? 'Langkah 3: Persamaan Tangen' : 'Step 3: Tangent Line Equation', tex: `y - (${U.roundStr(y0)}) = ${U.roundStr(mTan)}(x - ${x0}) \\implies y = ${U.roundStr(mTan)}x ${U.signedNum(U.round(cTan, 3))}`, why: mTan !== 0 ? `m_{\\text{normal}} = ${U.roundStr(-1 / mTan, 3)}` : (lang === 'bm' ? 'Tangen mengufuk (titik pegun!).' : 'Horizontal tangent (stationary point!).') }
               ],
-              finalTex: `m_T = ${U.roundStr(mTan)},\\; \\text{Tangen: } y = ${U.roundStr(mTan)}x ${U.signedNum(U.round(cTan, 3))},\\; \\frac{d^2y}{dx^2}(${x0}) = ${U.roundStr(d2y)}`
+              finalTex: `m_T = ${U.roundStr(mTan)},\\; \\text{${tanWord}: } y = ${U.roundStr(mTan)}x ${U.signedNum(U.round(cTan, 3))},\\; \\frac{d^2y}{dx^2}(${x0}) = ${U.roundStr(d2y)}`
             };
           }
         }
@@ -284,7 +286,7 @@ window.AddMathApp.chapters = window.AddMathApp.chapters || [];
           const b = U.randInt(-5, 5, true);
           const x0 = U.pick([1, 2, -1]);
           const grad = 2 * a * x0 + b;
-          const poly = U.polyTex([{ c: a, p: 2 }, { c: b, p: 1 }, { c: 3, p: 0 }]);
+          const poly = U.polyTex([{ c: a, p: 2 }, { c: b, p: 1 }, { c: 7, p: 0 }]);
           return {
             tier: 1, tpLabel: 'TP1–TP2', subtopic: { bm: '2.2 Kecerunan Tangen pada Suatu Titik', en: '2.2 Gradient of Tangent at a Point' }, marks: 3,
             prompt: lang === 'bm'
@@ -297,12 +299,12 @@ window.AddMathApp.chapters = window.AddMathApp.chapters || [];
               { prompt: { bm: `Gantikan $x = ${x0}$ ke dalam $\\frac{dy}{dx} = ${2 * a}x ${U.signedNum(b)}$:`, en: `Substitute $x = ${x0}$ into $\\frac{dy}{dx} = ${2 * a}x ${U.signedNum(b)}$:` }, expected: grad, hint: { bm: `Kira ${2 * a}(${x0}) + (${b}).`, en: `Compute ${2 * a}(${x0}) + (${b}).` } }
             ],
             traps: [
-              { value: a * x0 * x0 + b * x0 + 3, message: { bm: 'Perangkap [P]: Itu nilai koordinat-y asal, bukan kecerunan dy/dx! Bezakan dahulu.', en: 'Trap [P]: That is the y-coordinate, not the derivative dy/dx!' } }
+              { value: a * x0 * x0 + b * x0 + 7, message: { bm: 'Perangkap [P]: Itu nilai koordinat-y asal, bukan kecerunan dy/dx! Bezakan dahulu.', en: 'Trap [P]: That is the y-coordinate, not the derivative dy/dx!' } }
             ],
             hints: [lang === 'bm' ? 'Bezakan y untuk dapat dy/dx = 2ax + b, kemudian ganti x.' : 'Differentiate y to get dy/dx = 2ax + b, then substitute x.'],
             steps: [
-              { badge: 'P1', title: lang === 'bm' ? 'Bezakan y terhadap x' : 'Differentiate y w.r.t. x', tex: `\\frac{dy}{dx} = ${2 * a}x ${U.signedNum(b)}`, why: 'Petua kuasa.' },
-              { badge: 'J1', title: lang === 'bm' ? 'Gantikan x = ' + x0 : 'Substitute x = ' + x0, tex: `m_T = ${2 * a}(${x0}) + (${b}) = ${grad}`, why: 'Kecerunan tangen.' }
+              { badge: 'P1', title: lang === 'bm' ? 'Bezakan y terhadap x' : 'Differentiate y w.r.t. x', tex: `\\frac{dy}{dx} = ${2 * a}x ${U.signedNum(b)}`, why: lang === 'bm' ? 'Petua kuasa.' : 'Power rule.' },
+              { badge: 'J1', title: lang === 'bm' ? 'Gantikan x = ' + x0 : 'Substitute x = ' + x0, tex: `m_T = ${2 * a}(${x0}) + (${b}) = ${grad}`, why: lang === 'bm' ? 'Kecerunan tangen.' : 'Tangent gradient.' }
             ]
           };
         }
@@ -319,7 +321,7 @@ window.AddMathApp.chapters = window.AddMathApp.chapters || [];
             prompt: lang === 'bm'
               ? `Cari **nilai minimum bagi $y$** untuk lengkung $y = ${poly}$ menggunakan kaedah pembezaan.`
               : `Find the **minimum value of $y$** for the curve $y = ${poly}$ using differentiation.`,
-            answerType: 'number', correctValue: yMin, displayAnswerTex: `y_{\\min} = ${yMin} \\quad (\\text{pada } x = ${xStar})`,
+            answerType: 'number', correctValue: yMin, displayAnswerTex: `y_{\\min} = ${yMin} \\quad (\\text{${lang === 'bm' ? 'pada' : 'at'} } x = ${xStar})`,
             intentMeta: { given: `y = ${poly}`, goal: 'Selesaikan dy/dx = 0 untuk x, kemudian cari nilai minimum y', conceptRule: 'Pada titik pusingan, dy/dx = 0' },
             guidedSteps: [
               { prompt: { bm: `Tetapkan $\\frac{dy}{dx} = ${2 * a}x ${U.signedNum(b)} = 0$. Apakah nilai $x$?`, en: `Set $\\frac{dy}{dx} = ${2 * a}x ${U.signedNum(b)} = 0$. What is $x$?` }, expected: xStar, hint: { bm: `Selesaikan ${2 * a}x = ${-b}.`, en: `Solve ${2 * a}x = ${-b}.` } },
@@ -330,20 +332,18 @@ window.AddMathApp.chapters = window.AddMathApp.chapters || [];
             ],
             hints: [lang === 'bm' ? 'Tetapkan dy/dx = 0 untuk cari x, kemudian ganti ke dalam y.' : 'Set dy/dx = 0 for x, then substitute into y.'],
             steps: [
-              { badge: 'P1', title: lang === 'bm' ? 'Syarat titik pegun dy/dx = 0' : 'Stationary condition dy/dx = 0', tex: `\\frac{dy}{dx} = ${2 * a}x ${U.signedNum(b)} = 0 \\implies x = ${xStar}`, why: 'Kecerunan sifar pada titik pusingan.' },
-              { badge: 'J1', title: lang === 'bm' ? 'Nilai minimum y' : 'Minimum value of y', tex: `y_{\\min} = ${a}(${xStar})^2 + (${b})(${xStar}) + ${c} = ${yMin}`, why: 'd²y/dx² = ' + (2 * a) + ' > 0 mengesahkan minimum.' }
+              { badge: 'P1', title: lang === 'bm' ? 'Syarat titik pegun dy/dx = 0' : 'Stationary condition dy/dx = 0', tex: `\\frac{dy}{dx} = ${2 * a}x ${U.signedNum(b)} = 0 \\implies x = ${xStar}`, why: lang === 'bm' ? 'Kecerunan sifar pada titik pusingan.' : 'Zero gradient at turning point.' },
+              { badge: 'J1', title: lang === 'bm' ? 'Nilai minimum y' : 'Minimum value of y', tex: `y_{\\min} = ${a}(${xStar})^2 + (${b})(${xStar}) + ${c} = ${yMin}`, why: lang === 'bm' ? 'd²y/dx² = ' + (2 * a) + ' > 0 mengesahkan minimum.' : 'd²y/dx² = ' + (2 * a) + ' > 0 confirms minimum.' }
             ]
           };
         }
-        // Tier 3 KBAT: Connected rates of change! Volume/Area of circle or cube expanding
-        // Area A = pi r^2 or Cube V = x^3 -> let's use V = x^3 or Area of square/circle in terms of pi or exact number!
-        // Let's use y = k x^3 or Cube V = x^3 so answer is exact clean integer/decimal without pi ambiguity!
+        // Tier 3 KBAT: Connected rates of change!
         const xVal = U.randInt(2, 5);
         const dxdt = U.pick([0.2, 0.5, 1.5, 2]);
         const dVdx = 3 * xVal * xVal;
         const dVdt = U.round(dVdx * dxdt, 3);
         return {
-          tier: 3, tpLabel: 'TP5–TP6 (KBAT)', subtopic: { bm: '2.4 Kadar Perubahan Terhubung (Petua Rantai)', en: '2.4 Connected Rates of Change (Chain Rule)' }, marks: 4,
+          tier: 3, tpLabel: 'TP5–TP6 (KBAT)', subtopic: { bm: '2.4 Kadar Perubahan Berkaitan (Petua Rantai)', en: '2.4 Connected Rates of Change (Chain Rule)' }, marks: 4,
           prompt: lang === 'bm'
             ? `Sebuah kiub logam mengembang apabila dipanaskan supaya panjang sisinya $x\\text{ cm}$ bertambah pada kadar tetap $${dxdt}\\text{ cm s}^{-1}$. Cari **kadar perubahan isi padu** kiub itu ($\\text{cm}^3\\text{ s}^{-1}$) pada ketika $x = ${xVal}\\text{ cm}$.`
             : `A metal cube expands when heated such that its side length $x\\text{ cm}$ increases at a constant rate of $${dxdt}\\text{ cm s}^{-1}$. Find the **rate of change of its volume** ($\\text{cm}^3\\text{ s}^{-1}$) at the instant when $x = ${xVal}\\text{ cm}$.`,
@@ -358,9 +358,9 @@ window.AddMathApp.chapters = window.AddMathApp.chapters || [];
           ],
           hints: [lang === 'bm' ? 'Tulis V = x³, cari dV/dx = 3x², kemudian darab dx/dt.' : 'Write V = x³, find dV/dx = 3x², then multiply by dx/dt.'],
           steps: [
-            { badge: 'P1', title: lang === 'bm' ? 'Bezakan isi padu V = x³' : 'Differentiate volume V = x³', tex: `\\frac{dV}{dx} = 3x^2 \\implies \\left.\\frac{dV}{dx}\\right|_{x=${xVal}} = 3(${xVal})^2 = ${dVdx}`, why: 'Kadar perubahan V terhadap x.' },
-            { badge: 'K1', title: lang === 'bm' ? 'Bina hubungan Petua Rantai' : 'Set up Chain Rule', tex: `\\frac{dV}{dt} = \\frac{dV}{dx} \\times \\frac{dx}{dt} = ${dVdx} \\times ${dxdt}`, why: 'dx saling mansuh secara berantai.' },
-            { badge: 'J1', title: lang === 'bm' ? 'Kadar perubahan isi padu' : 'Rate of change of volume', tex: `\\frac{dV}{dt} = ${dVdt}\\text{ cm}^3\\text{ s}^{-1}`, why: 'Nilai tepat.' }
+            { badge: 'P1', title: lang === 'bm' ? 'Bezakan isi padu V = x³' : 'Differentiate volume V = x³', tex: `\\frac{dV}{dx} = 3x^2 \\implies \\left.\\frac{dV}{dx}\\right|_{x=${xVal}} = 3(${xVal})^2 = ${dVdx}`, why: lang === 'bm' ? 'Kadar perubahan V terhadap x.' : 'Rate of change of V w.r.t. x.' },
+            { badge: 'K1', title: lang === 'bm' ? 'Bina hubungan Petua Rantai' : 'Set up Chain Rule', tex: `\\frac{dV}{dt} = \\frac{dV}{dx} \\times \\frac{dx}{dt} = ${dVdx} \\times ${dxdt}`, why: lang === 'bm' ? 'dx saling mansuh secara berantai.' : 'Chain rule links dx/dt to dV/dt.' },
+            { badge: 'J1', title: lang === 'bm' ? 'Kadar perubahan isi padu' : 'Rate of change of volume', tex: `\\frac{dV}{dt} = ${dVdt}\\text{ cm}^3\\text{ s}^{-1}`, why: lang === 'bm' ? 'Nilai tepat.' : 'Exact value.' }
           ]
         };
       }
@@ -450,9 +450,9 @@ window.AddMathApp.chapters = window.AddMathApp.chapters || [];
             return {
               problemTex: `\\int_{${a}}^{${b}} \\left(${expr}\\right)\\,dx`,
               steps: [
-                { badge: 'P1', title: lang === 'bm' ? 'Langkah 1: Cari antiterbitan F(x)' : 'Step 1: Find antiderivative F(x)', tex: `\\left[ \\frac{${p}}{3}x^3 + \\frac{${q}}{2}x^2 + (${r})x \\right]_{${a}}^{${b}}`, why: lang === 'bm' ? 'Tambah kuasa 1 dan bahagi kuasa baru.' : 'Increase power by 1 and divide by new power.' },
-                { badge: 'K1', title: lang === 'bm' ? 'Langkah 2: Gantikan had atas F(b) − had bawah F(a)' : 'Step 2: Upper limit F(b) − lower limit F(a)', tex: `F(${b}) - F(${a}) = (${U.roundStr(Fb, 4)}) - (${U.roundStr(Fa, 4)})`, why: lang === 'bm' ? 'Teorem Asas Kalkulus.' : 'Fundamental Theorem of Calculus.' },
-                { badge: 'J1', title: lang === 'bm' ? 'Langkah 3: Nilai kamiran tentu' : 'Step 3: Definite integral value', tex: `= ${U.roundStr(val, 4)}`, why: val < 0 ? (lang === 'bm' ? 'Nilai negatif menunjukkan bersih rantau berada di bawah paksi-x (Luas = |nilai|).' : 'Negative sign indicates net region below x-axis.') : (lang === 'bm' ? 'Nilai tepat.' : 'Exact value.') }
+                { badge: 'P1', title: lang === 'bm' ? 'Langkah 1: Kamirkan setiap sebutan F(x)' : 'Step 1: Integrate each term F(x)', tex: `\\left[ ${U.fracTex(p, 3)}x^3 ${q >= 0 ? '+' : ''} ${U.fracTex(q, 2)}x^2 ${U.signedNum(r)}x \\right]_{${a}}^{${b}}`, why: lang === 'bm' ? 'Tambah kuasa 1 dan bahagi kuasa baru.' : 'Increase power by 1 and divide by new power.' },
+                { badge: 'K1', title: lang === 'bm' ? 'Langkah 2: Gantikan had atas F(b) − had bawah F(a)' : 'Step 2: Upper limit F(b) − lower limit F(a)', tex: `F(${b}) - F(${a}) = (${U.roundStr(Fb, 4)}) - (${U.roundStr(Fa, 4)})`, why: lang === 'bm' ? 'Gantikan had atas tolak had bawah.' : 'Fundamental Theorem of Calculus.' },
+                { badge: 'J1', title: lang === 'bm' ? 'Langkah 3: Nilai kamiran tentu' : 'Step 3: Definite integral value', tex: `= ${U.roundStr(val, 4)}`, why: val < 0 ? (lang === 'bm' ? 'Nilai negatif menunjukkan sebahagian besar rantau berada di bawah paksi-x (Luas = |nilai|).' : 'Negative sign indicates net region lies below the x-axis (Area = |value|).') : (lang === 'bm' ? 'Nilai tepat.' : 'Exact value.') }
               ],
               finalTex: `\\int_{${a}}^{${b}} (${expr})\\,dx = ${U.roundStr(val, 3)}`
             };
@@ -484,9 +484,9 @@ window.AddMathApp.chapters = window.AddMathApp.chapters || [];
             ],
             hints: [lang === 'bm' ? 'Kamirkan dahulu dan guna (1, y₁) untuk cari c.' : 'Integrate first and use (1, y₁) to find c.'],
             steps: [
-              { badge: 'P1', title: lang === 'bm' ? 'Kamirkan fungsi kecerunan' : 'Integrate gradient function', tex: `y = \\int (${dydx})\\,dx = ${a}x^2 ${U.signedNum(b)}x + c`, why: 'Jangan tinggal +c!' },
-              { badge: 'K1', title: lang === 'bm' ? 'Cari c menggunakan (1, ' + yAt1 + ')' : 'Find c using (1, ' + yAt1 + ')', tex: `${yAt1} = ${a}(1)^2 + (${b})(1) + c \\implies c = ${cConst}`, why: 'Gantikan koordinat titik.' },
-              { badge: 'J1', title: lang === 'bm' ? 'Nilaikan pada x = 2' : 'Evaluate at x = 2', tex: `y(2) = ${a}(2)^2 + (${b})(2) + (${cConst}) = ${yAt2}`, why: 'Nilai tepat.' }
+              { badge: 'P1', title: lang === 'bm' ? 'Kamirkan fungsi kecerunan' : 'Integrate gradient function', tex: `y = \\int (${dydx})\\,dx = ${a}x^2 ${U.signedNum(b)}x + c`, why: lang === 'bm' ? 'Jangan tinggal +c!' : 'Include +c!' },
+              { badge: 'K1', title: lang === 'bm' ? 'Cari c menggunakan (1, ' + yAt1 + ')' : 'Find c using (1, ' + yAt1 + ')', tex: `${yAt1} = ${a}(1)^2 + (${b})(1) + c \\implies c = ${cConst}`, why: lang === 'bm' ? 'Gantikan koordinat titik.' : 'Substitute point coordinates.' },
+              { badge: 'J1', title: lang === 'bm' ? 'Nilaikan pada x = 2' : 'Evaluate at x = 2', tex: `y(2) = ${a}(2)^2 + (${b})(2) + (${cConst}) = ${yAt2}`, why: lang === 'bm' ? 'Nilai tepat.' : 'Exact value.' }
             ]
           };
         }
@@ -500,8 +500,8 @@ window.AddMathApp.chapters = window.AddMathApp.chapters || [];
           return {
             tier: 2, tpLabel: 'TP3–TP4', subtopic: { bm: '3.3 Sifat Operasi Kamiran Tentu', en: '3.3 Operational Properties of Definite Integrals' }, marks: 3,
             prompt: lang === 'bm'
-              ? `Diberi $\\int_{${a}}^{${b}} f(x)\\,dx = ${intF}$, cari nilai bagi $$\\int_{${a}}^{${b}} \\left[${m}f(x) + ${k}\\right]\\,dx$$.`
-              : `Given that $\\int_{${a}}^{${b}} f(x)\\,dx = ${intF}$, find the value of $$\\int_{${a}}^{${b}} \\left[${m}f(x) + ${k}\\right]\\,dx$$.`,
+              ? `Diberi $\\int_{${a}}^{${b}} f(x)\\,dx = ${intF}$, cari nilai bagi $\\int_{${a}}^{${b}} \\left[${m}f(x) + ${k}\\right]\\,dx$.`
+              : `Given that $\\int_{${a}}^{${b}} f(x)\\,dx = ${intF}$, find the value of $\\int_{${a}}^{${b}} \\left[${m}f(x) + ${k}\\right]\\,dx$.`,
             answerType: 'number', correctValue: ans, displayAnswerTex: `${ans}`,
             intentMeta: { given: `\\int_1^5 f(x)\\,dx = ${intF}`, goal: 'Pecahkan kamiran linear dan kamirkan pemalar k terhadap x!', conceptRule: '∫_a^b k dx = k(b − a), BUKAN k sahaja!' },
             guidedSteps: [
@@ -513,15 +513,14 @@ window.AddMathApp.chapters = window.AddMathApp.chapters || [];
             ],
             hints: [lang === 'bm' ? 'Pecahkan kepada m∫f(x)dx + ∫k dx. Ingat ∫_a^b k dx = k(b−a)!' : 'Split into m∫f(x)dx + ∫k dx. Remember ∫_a^b k dx = k(b−a)!'],
             steps: [
-              { badge: 'P1', title: lang === 'bm' ? 'Asingkan sebutan kamiran' : 'Split integral terms', tex: `${m}\\int_{${a}}^{${b}} f(x)\\,dx + \\int_{${a}}^{${b}} ${k}\\,dx`, why: 'Sifat kelinearan kamiran.' },
-              { badge: 'K1', title: lang === 'bm' ? 'Kamirkan pemalar k' : 'Integrate constant k', tex: `= ${m}(${intF}) + [${k}x]_{${a}}^{${b}} = ${m * intF} + ${k}(${b} - ${a})`, why: 'Pemalar k didarab lebar selang (b − a).' },
-              { badge: 'J1', title: lang === 'bm' ? 'Jumlah akhir' : 'Final value', tex: `= ${ans}`, why: 'Tepat.' }
+              { badge: 'P1', title: lang === 'bm' ? 'Asingkan sebutan kamiran' : 'Split integral terms', tex: `${m}\\int_{${a}}^{${b}} f(x)\\,dx + \\int_{${a}}^{${b}} ${k}\\,dx`, why: lang === 'bm' ? 'Pecahkan kamiran mengikut sebutan.' : 'Linearity property of integrals.' },
+              { badge: 'K1', title: lang === 'bm' ? 'Kamirkan pemalar k' : 'Integrate constant k', tex: `= ${m}(${intF}) + [${k}x]_{${a}}^{${b}} = ${m * intF} + ${k}(${b} - ${a})`, why: lang === 'bm' ? 'Pemalar k didarab lebar selang (b − a).' : 'Constant k is multiplied by interval width (b − a).' },
+              { badge: 'J1', title: lang === 'bm' ? 'Jumlah akhir' : 'Final value', tex: `= ${ans}`, why: lang === 'bm' ? 'Tepat.' : 'Exact.' }
             ]
           };
         }
         // Tier 3 KBAT: Area bounded by parabola y = k^2 - x^2 above x-axis from 0 to k (or -k to k)
         const k = U.pick([2, 3, 4]);
-        // Area bounded by y = 3(k^2 - x^2) and x-axis in first quadrant (x >= 0, y >= 0): int_0^k (3k^2 - 3x^2) dx = [3k^2 x - x^3]_0^k = 2k^3 (clean integer!)
         const area = 2 * k * k * k;
         const curveTex = `${3 * k * k} - 3x^2`;
         return {
@@ -540,9 +539,9 @@ window.AddMathApp.chapters = window.AddMathApp.chapters || [];
           ],
           hints: [lang === 'bm' ? 'Cari pintasan-x dahulu (y = 0), kemudian kamirkan dari 0 hingga pintasan-x.' : 'Find x-intercept first (y = 0), then integrate from 0 to x-intercept.'],
           steps: [
-            { badge: 'P1', title: lang === 'bm' ? 'Cari pintasan-x (y = 0)' : 'Find x-intercept (y = 0)', tex: `${curveTex} = 0 \\implies x^2 = ${k * k} \\implies x = ${k}\\;(x \\ge 0)`, why: 'Had atas pengamiran.' },
-            { badge: 'K1', title: lang === 'bm' ? 'Kamirkan dari 0 ke ' + k : 'Integrate from 0 to ' + k, tex: `A = \\int_0^{${k}} (${curveTex})\\,dx = \\left[${3 * k * k}x - x^3\\right]_0^{${k}}`, why: 'Luas bawah lengkung.' },
-            { badge: 'J1', title: lang === 'bm' ? 'Luas rantau' : 'Bounded area', tex: `A = ${3 * k * k * k} - ${k * k * k} = ${area}\\text{ unit}^2`, why: 'Jawapan akhir.' }
+            { badge: 'P1', title: lang === 'bm' ? 'Cari pintasan-x (y = 0)' : 'Find x-intercept (y = 0)', tex: `${curveTex} = 0 \\implies x^2 = ${k * k} \\implies x = ${k}\\;(x \\ge 0)`, why: lang === 'bm' ? 'Had atas pengamiran.' : 'Upper limit of integration.' },
+            { badge: 'K1', title: lang === 'bm' ? 'Kamirkan dari 0 ke ' + k : 'Integrate from 0 to ' + k, tex: `A = \\int_0^{${k}} (${curveTex})\\,dx = \\left[${3 * k * k}x - x^3\\right]_0^{${k}}`, why: lang === 'bm' ? 'Luas bawah lengkung.' : 'Area under the curve.' },
+            { badge: 'J1', title: lang === 'bm' ? 'Luas rantau' : 'Bounded area', tex: `A = ${3 * k * k * k} - ${k * k * k} = ${area}\\text{ unit}^2`, why: lang === 'bm' ? 'Jawapan akhir.' : 'Final answer.' }
           ]
         };
       }
@@ -563,20 +562,20 @@ window.AddMathApp.chapters = window.AddMathApp.chapters || [];
       category: 'statistik',
       title: { bm: 'Pilih Atur dan Gabungan', en: 'Permutations & Combinations' },
       subtitle: {
-        bm: 'Petua pendaraban, faktorial n!, pilih atur ⁿPᵣ (tertib penting) & gabungan ⁿCᵣ (jawatankuasa)',
+        bm: 'Petua pendaraban, faktorial n!, pilih atur ⁿPᵣ (susunan penting) & gabungan ⁿCᵣ (jawatankuasa)',
         en: 'Multiplication rule, n!, permutations ⁿPᵣ (order matters) & combinations ⁿCᵣ (committees)'
       },
       spmWeight: { bm: 'Kertas 1 & Kertas 2 (6–8 markah)', en: 'Paper 1 & Paper 2 (6–8 marks)' },
       concepts: [
         {
-          title: { bm: '1. Pilih Atur ⁿPᵣ — Apabila SUSUNAN / TERTIB Penting!', en: '1. Permutations ⁿPᵣ — When ORDER Matters!' },
+          title: { bm: '1. Pilih Atur ⁿPᵣ — Apabila SUSUNAN Penting!', en: '1. Permutations ⁿPᵣ — When ORDER Matters!' },
           body: {
             bm: 'Gunakan **Pilih Atur (${}^nP_r$)** apabila menyusun huruf, kod kata laluan, nombor digit, atau kedudukan barisan gambar. Ingat takrifan penting: **$0! = 1$**!',
             en: 'Use **Permutations (${}^nP_r$)** when arranging letters, passwords, multi-digit numbers, or seating positions. Remember **$0! = 1$**!'
           },
           formulas: [
-            { label: { bm: 'Pilih Atur Linear & Objek Secaman', en: 'Linear Permutations & Identical Objects' }, tex: '{}^nP_r = \\frac{n!}{(n-r)!}, \\qquad \\text{Huruf berulang} = \\frac{n!}{a!\\,b!\\,\\dots}' },
-            { label: { bm: 'Susunan Membulat vs Gelang Boleh Terbalik', en: 'Circular vs Flippable Ring/Necklace' }, tex: '\\text{Meja Bulat} = (n-1)!, \\qquad \\text{Gelang/Rantai} = \\frac{(n-1)!}{2}' }
+            { label: { bm: 'Pilih Atur Linear & Huruf/Objek Sama Berulang', en: 'Linear Permutations & Identical Objects' }, tex: '{}^nP_r = \\frac{n!}{(n-r)!}, \\qquad \\text{Huruf berulang} = \\frac{n!}{a!\\,b!\\,\\dots}' },
+            { label: { bm: 'Susunan Meja Bulat vs Gelang / Rantai Manik', en: 'Circular vs Flippable Ring/Necklace' }, tex: '\\text{Meja Bulat} = (n-1)!, \\qquad \\text{Gelang/Rantai} = \\frac{(n-1)!}{2}' }
           ],
           tip: {
             bm: 'Syarat "MESTI BERSEBELAHAN": Ikatkan kumpulan itu sebagai 1 blok besar dahulu, kemudian darabkan susunan dalaman blok itu!',
@@ -584,7 +583,7 @@ window.AddMathApp.chapters = window.AddMathApp.chapters || [];
           }
         },
         {
-          title: { bm: '2. Gabungan ⁿCᵣ — Pemilihan Tanpa Mengira Tertib', en: '2. Combinations ⁿCᵣ — Unordered Team/Committee Selection' },
+          title: { bm: '2. Gabungan ⁿCᵣ — Pemilihan Tanpa Mengira Susunan', en: '2. Combinations ⁿCᵣ — Unordered Team/Committee Selection' },
           body: {
             bm: 'Gunakan **Gabungan (${}^nC_r$)** apabila memilih ahli jawatankuasa, pasukan sukan, atau kumpulan objek tanpa jawatan khusus. Kata kunci **"DAN"** = darab ($\\times$); kata kunci **"ATAU"** (kes berasingan) = tambah ($+$).',
             en: 'Use **Combinations (${}^nC_r$)** when choosing committees or teams without specific ranks. **"AND"** = multiply ($\\times$); **"OR"** (mutually exclusive cases) = add ($+$).'
@@ -620,19 +619,21 @@ window.AddMathApp.chapters = window.AddMathApp.chapters || [];
             { id: 'r', label: { bm: 'Bilangan dipilih r', en: 'Chosen count r' }, default: 3 }
           ],
           solve: function (v, lang) {
-            const n = Math.min(15, Math.max(1, Math.round(Number(v.n) || 6)));
-            const r = Math.min(n, Math.max(0, Math.round(Number(v.r) || 2)));
+            const rawN = Number(v.n);
+            const rawR = Number(v.r);
+            const n = Math.min(15, Math.max(1, Math.round(Number.isFinite(rawN) ? rawN : 6)));
+            const r = Math.min(n, Math.max(0, Math.round(Number.isFinite(rawR) ? rawR : 2)));
             const npr = U.nPr(n, r);
             const ncr = U.nCr(n, r);
             const circ = U.factorial(n - 1);
             return {
               problemTex: `n = ${n}, \\quad r = ${r}`,
               steps: [
-                { badge: 'P1', title: lang === 'bm' ? 'Pilih Atur Linear ⁿPᵣ (Tertib Penting)' : 'Linear Permutations ⁿPᵣ (Order Matters)', tex: `^{${n}}P_{${r}} = \\frac{${n}!}{(${n}-${r})!} = ${npr}`, why: lang === 'bm' ? 'Digunakan untuk kod, barisan & jawatan khusus.' : 'Used for codes, queues & ranked roles.' },
-                { badge: 'K1', title: lang === 'bm' ? 'Gabungan ⁿCᵣ (Tertib Tidak Penting)' : 'Combinations ⁿCᵣ (Order Irrelevant)', tex: `^{${n}}C_{${r}} = \\frac{^{${n}}P_{${r}}}{${r}!} = \\frac{${npr}}{${U.factorial(r)}} = ${ncr}`, why: lang === 'bm' ? 'Dibahagi dengan r! untuk membuang pertindihan susunan.' : 'Divided by r! to remove duplicate orderings.' },
+                { badge: 'P1', title: lang === 'bm' ? 'Pilih Atur Linear ⁿPᵣ (Susunan Penting)' : 'Linear Permutations ⁿPᵣ (Order Matters)', tex: `{}^{${n}}P_{${r}} = \\frac{${n}!}{(${n}-${r})!} = ${npr}`, why: lang === 'bm' ? 'Digunakan untuk kod, barisan & jawatan khusus.' : 'Used for codes, queues & ranked roles.' },
+                { badge: 'K1', title: lang === 'bm' ? 'Gabungan ⁿCᵣ (Susunan Tidak Penting)' : 'Combinations ⁿCᵣ (Order Irrelevant)', tex: `{}^{${n}}C_{${r}} = \\frac{{}^{${n}}P_{${r}}}{${r}!} = \\frac{${npr}}{${U.factorial(r)}} = ${ncr}`, why: lang === 'bm' ? 'Dibahagi dengan r! untuk membuang pertindihan susunan.' : 'Divided by r! to remove duplicate orderings.' },
                 { badge: 'J1', title: lang === 'bm' ? 'Susunan Meja Bulat Semua n Objek' : 'Circular Arrangement of All n Items', tex: `(${n}-1)! = ${n - 1}! = ${circ}`, why: lang === 'bm' ? 'Satu kedudukan ditetapkan sebagai rujukan putaran.' : 'One seat fixed against rotational symmetry.' }
               ],
-              finalTex: `^{${n}}P_{${r}} = ${npr}, \\quad ^{${n}}C_{${r}} = ${ncr}, \\quad (${n}-1)! = ${circ}`
+              finalTex: `{}^{${n}}P_{${r}} = ${npr}, \\quad {}^{${n}}C_{${r}} = ${ncr}, \\quad (${n}-1)! = ${circ}`
             };
           }
         }
@@ -646,9 +647,9 @@ window.AddMathApp.chapters = window.AddMathApp.chapters || [];
             tier: 1, tpLabel: 'TP1–TP2', subtopic: { bm: '4.1 Pilih Atur Kod Tanpa Ulangan', en: '4.1 Permutations Without Repetition' }, marks: 2,
             prompt: lang === 'bm'
               ? `Berapakah bilangan kod kata laluan **$${r}$ huruf berbeza** yang boleh dibentuk daripada $${n}$ huruf berlainan tanpa ulangan?`
-              : `How many **$ ${r}$-letter password codes** can be formed from $${n}$ distinct letters without repetition?`,
-            answerType: 'number', correctValue: ans, displayAnswerTex: `^{${n}}P_{${r}} = ${ans}`,
-            intentMeta: { given: `n = ${n}, r = ${r}, \\text{kod huruf (tertib penting)}`, goal: 'Kira ⁿPᵣ', conceptRule: 'Kod kata laluan mementingkan tertib → guna ⁿPᵣ' },
+              : `How many **$${r}$-letter password codes** can be formed from $${n}$ distinct letters without repetition?`,
+            answerType: 'number', correctValue: ans, displayAnswerTex: `{}^{${n}}P_{${r}} = ${ans}`,
+            intentMeta: { given: `n = ${n}, r = ${r}, \\text{kod huruf (susunan penting)}`, goal: 'Kira ⁿPᵣ', conceptRule: 'Kod kata laluan mementingkan susunan → guna ⁿPᵣ' },
             guidedSteps: [
               { prompt: { bm: `Berapakah pilihan untuk huruf pertama dan kedua digabungkan ($${n} \\times ${n - 1}$)?`, en: `How many choices for the first two positions ($${n} \\times ${n - 1}$)?` }, expected: n * (n - 1), hint: { bm: `Darab ${n} dengan ${n - 1}.`, en: `Multiply ${n} by ${n - 1}.` } },
               { prompt: { bm: `Lengkapkan pendaraban bagi kesemua $${r}$ tempat ($^{${n}}P_{${r}}$):`, en: `Complete the product for all $${r}$ slots ($^{${n}}P_{${r}}$):` }, expected: ans, hint: { bm: `Kira ${n}! / (${n}−${r})!.`, en: `Compute ${n}! / (${n}−${r})!.` } }
@@ -658,8 +659,8 @@ window.AddMathApp.chapters = window.AddMathApp.chapters || [];
             ],
             hints: [lang === 'bm' ? 'Susunan huruf penting dalam kata laluan, guna ⁿPᵣ.' : 'Order matters in passwords, use ⁿPᵣ.'],
             steps: [
-              { badge: 'P1', title: lang === 'bm' ? 'Kenal pasti pilih atur' : 'Identify permutation', tex: `\\text{Bilangan kod} = \\,^{${n}}P_{${r}}`, why: 'Tertib huruf penting.' },
-              { badge: 'J1', title: lang === 'bm' ? 'Nilaikan' : 'Evaluate', tex: `^{${n}}P_{${r}} = ${ans}`, why: 'Tepat.' }
+              { badge: 'P1', title: lang === 'bm' ? 'Kenal pasti pilih atur' : 'Identify permutation', tex: `\\text{${lang === 'bm' ? 'Bilangan kod' : 'Number of codes'}} = {}^{${n}}P_{${r}}`, why: lang === 'bm' ? 'Susunan huruf penting.' : 'Letter order matters.' },
+              { badge: 'J1', title: lang === 'bm' ? 'Nilaikan' : 'Evaluate', tex: `{}^{${n}}P_{${r}} = ${ans}`, why: lang === 'bm' ? 'Tepat.' : 'Exact.' }
             ]
           };
         }
@@ -685,17 +686,15 @@ window.AddMathApp.chapters = window.AddMathApp.chapters || [];
             ],
             hints: [lang === 'bm' ? 'Ikat jadi 1 blok: kira (n−k+1)! kemudian darab k!.' : 'Tie into 1 block: compute (n−k+1)! then multiply by k!.'],
             steps: [
-              { badge: 'P1', title: lang === 'bm' ? 'Susunan blok luar' : 'Outer block arrangements', tex: `(${n} - ${k} + 1)! = ${units}! = ${U.factorial(units)}`, why: 'Kumpulan dianggap 1 unit.' },
-              { badge: 'K1', title: lang === 'bm' ? 'Darab susunan dalaman' : 'Multiply internal arrangements', tex: `${U.factorial(units)} \\times ${k}! = ${U.factorial(units)} \\times ${U.factorial(k)}`, why: 'Buku dalam blok boleh bertukar tempat.' },
-              { badge: 'J1', title: lang === 'bm' ? 'Jumlah cara susunan' : 'Total arrangements', tex: `= ${ans}`, why: 'Jawapan akhir.' }
+              { badge: 'P1', title: lang === 'bm' ? 'Susunan blok luar' : 'Outer block arrangements', tex: `(${n} - ${k} + 1)! = ${units}! = ${U.factorial(units)}`, why: lang === 'bm' ? 'Kumpulan dianggap 1 unit.' : 'Tied group treated as 1 unit.' },
+              { badge: 'K1', title: lang === 'bm' ? 'Darab susunan dalaman' : 'Multiply internal arrangements', tex: `${U.factorial(units)} \\times ${k}! = ${U.factorial(units)} \\times ${U.factorial(k)}`, why: lang === 'bm' ? 'Buku dalam blok boleh bertukar tempat.' : 'Books inside the block can permute.' },
+              { badge: 'J1', title: lang === 'bm' ? 'Jumlah cara susunan' : 'Total arrangements', tex: `= ${ans}`, why: lang === 'bm' ? 'Jawapan akhir.' : 'Final answer.' }
             ]
           };
         }
         // Tier 3 KBAT: Committee selection with "at least" condition!
-        // Choose 4 members from m men (e.g. 5) and w women (e.g. 4) with AT LEAST 2 women
         const m = U.pick([5, 6]);
         const w = U.pick([4, 5]);
-        // Committee of 4, at least 3 women: Case 1 (3W, 1M) + Case 2 (4W, 0M)
         const c1 = U.nCr(w, 3) * U.nCr(m, 1);
         const c2 = U.nCr(w, 4) * U.nCr(m, 0);
         const total = c1 + c2;
@@ -705,20 +704,20 @@ window.AddMathApp.chapters = window.AddMathApp.chapters || [];
             ? `Satu jawatankuasa seramai **$4$ orang** hendak dipilih daripada **$${m}$ lelaki** dan **$${w}$ perempuan**. Cari bilangan cara pemilihan jika jawatankuasa itu mesti mengandungi **sekurang-kurangnya $3$ orang perempuan**.`
             : `A committee of **$4$ members** is to be chosen from **$${m}$ men** and **$${w}$ women**. Find the number of ways if the committee must include **at least $3$ women**.`,
           answerType: 'number', correctValue: total, displayAnswerTex: `${c1} + ${c2} = ${total}`,
-          intentMeta: { given: `${m}\\text{ L}, ${w}\\text{ P}, \\text{pilih }4, \\text{P} \\ge 3`, goal: 'Jumlahkan Kes (3P, 1L) + Kes (4P, 0L)', conceptRule: 'Pecahkan kes saling eksklusif: (ⁿC₃ × ᵐC₁) + (ⁿC₄ × ᵐC₀)' },
+          intentMeta: { given: `${m}\\text{ L}, ${w}\\text{ P}, \\text{pilih }4, \\text{P} \\ge 3`, goal: 'Jumlahkan Kes (3P, 1L) + Kes (4P, 0L)', conceptRule: 'Pecahkan mengikut kes berasingan: (ⁿC₃ × ᵐC₁) + (ⁿC₄ × ᵐC₀)' },
           guidedSteps: [
-            { prompt: { bm: `Kira Kes 1 (**3 Perempuan DAN 1 Lelaki**): $^{${w}}C_3 \\times \\,^{${m}}C_1$:`, en: `Compute Case 1 (**3 Women AND 1 Man**): $^{${w}}C_3 \\times \\,^{${m}}C_1$:` }, expected: c1, hint: { bm: `Kira ${U.nCr(w, 3)} × ${m}.`, en: `Compute ${U.nCr(w, 3)} × ${m}.` } },
-            { prompt: { bm: `Tambahkan Kes 2 (**4 Perempuan DAN 0 Lelaki**, iaitu $^{${w}}C_4 = ${c2}$) kepada Kes 1:`, en: `Add Case 2 (**4 Women AND 0 Men**, which is $^{${w}}C_4 = ${c2}$) to Case 1:` }, expected: total, hint: { bm: `Kira ${c1} + ${c2}.`, en: `Compute ${c1} + ${c2}.` } }
+            { prompt: { bm: `Kira Kes 1 (**3 Perempuan DAN 1 Lelaki**): $\\,{}^{${w}}C_3 \\times {}^{${m}}C_1$:`, en: `Compute Case 1 (**3 Women AND 1 Man**): $\\,{}^{${w}}C_3 \\times {}^{${m}}C_1$:` }, expected: c1, hint: { bm: `Kira ${U.nCr(w, 3)} × ${m}.`, en: `Compute ${U.nCr(w, 3)} × ${m}.` } },
+            { prompt: { bm: `Tambahkan Kes 2 (**4 Perempuan DAN 0 Lelaki**, iaitu $\\,{}^{${w}}C_4 = ${c2}$) kepada Kes 1:`, en: `Add Case 2 (**4 Women AND 0 Men**, which is $\\,{}^{${w}}C_4 = ${c2}$) to Case 1:` }, expected: total, hint: { bm: `Kira ${c1} + ${c2}.`, en: `Compute ${c1} + ${c2}.` } }
           ],
           traps: [
             { value: c1, message: { bm: 'Perangkap [P]: "Sekurang-kurangnya 3 perempuan" bermaksud 3 perempuan ATAU 4 perempuan! Anda tertinggal kes 4 perempuan.', en: 'Trap [P]: "At least 3 women" includes BOTH 3 women OR 4 women! Add Case 2.' } },
-            { value: U.nCr(w, 3) * U.nCr(m + w - 3, 1), message: { bm: 'Perangkap [K]: Jangan pilih 3 perempuan dahulu kemudian darab baki campuran — itu menyebabkan kiraan bertindih! Pecahkan mengikut kes tepat.', en: 'Trap [K]: Picking 3 women then multiplying from the mixed pool double-counts! Split into exact disjoint cases.' } }
+            { value: U.nCr(w, 3) * U.nCr(m + w - 3, 1), message: { bm: 'Perangkap [K]: Jangan pilih 3 perempuan dahulu kemudian darab baki campuran — itu menyebabkan kiraan bertindih! Pecahkan mengikut kes berasingan.', en: 'Trap [K]: Picking 3 women then multiplying from the mixed pool double-counts! Split into exact disjoint cases.' } }
           ],
           hints: [lang === 'bm' ? 'Senaraikan 2 kes: (3P, 1L) + (4P, 0L).' : 'Split into 2 disjoint cases: (3W, 1M) + (4W, 0M).'],
           steps: [
-            { badge: 'P1', title: lang === 'bm' ? 'Kes 1: 3 Perempuan & 1 Lelaki' : 'Case 1: 3 Women & 1 Man', tex: `^{${w}}C_3 \\times \\,^{${m}}C_1 = ${U.nCr(w, 3)} \\times ${m} = ${c1}`, why: 'Kata kunci DAN → darab.' },
-            { badge: 'K1', title: lang === 'bm' ? 'Kes 2: 4 Perempuan & 0 Lelaki' : 'Case 2: 4 Women & 0 Men', tex: `^{${w}}C_4 \\times \\,^{${m}}C_0 = ${c2} \\times 1 = ${c2}`, why: 'Kes semua perempuan.' },
-            { badge: 'J1', title: lang === 'bm' ? 'Jumlahkan kedua-dua kes' : 'Sum mutually exclusive cases', tex: `${c1} + ${c2} = ${total}`, why: 'Kata kunci ATAU → tambah.' }
+            { badge: 'P1', title: lang === 'bm' ? 'Kes 1: 3 Perempuan & 1 Lelaki' : 'Case 1: 3 Women & 1 Man', tex: `{}^{${w}}C_3 \\times {}^{${m}}C_1 = ${U.nCr(w, 3)} \\times ${m} = ${c1}`, why: lang === 'bm' ? 'Kata kunci DAN → darab.' : 'Keyword AND → multiply.' },
+            { badge: 'K1', title: lang === 'bm' ? 'Kes 2: 4 Perempuan & 0 Lelaki' : 'Case 2: 4 Women & 0 Men', tex: `{}^{${w}}C_4 \\times {}^{${m}}C_0 = ${c2} \\times 1 = ${c2}`, why: lang === 'bm' ? 'Kes semua perempuan.' : 'All-women case.' },
+            { badge: 'J1', title: lang === 'bm' ? 'Jumlahkan kedua-dua kes' : 'Sum mutually exclusive cases', tex: `${c1} + ${c2} = ${total}`, why: lang === 'bm' ? 'Kata kunci ATAU → tambah.' : 'Keyword OR → add.' }
           ]
         };
       }

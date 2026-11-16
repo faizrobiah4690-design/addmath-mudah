@@ -17,12 +17,12 @@ window.AddMathApp.masterBank = window.AddMathApp.masterBank || {};
         code: '1.1', marks: 3,
         topic: { bm: 'Tatatanda dan Jenis Hubungan Fungsi', en: 'Function Notation & Relation Types' },
         q: {
-          bm: 'Hubungan antara set $P = \\{-2, -1, 0, 1, 2\\}$ dan set $Q = \\{0, 1, 4\\}$ ditakrifkan oleh $f: x \\mapsto x^2$.\n(a) Nyatakan jenis hubungan tersebut. [1m]\n(b) Nyatakan julat hubungan tersebut. [1m]\n(c) Tulis fungsi dalam tatatanda fungsi yang memetakan elemen set $Q$ kepada nombor positif dalam set $P$. [1m]',
-          en: 'The relation between set $P = \\{-2, -1, 0, 1, 2\\}$ and set $Q = \\{0, 1, 4\\}$ is defined by $f: x \\mapsto x^2$.\n(a) State the type of relation. [1m]\n(b) State the range of the relation. [1m]\n(c) Using function notation, write a function mapping elements in $Q$ to positive numbers in $P$. [1m]'
+          bm: 'Hubungan antara set $P = \\{-2, -1, 0, 1, 2\\}$ dan set $Q = \\{0, 1, 4\\}$ ditakrifkan oleh $f: x \\mapsto x^2$.\n(a) Nyatakan jenis hubungan tersebut. [1m]\n(b) Nyatakan julat hubungan tersebut. [1m]\n(c) Tulis fungsi dalam tatatanda fungsi yang menghubungkan (memetakan) unsur set $Q$ kepada nombor bukan negatif dalam set $P$. [1m]',
+          en: 'The relation between set $P = \\{-2, -1, 0, 1, 2\\}$ and set $Q = \\{0, 1, 4\\}$ is defined by $f: x \\mapsto x^2$.\n(a) State the type of relation. [1m]\n(b) State the range of the relation. [1m]\n(c) Using function notation, write a function mapping elements in $Q$ to non-negative numbers in $P$. [1m]'
         },
         mistakes: {
-          bm: ['Menjawab jenis hubungan sebagai "fungsi" dan bukannya **hubungan banyak kepada satu**.', 'Menulis julat tanpa tanda set $\\{\\;\\}$ atau memasukkan unsur luar kodomain.', 'Menulis $\\pm\\sqrt{x}$ sedangkan soalan menghadkan kepada nombor positif sahaja.'],
-          en: ['Answering "function" instead of **many-to-one relation**.', 'Writing the range without curly braces $\\{\\;\\}$.', 'Writing $\\pm\\sqrt{x}$ when restricted to positive outputs only.']
+          bm: ['Menjawab jenis hubungan sebagai "fungsi" dan bukannya **hubungan banyak kepada satu**.', 'Menulis julat tanpa tanda set $\\{\\;\\}$ atau memasukkan unsur luar kodomain.', 'Menulis $\\pm\\sqrt{x}$ sedangkan soalan mengehadkan kepada nombor bukan negatif sahaja.'],
+          en: ['Answering "function" instead of **many-to-one relation**.', 'Writing the range without curly braces $\\{\\;\\}$.', 'Writing $\\pm\\sqrt{x}$ when restricted to non-negative outputs only.']
         },
         scheme: [
           { badge: 'N1', bm: '(a) Hubungan banyak kepada satu (*Many-to-one relation*).', en: '(a) Many-to-one relation.' },
@@ -106,7 +106,7 @@ window.AddMathApp.masterBank = window.AddMathApp.masterBank || {};
           en: 'Given $f(x) = \\frac{2x+1}{x-3},\\; x \\ne 3$.\n(a) Find the inverse function $f^{-1}(x)$. [2m]\n(b) State the value of $x$ for which $f^{-1}(x)$ is undefined. [1m]'
         },
         mistakes: {
-          bm: ['Mengelirukan fungsi songsang $f^{-1}(x)$ dengan salingan $\\frac{x-3}{2x+1}$!', 'Gagal mengumpul dan memfaktorkan $y$ daripada $2y + 1 = x(y - 3)$.'],
+          bm: ['Mengelirukan fungsi songsang $f^{-1}(x)$ dengan pecahan terbalik / salingan (*reciprocal*) $\\frac{x-3}{2x+1}$!', 'Gagal mengumpul dan memfaktorkan $y$ daripada $2y + 1 = x(y - 3)$.'],
           en: ['Confusing inverse $f^{-1}(x)$ with reciprocal $\\frac{x-3}{2x+1}$!', 'Failing to collect and factor out $y$ from $2y + 1 = x(y - 3)$.']
         },
         scheme: [
@@ -117,17 +117,17 @@ window.AddMathApp.masterBank = window.AddMathApp.masterBank || {};
       },
       {
         code: '1.7', marks: 2,
-        topic: { bm: 'Ujian Garis Mengufuk & Kewujudan Songsang', en: 'Horizontal Line Test & Inverse Existence' },
+        topic: { bm: 'Ujian Garis Mengufuk (Melintang) & Kewujudan Fungsi Songsang', en: 'Horizontal Line Test & Inverse Existence' },
         q: {
           bm: '(a) Terangkan mengapa $f(x) = x^2 - 4x + 5,\\; x \\in \\mathbb{R}$ tidak mempunyai fungsi songsang. [1m]\n(b) Nyatakan satu domain terhad supaya $f^{-1}(x)$ wujud. [1m]',
           en: '(a) Explain why $f(x) = x^2 - 4x + 5,\\; x \\in \\mathbb{R}$ has no inverse function. [1m]\n(b) State a suitable restricted domain so that $f^{-1}(x)$ exists. [1m]'
         },
         mistakes: {
-          bm: ['Menyebut Ujian Garis Mencancang (*Vertical Line Test*) bukannya **Ujian Garis Mengufuk**.', 'Memilih domain yang merentasi paksi simetri $x = 2$.'],
+          bm: ['Menyebut Ujian Garis Mencancang (menegak / *Vertical Line Test*) bukannya **Ujian Garis Mengufuk (melintang / *Horizontal Line Test*)**.', 'Memilih domain yang merentasi paksi simetri $x = 2$.'],
           en: ['Citing Vertical Line Test instead of **Horizontal Line Test**.', 'Choosing a domain spanning both sides of axis of symmetry $x = 2$.']
         },
         scheme: [
-          { badge: 'N1', bm: '(a) Fungsi banyak-ke-satu (garis mengufuk memotong graf lebih daripada 1 titik), maka bukan satu-ke-satu.', en: '(a) Many-to-one function (horizontal line cuts graph at more than 1 point), not one-to-one.' },
+          { badge: 'N1', bm: '(a) Fungsi banyak-ke-satu (garis melintang/mengufuk memotong graf pada lebih daripada 1 titik), maka bukan satu-ke-satu.', en: '(a) Many-to-one function (horizontal line cuts graph at more than 1 point), not one-to-one.' },
           { badge: 'N1', bm: '(b) Paksi simetri $x = 2$; domain terhad: $x \\ge 2$ (atau $x \\le 2$).', en: '(b) Axis of symmetry $x = 2$; restricted domain: $x \\ge 2$ (or $x \\le 2$).' }
         ]
       },
@@ -152,7 +152,7 @@ window.AddMathApp.masterBank = window.AddMathApp.masterBank || {};
         code: '1.9', marks: 4,
         topic: { bm: 'Fungsi Gubahan Berulang fⁿ(x)', en: 'Iterated Composite Functions fⁿ(x)' },
         q: {
-          bm: 'Diberi $f(x) = \\frac{x}{x+1},\\; x \\ne -1$.\n(a) Cari ungkapan $f^2(x)$ dan $f^3(x)$. [2m]\n(b) Seterusnya, deduksikan ungkapan $f^{30}(x)$. [2m]',
+          bm: 'Diberi $f(x) = \\frac{x}{x+1},\\; x \\ne -1$.\n(a) Cari ungkapan $f^2(x)$ dan $f^3(x)$. [2m]\n(b) Seterusnya, tentukan ungkapan $f^{30}(x)$ berdasarkan corak tersebut. [2m]',
           en: 'Given $f(x) = \\frac{x}{x+1},\\; x \\ne -1$.\n(a) Find $f^2(x)$ and $f^3(x)$. [2m]\n(b) Hence deduce an expression for $f^{30}(x)$. [2m]'
         },
         mistakes: {
@@ -161,13 +161,13 @@ window.AddMathApp.masterBank = window.AddMathApp.masterBank || {};
         },
         scheme: [
           { badge: 'K1', bm: '(a) $f^2(x) = \\frac{\\frac{x}{x+1}}{\\frac{x}{x+1}+1} = \\frac{x}{2x+1}$; $\\;f^3(x) = \\frac{x}{3x+1}$.', en: '(a) $f^2(x) = \\frac{x}{2x+1}$ and $f^3(x) = \\frac{x}{3x+1}$.' },
-          { badge: 'K1', bm: '(b) Pola induktif: $f^n(x) = \\frac{x}{nx+1}$.', en: '(b) Pattern recognition: $f^n(x) = \\frac{x}{nx+1}$.' },
+          { badge: 'K1', bm: '(b) Ikut corak urutan: $f^n(x) = \\frac{x}{nx+1}$.', en: '(b) Pattern recognition: $f^n(x) = \\frac{x}{nx+1}$.' },
           { badge: 'N1', bm: '$f^{30}(x) = \\frac{x}{30x+1},\\; x \\ne -\\frac{1}{30}$.', en: '$f^{30}(x) = \\frac{x}{30x+1},\\; x \\ne -\\frac{1}{30}$.' }
         ]
       },
       {
         code: '1.10', marks: 4,
-        topic: { bm: 'Masalah Kontekstual Diskaun & Kupon', en: 'Contextual Discount & Voucher Modeling' },
+        topic: { bm: 'Aplikasi Harian: Diskaun & Kupon', en: 'Contextual Discount & Voucher Modeling' },
         q: {
           bm: 'Kedai menawarkan diskaun 20% diwakili $d(x) = 0.8x$ dan kupon tunai RM15 diwakili $c(x) = x - 15$.\n(a) Tulis fungsi gubahan jika diskaun 20% digunakan **sebelum** kupon tunai. [2m]\n(b) Jika harga asal RM120, hitung harga akhir. [2m]',
           en: 'A store offers a 20% discount $d(x) = 0.8x$ and an RM15 cash voucher $c(x) = x - 15$.\n(a) Find the composite function if the 20% discount is applied **before** the voucher. [2m]\n(b) Find the final price for an item originally priced at RM120. [2m]'
@@ -372,7 +372,7 @@ window.AddMathApp.masterBank = window.AddMathApp.masterBank || {};
         scheme: [
           { badge: 'K1', bm: 'Darab $xy$: $2y + 3x = 2xy$; ganti $x = 3 + 2y$.', en: 'Multiply by $xy$: $2y + 3x = 2xy$; substitute $x = 3 + 2y$.' },
           { badge: 'K1', bm: '$2y + 3(3 + 2y) = 2(3 + 2y)y \\implies 4y^2 - 2y - 9 = 0$.', en: '$4y^2 - 2y - 9 = 0$.' },
-          { badge: 'N1', bm: '$(6.542, 1.771)$ dan $(0.458, -1.271)$.', en: '$(6.542, 1.771)$ and $(0.458, -1.271)$.' }
+          { badge: 'N1', bm: '$(6.541, 1.771)$ dan $(0.459, -1.271)$.', en: '$(6.541, 1.771)$ and $(0.459, -1.271)$.' }
         ]
       },
       {
@@ -402,11 +402,11 @@ window.AddMathApp.masterBank = window.AddMathApp.masterBank || {};
       },
       {
         code: '3.6', marks: 3,
-        topic: { bm: 'Tiada Penyelesaian vs Infiniti Penyelesaian', en: 'No Solution vs Infinite Solutions' },
-        q: { bm: 'Diberi sistem $x + 2y - z = 4$, $\\;2x + 4y - 2z = 8$, $\\;3x + 6y - 3z = k$. Cari nilai $k$ supaya sistem mempunyai infiniti penyelesaian, dan terangkan jika $k \\ne 12$. [3m]', en: 'Given $x + 2y - z = 4$, $\\;2x + 4y - 2z = 8$, $\\;3x + 6y - 3z = k$. Find $k$ for infinite solutions, and explain what happens if $k \\ne 12$. [3m]' },
-        mistakes: { bm: ['Mengelirukan satah selari berasingan ($0 = c \\ne 0$, tiada penyelesaian) dengan satah bertindih ($0 = 0$, infiniti penyelesaian).'], en: ['Confusing parallel distinct planes (no solution) with coincident planes (infinite solutions).'] },
+        topic: { bm: 'Tiada Penyelesaian vs Penyelesaian Tak Terhingga', en: 'No Solution vs Infinite Solutions' },
+        q: { bm: 'Diberi sistem $x + 2y - z = 4$, $\\;2x + 4y - 2z = 8$, $\\;3x + 6y - 3z = k$. Cari nilai $k$ supaya sistem mempunyai penyelesaian tak terhingga, dan terangkan jika $k \\ne 12$. [3m]', en: 'Given $x + 2y - z = 4$, $\\;2x + 4y - 2z = 8$, $\\;3x + 6y - 3z = k$. Find $k$ for infinite solutions, and explain what happens if $k \\ne 12$. [3m]' },
+        mistakes: { bm: ['Mengelirukan satah selari berasingan ($0 = c \\ne 0$, tiada penyelesaian) dengan satah bertindih ($0 = 0$, penyelesaian tak terhingga).'], en: ['Confusing parallel distinct planes (no solution) with coincident planes (infinite solutions).'] },
         scheme: [
-          { badge: 'N1', bm: 'Persamaan 3 ialah gandaan $3\\times$ persamaan 1 apabila $k = 3(4) = 12$ (infiniti penyelesaian).', en: 'Infinite solutions when $k = 3(4) = 12$ (coincident planes).' },
+          { badge: 'N1', bm: 'Persamaan 3 ialah gandaan $3\\times$ persamaan 1 apabila $k = 3(4) = 12$ (penyelesaian tak terhingga).', en: 'Infinite solutions when $k = 3(4) = 12$ (coincident planes).' },
           { badge: 'N1', bm: 'Jika $k \\ne 12$, satah selari tetapi tidak bersilang $\\implies$ tiada penyelesaian.', en: 'If $k \\ne 12$, planes are parallel and non-intersecting $\\implies$ no solution.' }
         ]
       },
@@ -483,11 +483,11 @@ window.AddMathApp.masterBank = window.AddMathApp.masterBank || {};
       },
       {
         code: '4.3', marks: 3,
-        topic: { bm: 'Menisbahkan Penyebut Konjugat Surd', en: 'Rationalizing Surd Denominator' },
+        topic: { bm: 'Menghapuskan Surd pada Penyebut (Pasangan Konjugat)', en: 'Rationalizing Surd Denominator' },
         q: { bm: 'Permudahkan $\\frac{3\\sqrt{2} - 1}{2\\sqrt{2} + 3}$ kepada bentuk $a + b\\sqrt{2}$. [3m]', en: 'Simplify $\\frac{3\\sqrt{2} - 1}{2\\sqrt{2} + 3}$ in the form $a + b\\sqrt{2}$. [3m]' },
         mistakes: { bm: ['Salah mengira $(2\\sqrt{2})^2 = 4$ sedangkan $(2\\sqrt{2})^2 = 4 \\times 2 = 8$!'], en: ['Computing $(2\\sqrt{2})^2 = 4$ instead of $4 \\times 2 = 8$!'] },
         scheme: [
-          { badge: 'K1', bm: 'Darab konjugat: $\\frac{(3\\sqrt{2}-1)(2\\sqrt{2}-3)}{(2\\sqrt{2}+3)(2\\sqrt{2}-3)} = \\frac{12 - 9\\sqrt{2} - 2\\sqrt{2} + 3}{8 - 9}$.', en: 'Multiply by conjugate $(2\\sqrt{2}-3)$: $\\frac{15 - 11\\sqrt{2}}{8 - 9}$.' },
+          { badge: 'K1', bm: 'Darab atas & bawah dengan pasangan konjugat $(2\\sqrt{2}-3)$: $\\frac{(3\\sqrt{2}-1)(2\\sqrt{2}-3)}{(2\\sqrt{2}+3)(2\\sqrt{2}-3)} = \\frac{12 - 9\\sqrt{2} - 2\\sqrt{2} + 3}{8 - 9}$.', en: 'Multiply by conjugate $(2\\sqrt{2}-3)$: $\\frac{15 - 11\\sqrt{2}}{8 - 9}$.' },
           { badge: 'N1', bm: '$\\frac{15 - 11\\sqrt{2}}{-1} = -15 + 11\\sqrt{2}$.', en: '$-15 + 11\\sqrt{2}$.' }
         ]
       },
@@ -495,7 +495,7 @@ window.AddMathApp.masterBank = window.AddMathApp.masterBank || {};
         code: '4.4', marks: 4,
         topic: { bm: 'Persamaan Melibatkan Surd', en: 'Solving Surd Equations' },
         q: { bm: 'Selesaikan persamaan $\\sqrt{2x + 5} - \\sqrt{x - 1} = 2$. [4m]', en: 'Solve $\\sqrt{2x + 5} - \\sqrt{x - 1} = 2$. [4m]' },
-        mistakes: { bm: ['Mengkuasadua terus tanpa mengasingkan satu surd dahulu, atau lupa menyemak punca palsu (*extraneous roots*).'], en: ['Squaring without isolating one surd first, or skipping the extraneous-root check.'] },
+        mistakes: { bm: ['Mengkuasadua terus tanpa mengasingkan satu surd dahulu, atau lupa uji semula jawapan dalam persamaan asal untuk menolak jawapan tak sah (*extraneous roots*).'], en: ['Squaring without isolating one surd first, or skipping the extraneous-root check.'] },
         scheme: [
           { badge: 'K1', bm: '$\\sqrt{2x+5} = 2 + \\sqrt{x-1} \\implies 2x + 5 = 4 + 4\\sqrt{x-1} + x - 1$.', en: '$\\sqrt{2x+5} = 2 + \\sqrt{x-1} \\implies x + 2 = 4\\sqrt{x-1}$.' },
           { badge: 'K1', bm: '$(x + 2)^2 = 16(x - 1) \\implies x^2 - 12x + 20 = 0 \\implies (x - 2)(x - 10) = 0$.', en: '$(x + 2)^2 = 16(x - 1) \\implies (x - 2)(x - 10) = 0$.' },

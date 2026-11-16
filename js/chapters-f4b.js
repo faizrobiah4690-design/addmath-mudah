@@ -145,33 +145,32 @@ window.AddMathApp.chapters = window.AddMathApp.chapters || [];
             traps: [{ value: cExp, message: { bm: `Diagnostik Antilog [K]: ${cExp} ialah nilai log₁₀ a, bukannya nilai a! Tukarkan kepada a = 10^${cExp} = ${aAns}.`, en: `Antilog Diagnosis [K]: ${cExp} is log₁₀ a! Take antilog: a = 10^${cExp} = ${aAns}.` } }],
             hints: [lang === 'bm' ? `Tulis $\\log_{10} y = (\\log_{10} b)x + \\log_{10} a$, jadi $\\log_{10} a = ${cExp}$.` : `Write $\\log_{10} y = (\\log_{10} b)x + \\log_{10} a$, so $\\log_{10} a = ${cExp}$.`],
             steps: [
-              { badge: 'K1', title: lang === 'bm' ? 'Linearkan dengan log₁₀' : 'Linearize using log₁₀', tex: `\\log_{10} y = (\\log_{10} b)x + \\log_{10} a`, why: lang === 'bm' ? 'Gunakan hukum hasil darab & kuasa logaritma.' : 'Apply log product and power laws.' },
+              { badge: 'K1', title: lang === 'bm' ? 'Tukarkan ke bentuk linear dengan log₁₀' : 'Linearize using log₁₀', tex: `\\log_{10} y = (\\log_{10} b)x + \\log_{10} a`, why: lang === 'bm' ? 'Gunakan hukum hasil darab & kuasa logaritma.' : 'Apply log product and power laws.' },
               { badge: 'J1', title: lang === 'bm' ? 'Bandingkan pintasan-Y' : 'Match Y-intercept', tex: `\\log_{10} a = ${cExp} \\implies a = 10^{${cExp}} = ${aAns}`, why: lang === 'bm' ? 'Tukar bentuk log kepada indeks.' : 'Convert from log to index form.' }
             ]
           };
         } else {
-          // KBAT: xy = px^2 + q -> divide by x -> y = px + q(1/x) OR divide by x^2 -> y/x = p + q(1/x^2). Let's use y/sqrt(x) or xy = ax + b!
-          // xy = ax + b -> y = b(1/x) + a ! Classic trap where gradient is b and intercept is a!
+          // KBAT: xy = ax + b -> y = b(1/x) + a ! Classic trap where gradient is b and intercept is a!
           const aVal = U.randInt(3, 9);
           const bVal = U.pick([4, 6, 8, -4]);
           const X1 = 1, Y1 = bVal * 1 + aVal;
           const X2 = 3, Y2 = bVal * 3 + aVal;
           return {
-            tier: 3, tpLabel: 'TP5–TP6 (KBAT)', subtopic: { bm: '6.1 Pemalar Songsang xy = ax + b', en: '6.1 Reciprocal Axis xy = ax + b' }, marks: 4,
+            tier: 3, tpLabel: 'TP5–TP6 (KBAT)', subtopic: { bm: '6.1 Paksi Pecahan (1/x) bagi xy = ax + b', en: '6.1 Reciprocal Axis xy = ax + b' }, marks: 4,
             prompt: lang === 'bm'
               ? `Diberi hubungan tak linear $xy = ax + b$. Apabila graf $y$ melawan $\\frac{1}{x}$ diplotkan, garis lurus melalui titik $(${X1}, ${Y1})$ dan $(${X2}, ${Y2})$. Cari nilai bagi **$a$**.`
               : `Given the non-linear relation $xy = ax + b$. When $y$ is plotted against $\\frac{1}{x}$, the straight line passes through $(${X1}, ${Y1})$ and $(${X2}, ${Y2})$. Find the value of **$a$**.`,
             answerType: 'number', correctValue: aVal, displayAnswerTex: `a = ${aVal} \\quad (b = ${bVal})`,
             intentMeta: { given: `xy = ax + b, paksi Y = y, X = 1/x`, goal: 'Susun semula y = b(1/x) + a untuk cari pintasan a', conceptRule: 'Bahagi x: y = b(1/x) + a ⟹ m = b, C = a!' },
             guidedSteps: [
-              { prompt: { bm: `Bahagi $xy = ax + b$ dengan $x$ memberi $y = b\\left(\\frac{1}{x}\\right) + a$. Jadi kecerunan garis ialah $b$! Kira kecerunan $b = \\frac{${Y2} - ${Y1}}{${X2} - ${X1}}$:`, en: `Dividing by $x$ gives $y = b\\left(\\frac{1}{x}\\right) + a$, so gradient $m = b$! Compute $b = \\frac{${Y2} - ${Y1}}{${X2} - ${X1}}$:` }, expected: bVal, hint: { bm: `(${Y2 - Y1}) ÷ 2 = ${bVal}.`, en: `(${Y2 - Y1}) ÷ 2 = ${bVal}.` } },
+              { prompt: { bm: `Bahagi $xy = ax + b$ dengan $x$ memberi $y = b\\left(\\frac{1}{x}\\right) + a$. Jadi kecerunan garis ialah $b$! Kira kecerunan $b = \\frac{${Y2} - (${Y1})}{${X2} - ${X1}}$:`, en: `Dividing by $x$ gives $y = b\\left(\\frac{1}{x}\\right) + a$, so gradient $m = b$! Compute $b = \\frac{${Y2} - (${Y1})}{${X2} - ${X1}}$:` }, expected: bVal, hint: { bm: `(${Y2 - Y1}) ÷ 2 = ${bVal}.`, en: `(${Y2 - Y1}) ÷ 2 = ${bVal}.` } },
               { prompt: { bm: `Sekarang cari pintasan-$Y$ iaitu $a = Y_1 - bX_1 = ${Y1} - (${bVal})(${X1})$:`, en: `Now find $Y$-intercept $a = Y_1 - bX_1 = ${Y1} - (${bVal})(${X1})$:` }, expected: aVal, hint: { bm: `${Y1} − (${bVal}) = ${aVal}.`, en: `${Y1} − (${bVal}) = ${aVal}.` } }
             ],
             traps: [{ value: bVal, message: { bm: `Perangkap Susunan KBAT [P]! Apabila xy = ax + b dibahagi dengan x, ia menjadi y = a + b(1/x) = b(1/x) + a. Maka kecerunan ialah b (${bVal}), manakala a ialah pintasan-Y (${aVal})!`, en: `HOTS Rearrangement Trap [P]! Dividing xy = ax + b by x gives y = b(1/x) + a, so gradient is b (${bVal}) while a is the Y-intercept (${aVal})!` } }],
             hints: [lang === 'bm' ? `Bahagi dengan $x$: $y = b\\left(\\frac{1}{x}\\right) + a$. Hati-hati: $b$ ialah kecerunan, $a$ ialah pintasan-$Y$!` : `Divide by $x$: $y = b\\left(\\frac{1}{x}\\right) + a$. Watch out: $b$ is gradient, $a$ is $Y$-intercept!`],
             steps: [
               { badge: 'P1', title: lang === 'bm' ? 'Susun ikut paksi X = 1/x' : 'Arrange for X = 1/x', tex: `y = b\\left(\\frac{1}{x}\\right) + a \\implies m = b,\\; C = a`, why: lang === 'bm' ? 'Pekali bagi (1/x) ialah kecerunan.' : 'Coefficient of (1/x) is the gradient.' },
-              { badge: 'K1', title: lang === 'bm' ? 'Kira kecerunan b' : 'Calculate gradient b', tex: `b = \\frac{${Y2} - ${Y1}}{${X2} - ${X1}} = ${bVal}`, why: lang === 'bm' ? 'Daripada dua titik pada garis.' : 'From two points on the line.' },
+              { badge: 'K1', title: lang === 'bm' ? 'Kira kecerunan b' : 'Calculate gradient b', tex: `b = \\frac{${Y2} - (${Y1})}{${X2} - ${X1}} = ${bVal}`, why: lang === 'bm' ? 'Daripada dua titik pada garis.' : 'From two points on the line.' },
               { badge: 'J1', title: lang === 'bm' ? 'Kira pintasan a' : 'Calculate intercept a', tex: `a = ${Y1} - (${bVal})(${X1}) = ${aVal}`, why: lang === 'bm' ? 'Gantikan ke dalam Y = mX + C.' : 'Substitute into Y = mX + C.' }
             ]
           };
@@ -261,7 +260,8 @@ window.AddMathApp.chapters = window.AddMathApp.chapters || [];
             const py = (n * y1 + m * y2) / (m + n);
             const mx = (x1 + x2) / 2, my = (y1 + y2) / 2;
             let perpTex = '';
-            if (y2 === y1) perpTex = `x = ${U.roundStr(mx)}`;
+            if (x2 === x1 && y2 === y1) perpTex = lang === 'bm' ? '\\text{Titik A dan B sama}' : '\\text{Points A and B coincide}';
+            else if (y2 === y1) perpTex = `x = ${U.roundStr(mx)}`;
             else if (x2 === x1) perpTex = `y = ${U.roundStr(my)}`;
             else {
               const mAB = (y2 - y1) / (x2 - x1);
@@ -297,19 +297,18 @@ window.AddMathApp.chapters = window.AddMathApp.chapters || [];
               { prompt: { bm: `Gunakan syarat serenjang $m_1 m_2 = -1$. Bahagikan $-1$ dengan $${m1}$:`, en: `Use $m_1 m_2 = -1$. Compute $-1 \\div (${m1})$:` }, expected: m2, hint: { bm: `−1 / (${m1}) = ${m2}.`, en: `−1 / (${m1}) = ${m2}.` } }
             ],
             traps: [
-              { value: 1 / m1, message: { bm: 'Diagnostik Tanda [J]: Anda mengambil salingan 1/m₁ tetapi terlupa tukar tanda negatif! Syaratnya m₁m₂ = −1.', en: 'Sign Diagnosis [J]: You took 1/m₁ without flipping the sign! Perpendicular lines satisfy m₁m₂ = −1.' } },
-              { value: m1, message: { bm: 'Diagnostik Konsep [P]: Kecerunan sama (m₁ = m₂) ialah untuk garis SELARI, bukan serenjang!', en: 'Concept Diagnosis [P]: Equal gradients are for PARALLEL lines, not perpendicular!' } }
+              { value: 1 / m1, message: { bm: 'Cuai Tanda [J]: Awak sudah terbalikkan pecahan (1/m₁) tetapi terlupa tukar tanda negatif! Syarat serenjang ialah m₁m₂ = −1.', en: 'Sign Diagnosis [J]: You took 1/m₁ without flipping the sign! Perpendicular lines satisfy m₁m₂ = −1.' } },
+              { value: m1, message: { bm: 'Silap Konsep [P]: Kecerunan sama (m₁ = m₂) ialah untuk garis SELARI, bukan serenjang!', en: 'Concept Diagnosis [P]: Equal gradients are for PARALLEL lines, not perpendicular!' } }
             ],
             hints: [lang === 'bm' ? `Gunakan rumus $m_1 m_2 = -1$.` : `Use $m_1 m_2 = -1$.`],
             steps: [
               { badge: 'P1', title: lang === 'bm' ? 'Syarat serenjang' : 'Perpendicular condition', tex: `m_1 m_2 = -1`, why: lang === 'bm' ? 'Sudut 90° antara dua garis.' : '90° intersection.' },
-              { badge: 'J1', title: lang === 'bm' ? 'Kira m₂' : 'Solve m₂', tex: `m_2 = -\\frac{1}{${m1}} = ${m2}`, why: lang === 'bm' ? 'Salingan negatif.' : 'Negative reciprocal.' }
+              { badge: 'J1', title: lang === 'bm' ? 'Kira m₂' : 'Solve m₂', tex: `m_2 = -\\frac{1}{${m1}} = ${m2}`, why: lang === 'bm' ? 'Terbalikkan pecahan & tukar tanda.' : 'Negative reciprocal.' }
             ]
           };
         } else if (tier === 2) {
           // Divisor of segment in ratio m:n -> find x-coordinate of P
-          const m = U.pick([1, 2]);
-          const n = U.pick([2, 3]);
+          const [m, n] = U.pick([[1, 2], [1, 3], [2, 3], [3, 2], [3, 1]]);
           const sum = m + n;
           const x1 = U.randInt(-4, 2);
           const stepK = U.randInt(2, 5);
@@ -320,7 +319,7 @@ window.AddMathApp.chapters = window.AddMathApp.chapters || [];
           return {
             tier: 2, tpLabel: 'TP3–TP4', subtopic: { bm: '7.1 Pembahagi Tembereng Garis m : n', en: '7.1 Divisor of Line Segment m : n' }, marks: 3,
             prompt: lang === 'bm'
-              ? `Titik $P(x, y)$ membahagi tembereng garis yang menyambungkan $A(${x1}, ${y1})$ dan $B(${x2}, ${y2})$ secara dalaman dengan nisbah $AP : PB = ${m} : ${n}$. Cari **koordinat-$x$** bagi titik $P$.`
+              ? `Titik $P(x, y)$ membahagi tembereng garis yang menyambungkan $A(${x1}, ${y1})$ dan $B(${x2}, ${y2})$ dengan nisbah $AP : PB = ${m} : ${n}$. Cari **koordinat-$x$** bagi titik $P$.`
               : `Point $P(x, y)$ divides the line segment joining $A(${x1}, ${y1})$ and $B(${x2}, ${y2})$ internally in the ratio $AP : PB = ${m} : ${n}$. Find the **$x$-coordinate** of point $P$.`,
             answerType: 'number', correctValue: px, displayAnswerTex: `x = ${px}`,
             intentMeta: { given: `A(${x1},${y1}), B(${x2},${y2}), m:n = ${m}:${n}`, goal: 'x = (nx₁ + mx₂)/(m+n)', conceptRule: 'Darab silang nisbah: n darab A, m darab B' },
@@ -396,7 +395,7 @@ window.AddMathApp.chapters = window.AddMathApp.chapters || [];
           },
           formulas: [
             { label: { bm: 'Vektor Negatif & Segi Tiga', en: 'Negative & Triangle Law' }, tex: '\\vec{BA} = -\\vec{AB}, \\qquad \\vec{AB} = \\vec{AO} + \\vec{OB} = \\vec{OB} - \\vec{OA}' },
-            { label: { bm: 'Kebebasan Linear (Tak Selari)', en: 'Non-Parallel Independence' }, tex: 'h\\mathbf{a} + k\\mathbf{b} = \\mathbf{0} \\implies h = 0 \\text{ dan } k = 0' }
+            { label: { bm: 'Perbandingan Pekali Vektor Tak Selari', en: 'Non-Parallel Vector Comparison' }, tex: 'h\\mathbf{a} + k\\mathbf{b} = \\mathbf{0} \\implies h = 0 \\text{ dan } k = 0' }
           ],
           tip: {
             bm: 'Ingat pintasan emas: AB⃗ = OB⃗ − OA⃗ ("Hujung tolak Mula")!',
@@ -449,7 +448,7 @@ window.AddMathApp.chapters = window.AddMathApp.chapters || [];
               steps: [
                 { badge: 'K1', title: lang === 'bm' ? 'Langkah 1: Cari vektor sesaran AB⃗ = OB⃗ − OA⃗' : 'Step 1: Displacement vector AB⃗ = OB⃗ − OA⃗', tex: `\\vec{AB} = (${v.bx} - (${v.ax}))\\mathbf{i} + (${v.by} - (${v.ay}))\\mathbf{j} = ${dx}\\mathbf{i} ${U.signedNum(dy)}\\mathbf{j}`, why: lang === 'bm' ? 'Hujung tolak Mula.' : 'Head minus Tail.' },
                 { badge: 'K1', title: lang === 'bm' ? 'Langkah 2: Magnitud |AB⃗|' : 'Step 2: Magnitude |AB⃗|', tex: `|\\vec{AB}| = \\sqrt{(${dx})^2 + (${dy})^2} = \\sqrt{${magSq}} = ${U.roundStr(mag, 4)}`, why: lang === 'bm' ? 'Teorem Pythagoras.' : 'Pythagoras theorem.' },
-                { badge: 'J1', title: lang === 'bm' ? 'Langkah 3: Vektor Unit' : 'Step 3: Unit Vector', tex: `\\hat{\\mathbf{u}} = \\frac{${dx}\\mathbf{i} ${U.signedNum(dy)}\\mathbf{j}}{${U.roundStr(mag, 4)}}`, why: lang === 'bm' ? 'Bahagikan vektor dengan magnitudnya.' : 'Divide vector by its magnitude.' }
+                { badge: 'J1', title: lang === 'bm' ? 'Langkah 3: Vektor Unit' : 'Step 3: Unit Vector', tex: mag === 0 ? (lang === 'bm' ? '\\text{Vektor sifar (tiada vektor unit)}' : '\\text{Zero vector (no unit vector)}') : `\\hat{\\mathbf{u}} = \\frac{${dx}\\mathbf{i} ${U.signedNum(dy)}\\mathbf{j}}{${U.roundStr(mag, 4)}}`, why: lang === 'bm' ? 'Bahagikan vektor dengan magnitudnya.' : 'Divide vector by its magnitude.' }
               ],
               finalTex: `\\vec{AB} = ${dx}\\mathbf{i} ${U.signedNum(dy)}\\mathbf{j}, \\quad |\\vec{AB}| = ${U.roundStr(mag, 4)}`
             };
@@ -475,7 +474,7 @@ window.AddMathApp.chapters = window.AddMathApp.chapters || [];
             hints: [lang === 'bm' ? `Gunakan $|\\mathbf{v}| = \\sqrt{(${vx})^2 + (${vy})^2}$.` : `Use $|\\mathbf{v}| = \\sqrt{(${vx})^2 + (${vy})^2}$.`],
             steps: [
               { badge: 'K1', title: lang === 'bm' ? 'Rumus magnitud' : 'Magnitude formula', tex: `|\\mathbf{v}| = \\sqrt{(${vx})^2 + (${vy})^2} = \\sqrt{${mag * mag}}`, why: lang === 'bm' ? 'Kuasa dua nombor negatif sentiasa positif!' : 'Square of negative is positive!' },
-              { badge: 'J1', title: lang === 'bm' ? 'Nilai tepat' : 'Exact magnitude', tex: `|\\mathbf{v}| = ${mag}`, why: lang === 'bm' ? 'Trirangkap Pythagoras.' : 'Pythagorean triple.' }
+              { badge: 'J1', title: lang === 'bm' ? 'Nilai tepat' : 'Exact magnitude', tex: `|\\mathbf{v}| = ${mag}`, why: lang === 'bm' ? 'Pasangan nombor Pythagoras.' : 'Pythagorean triple.' }
             ]
           };
         } else if (tier === 2) {
@@ -512,7 +511,7 @@ window.AddMathApp.chapters = window.AddMathApp.chapters || [];
           // (2h - twoH)a + (k + c)b = 0 where c = -kAns -> wait: let's couple h and k! (h - hAns)a + (2h + k - target)b = 0!
           const target = 2 * hAns + kAns;
           return {
-            tier: 3, tpLabel: 'TP5–TP6 (KBAT)', subtopic: { bm: '8.1 Vektor Tak Selari & Kebebasan Linear', en: '8.1 Non-Parallel Linear Independence' }, marks: 4,
+            tier: 3, tpLabel: 'TP5–TP6 (KBAT)', subtopic: { bm: '8.1 Perbandingan Pekali Vektor Tak Selari', en: '8.1 Non-Parallel Vector Comparison' }, marks: 4,
             prompt: lang === 'bm'
               ? `Diberi $\\mathbf{a}$ dan $\\mathbf{b}$ ialah vektor bukan sifar dan **tidak selari**. Jika $(h - ${hAns})\\mathbf{a} + (2h + k ${U.signedNum(-target)})\\mathbf{b} = \\mathbf{0}$, cari nilai pemalar **$k$**.`
               : `Given $\\mathbf{a}$ and $\\mathbf{b}$ are non-zero and **non-parallel** vectors. If $(h - ${hAns})\\mathbf{a} + (2h + k ${U.signedNum(-target)})\\mathbf{b} = \\mathbf{0}$, find the value of **$k$**.`,
@@ -548,15 +547,15 @@ window.AddMathApp.chapters = window.AddMathApp.chapters || [];
       category: 'trigonometry',
       title: { bm: 'Penyelesaian Segi Tiga', en: 'Solution of Triangles' },
       subtitle: {
-        bm: 'Petua Sinus, kes berambiguiti SSA, Petua Kosinus & Rumus Luas / Heron',
+        bm: 'Petua Sinus, Ambiguous Case SSA (2 segi tiga), Petua Kosinus & Rumus Luas / Heron',
         en: 'Sine Rule, SSA ambiguous case, Cosine Rule & Area / Heron’s Formula'
       },
       spmWeight: { bm: 'Kertas 2 Bahagian C (10 markah pilihan popular!)', en: 'Paper 2 Section C (10-mark favorite!)' },
       concepts: [
         {
-          title: { bm: '1. Petua Sinus & Kes Berambiguiti (SSA)', en: '1. The Sine Rule & Ambiguous Case (SSA)' },
+          title: { bm: '1. Petua Sinus & Ambiguous Case (SSA — 2 Segi Tiga)', en: '1. The Sine Rule & Ambiguous Case (SSA)' },
           body: {
-            bm: 'Gunakan **Petua Sinus** apabila wujud pasangan sisi-sudut bertentangan. **Kes Berambiguiti** berlaku bagi syarat **SSA** apabila sudut tirus $A$ diberi bersama sisi $a, b$ dengan keadaan $b\\sin A < a < b$, menghasilkan **dua segi tiga berbeza**: sudut tirus $B_1$ dan sudut cakah $B_2 = 180^\\circ - B_1$!',
+            bm: 'Gunakan **Petua Sinus** apabila wujud pasangan sisi-sudut bertentangan. ***Ambiguous Case*** (kes 2 segi tiga) berlaku bagi syarat **SSA** apabila sudut tirus $A$ diberi bersama sisi $a, b$ dengan keadaan $b\\sin A < a < b$, menghasilkan **dua segi tiga berbeza**: sudut tirus $B_1$ dan sudut cakah $B_2 = 180^\\circ - B_1$!',
             en: 'Use the **Sine Rule** when an opposite side-angle pair is known. The **Ambiguous Case** arises under **SSA** when acute angle $A$ and sides $b\\sin A < a < b$ produce **two triangles**: acute $B_1$ and obtuse $B_2 = 180^\\circ - B_1$!'
           },
           formulas: [
@@ -564,7 +563,7 @@ window.AddMathApp.chapters = window.AddMathApp.chapters || [];
             { label: { bm: 'Syarat 2 Segi Tiga (SSA)', en: 'Ambiguous Case Condition' }, tex: 'b\\sin A < a < b \\implies B_2 = 180^\\circ - B_1' }
           ],
           tip: {
-            bm: 'Jika soalan Kertas 2 menyebut "segi tiga berbeza A\'BC dengan panjang yang sama", itu 100% isyarat Kes Berambiguiti (B₂ = 180° − B₁)!',
+            bm: 'Jika soalan Kertas 2 menyebut "segi tiga berbeza A\'BC dengan panjang yang sama", itu 100% petunjuk Ambiguous Case (B₂ = 180° − B₁)!',
             en: 'Whenever Paper 2 mentions "another distinct triangle A\'BC with the same side lengths", that is 100% the Ambiguous Case (B₂ = 180° − B₁)!'
           }
         },

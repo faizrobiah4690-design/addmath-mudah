@@ -62,7 +62,7 @@ window.AddMathApp = window.AddMathApp || {};
       ans: 1
     },
     {
-      q: { bm: 'Rumus Indeks Gubahan berpemberat Ī ialah:', en: 'The Weighted Composite Index Ī formula is:' },
+      q: { bm: 'Rumus Indeks Gubahan Ī (dengan pemberat wᵢ) ialah:', en: 'The Weighted Composite Index Ī formula is:' },
       options: { bm: ['∑Iᵢ / n', '∑(Iᵢ wᵢ) / ∑wᵢ', '∑(Iᵢ wᵢ) / 100'], en: ['∑Iᵢ / n', '∑(Iᵢ wᵢ) / ∑wᵢ', '∑(Iᵢ wᵢ) / 100'] },
       ans: 1
     },
@@ -72,7 +72,7 @@ window.AddMathApp = window.AddMathApp || {};
       ans: 1
     },
     {
-      q: { bm: 'Pada titik maksimum lengkung licin, dy/dx = 0 dan d²y/dx² ialah:', en: 'At a smooth local MAXIMUM point, dy/dx = 0 and d²y/dx² is:' },
+      q: { bm: 'Pada titik maksimum suatu lengkung, dy/dx = 0 dan d²y/dx² ialah:', en: 'At a local MAXIMUM point of a curve, dy/dx = 0 and d²y/dx² is:' },
       options: { bm: ['Negatif (< 0)', 'Positif (> 0)', 'Tak tertakrif'], en: ['Negative (< 0)', 'Positive (> 0)', 'Undefined'] },
       ans: 0
     },

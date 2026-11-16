@@ -30,7 +30,7 @@ window.AddMathApp.teacherClinic = window.AddMathApp.teacherClinic || {};
       mentalModels: [
         {
           icon: '🍕',
-          tag: { bm: 'Analogi Sepotong Piza Sama Sisi', en: 'Equilateral Pizza Slice Model' },
+          tag: { bm: 'Analogi Sepotong Piza (Kerak = Jejari)', en: 'Pizza Slice Model (Crust = Radius)' },
           title: { bm: 'Apa Sebenarnya $1\\text{ radian}$? Kerak Piza = Jejari!', en: 'What Is $1\\text{ radian}$? Crust Equals Radius!' },
           desc: {
             bm: 'Bayangkan sepotong piza di mana panjang **kerak melengkung ($s$)** sama panjang tepat dengan **tepi potongannya ($r$)** — bukaan sudut itu ialah **$1\\text{ rad} \\approx 57.3^\\circ$**! Separuh bulatan penuh ialah $\\pi\\text{ rad} = 180^\\circ$, manakala satu pusingan penuh ialah $2\\pi\\text{ rad} = 360^\\circ$.',
@@ -85,7 +85,7 @@ window.AddMathApp.teacherClinic = window.AddMathApp.teacherClinic || {};
       ],
       rxFix: {
         wrong: { bm: 'Mengira $s = 8 \\times 60 = 480\\text{ cm}$ dengan memasukkan $60^\\circ$ terus ke dalam $s = r\\theta$, atau menekan $\\sin(1.25)$ dalam mod [D].', en: 'Writing $s = 8 \\times 60 = 480\\text{ cm}$ using degrees in $s = r\\theta$, or evaluating $\\sin(1.25\\text{ rad})$ while calculator is in [D] mode.' },
-        right: { bm: 'Tukar $60^\\circ \\times \\frac{3.142}{180^\\circ} = 1.047\\text{ rad} \\Rightarrow s = 8(1.047) = 8.379\\text{ cm}$, dan pastikan kalkulator dalam mod [R] apabila mengira $\\sin(1.25\\text{ rad}) = 0.9490$.', en: 'Convert $60^\\circ$ to $1.047\\text{ rad}$ first ($s = 8.379\\text{ cm}$), and switch calculator to [R] mode so $\\sin(1.25\\text{ rad}) = 0.9490$.' }
+        right: { bm: 'Tukar $60^\\circ \\times \\frac{3.142}{180^\\circ} = 1.0473\\text{ rad} \\Rightarrow s = 8(1.0473) = 8.379\\text{ cm}$, dan pastikan kalkulator dalam mod [R] apabila mengira $\\sin(1.25\\text{ rad}) = 0.9490$.', en: 'Convert $60^\\circ$ to $1.0473\\text{ rad}$ first ($s = 8(1.0473) = 8.379\\text{ cm}$), and switch calculator to [R] mode so $\\sin(1.25\\text{ rad}) = 0.9490$.' }
       }
     },
 
@@ -100,7 +100,7 @@ window.AddMathApp.teacherClinic = window.AddMathApp.teacherClinic || {};
         en: 'Key KSSM Terms: First Principles = Prinsip Pertama • Gradient of Normal = Kecerunan Normal ($m_N$) • Second Derivative = Terbitan Kedua ($\\frac{d^2y}{dx^2}$)'
       },
       painSummary: {
-        bm: 'Pelajar sering terlupa darab terbitan dalam semasa guna Petua Rantai, terbalik susunan pengangka dalam Petua Hasil Bahagi, dan buntu membina jambatan Petua Rantai bagi soalan Kadar Perubahan Terhubung!',
+        bm: 'Pelajar sering terlupa darab hasil beza sebutan dalam kurungan semasa guna Petua Rantai, terbalik susunan pengangka dalam Petua Hasil Bahagi, dan buntu menyambung rumus Petua Rantai bagi soalan Kadar Perubahan Berkaitan (*Connected Rates of Change*)!',
         en: 'Students frequently forget to multiply by the inner derivative in the Chain Rule, swap the numerator order in the Quotient Rule, and freeze on Connected Rates of Change word problems!'
       },
       mentalModels: [
@@ -148,7 +148,7 @@ window.AddMathApp.teacherClinic = window.AddMathApp.teacherClinic || {};
         },
         {
           cue: { bm: 'Soalan Pengoptimuman Kertas 2: diberi jumlah panjang dawai / luas permukaan tetap, diminta luas/isi padu maksimum', en: 'Paper 2 Optimization: given fixed wire length / surface area, asked to maximize area/volume' },
-          action: { bm: 'Bina 2 persamaan: gunakan kekangan tetap untuk jadikan $y$ atau $h$ perkara rumus, gantikan ke dalam rumus sasaran supaya tinggal **1 pemboleh ubah sahaja**, kemudian selesaikan $\\frac{dV}{dx} = 0$!', en: 'Write 2 equations: isolate $y$ or $h$ from the fixed constraint, substitute into the target formula so only **one variable** remains, then solve $\\frac{dV}{dx} = 0$!' }
+          action: { bm: 'Bina 2 persamaan: gunakan syarat tetap yang diberi (seperti jumlah panjang dawai / luas permukaan) untuk jadikan $y$ atau $h$ perkara rumus, gantikan ke dalam rumus sasaran supaya tinggal **1 pemboleh ubah sahaja**, kemudian selesaikan $\\frac{dV}{dx} = 0$!', en: 'Write 2 equations: isolate $y$ or $h$ from the fixed constraint, substitute into the target formula so only **one variable** remains, then solve $\\frac{dV}{dx} = 0$!' }
         },
         {
           cue: { bm: 'Soalan sebut: "Cari nilai hampir / anggaran perubahan kecil apabila $x$ berubah daripada $4$ kepada $3.98$"', en: 'Exam says: "Estimate the small change / approximate value as $x$ changes from $4$ to $3.98$"' },
@@ -191,7 +191,7 @@ window.AddMathApp.teacherClinic = window.AddMathApp.teacherClinic || {};
         },
         {
           icon: '🧭',
-          tag: { bm: 'Kompas Paksi: Siapa Had, Dialah $d$-nya!', en: 'Axis Compass: Match Limits to $dx$ or $dy$!' },
+          tag: { bm: 'Kompas Paksi: Ikut Paksi, Ikut dx atau dy!', en: 'Axis Compass: Match Limits to dx or dy!' },
           title: { bm: 'Ke Paksi-$x$ Guna $\\int y\\,dx$; Ke Paksi-$y$ Guna $\\int x\\,dy$!', en: 'To $x$-Axis Use $\\int y\\,dx$; To $y$-Axis Use $\\int x\\,dy$!' },
           desc: {
             bm: 'Lihat ke paksi mana rantau berlorek bersandar! Jika bersandar pada **paksi-$x$** (had $x_1 \\to x_2$): $\\text{Luas} = \\int_{x_1}^{x_2} y\\,dx$. Jika bersandar pada **paksi-$y$** (had $y_1 \\to y_2$): tukar persamaan jadi $x = \\dots$ dahulu, kemudian $\\text{Luas} = \\int_{y_1}^{y_2} x\\,dy$. Jika rantau berada di **bawah paksi-$x$**, letakkan modulus $|\\text{nilai}|$ supaya luas positif!',
@@ -244,8 +244,8 @@ window.AddMathApp.teacherClinic = window.AddMathApp.teacherClinic || {};
         en: 'Chapter 4 Visual Poster: Permutations & Combinations (Order Matters vs Group Selection)'
       },
       vocabBridge: {
-        bm: 'Kamus Istilah Poster: Permutation = Pilih Atur (${}^nP_r$, Susunan Penting) • Combination = Gabungan (${}^nC_r$, Kumpulan Tanpa Pangkat) • Mutually Exclusive = Saling Eksklusif ($+$)',
-        en: 'Key KSSM Terms: Arrangement in a Row = Susunan Sebaris • Identical Objects = Objek Secaman • Together vs Separated = Bersama lwn Berasingan'
+        bm: 'Kamus Istilah Poster: Permutation = Pilih Atur (${}^nP_r$, Susunan Penting) • Combination = Gabungan (${}^nC_r$, Kumpulan Tanpa Pangkat) • Mutually Exclusive = Kes Berasingan / Saling Eksklusif (Tak Berlaku Serentak $\\rightarrow$ Tambah $+$)',
+        en: 'Key KSSM Terms: Arrangement in a Row = Susunan Sebaris • Identical Objects = Huruf/Objek Sama Berulang • Together vs Separated = Bersama lwn Berasingan'
       },
       painSummary: {
         bm: 'Pelajar paling kerap tersalah tekan ${}^nP_r$ sedangkan soalan minta jawatankuasa (${}^nC_r$), keliru bila perlu DARAB ($\\times$) lawan TAMBAH ($+$), dan lupa mendarab susunan dalaman apabila mengikat objek bersama!',
@@ -292,7 +292,7 @@ window.AddMathApp.teacherClinic = window.AddMathApp.teacherClinic || {};
       triggers: [
         {
           cue: { bm: 'Soalan sebut: "Cari bilangan susunan huruf bagi perkataan dengan huruf berulang seperti MATEMATIK / BANANA"', en: 'Exam says: "Arrange all letters of a word with repeated letters like BANANA"' },
-          action: { bm: 'Bahagikan faktorial jumlah huruf dengan faktorial setiap huruf secaman yang berulang: bagi `BANANA` ($6$ huruf: tiga `A`, dua `N`) $\\rightarrow \\frac{6!}{3!\\,2!} = 60$.', en: 'Divide total factorial by the factorials of identical repeats: for `BANANA` ($6$ letters: three `A`s, two `N`s) $\\rightarrow \\frac{6!}{3!\\,2!} = 60$.' }
+          action: { bm: 'Bahagikan faktorial jumlah huruf dengan faktorial setiap huruf sama yang berulang: bagi `BANANA` ($6$ huruf: tiga `A`, dua `N`) $\\rightarrow \\frac{6!}{3!\\,2!} = 60$.', en: 'Divide total factorial by the factorials of identical repeats: for `BANANA` ($6$ letters: three `A`s, two `N`s) $\\rightarrow \\frac{6!}{3!\\,2!} = 60$.' }
         },
         {
           cue: { bm: 'Soalan jawatankuasa: "Pilih 5 ahli supaya sekurang-kurangnya 3 orang ialah perempuan"', en: 'Committee question: "Choose 5 members with at least 3 girls"' },
@@ -312,12 +312,12 @@ window.AddMathApp.teacherClinic = window.AddMathApp.teacherClinic || {};
     'f5-c5': {
       poster: 'assets/posters/f5-c5.jpg',
       posterTitle: {
-        bm: 'Poster Visual Bab 5: Taburan Kebarangkalian (Taburan Binomial Diskret & Taburan Normal Selanjar)',
+        bm: 'Poster Visual Bab 5: Taburan Kebarangkalian (Taburan Binomial & Taburan Normal)',
         en: 'Chapter 5 Visual Poster: Probability Distributions (Discrete Binomial & Continuous Standard Normal)'
       },
       vocabBridge: {
-        bm: 'Kamus Istilah Poster: Discrete = Diskret (Bilang Biji) • Continuous = Selanjar (Ukuran Skala) • Variance = Varians ($\\sigma^2 = npq$) • Standardize Z-Score = Piawaikan Skor-$Z$',
-        en: 'Key KSSM Terms: Random Variable = Pemboleh Ubah Rawak ($X$) • Standard Deviation = Sisihan Piawai ($\\sigma$) • Upper Tail Table = Jadual Hujung Atas $P(Z > z)$'
+        bm: 'Kamus Istilah Poster: Discrete = Kiraan Nombor Bulat (Diskret) • Continuous = Ukuran Berterusan (Selanjar) • Variance = Varians ($\\sigma^2 = npq$) • Standardize Z-Score = Tukar ke Skor-$Z$ Piawai',
+        en: 'Key KSSM Terms: Random Variable = Pemboleh Ubah Rawak ($X$) • Standard Deviation = Sisihan Piawai ($\\sigma$) • Upper Tail Table = Jadual Kawasan Kanan $P(Z > z)$'
       },
       painSummary: {
         bm: 'Dua kesilapan paling mahal: membahagi dengan varians $\\sigma^2$ (bukannya sisihan piawai $\\sigma$!) semasa menukar $Z = \\frac{X - \\mu}{\\sigma}$ daripada tatatanda $X \\sim N(\\mu, \\sigma^2)$, serta salah tanda positif/negatif $z$ semasa baca songsang jadual Normal!',
@@ -460,7 +460,7 @@ window.AddMathApp.teacherClinic = window.AddMathApp.teacherClinic || {};
         en: 'Chapter 7 Visual Poster: Linear Programming (Constraint Translation, Feasible Region R & Optimal Search Line)'
       },
       vocabBridge: {
-        bm: 'Kamus Istilah Poster: Feasible Region = Rantau Tersaur ($R$) • Constraint = Kekangan • Objective Function = Fungsi Objektif ($k = ax + by$) • Optimal Vertex = Bucu Optimum',
+        bm: 'Kamus Istilah Poster: Feasible Region = Rantau Berlorek $R$ (Memenuhi Semua Syarat) • Constraint = Syarat Had (Kekangan) • Objective Function = Fungsi Sasaran / Objektif ($k = ax + by$) • Optimal Vertex = Bucu Optimum',
         en: 'Key KSSM Terms: Solid vs Dashed Line = Garis Padu ($\\le, \\ge$) lwn Garis Putus-putus ($<, >$) • Integer Point = Koordinat Integer $(x, y)$'
       },
       painSummary: {
@@ -572,7 +572,7 @@ window.AddMathApp.teacherClinic = window.AddMathApp.teacherClinic || {};
           tag: { bm: 'Baca Graf Halaju-Masa v-t Dengan Sekali Pandang', en: 'Read Velocity-Time v-t Graphs at a Glance' },
           title: { bm: 'Kecerunan Graf $v$-$t$ = Pecutan; Luas Bawah Graf $v$-$t$ = Jarak!', en: 'Slope of $v$-$t$ = Acceleration; Area Under $v$-$t$ = Distance!' },
           desc: {
-            bm: 'Pada graf halaju-masa ($v$ lawan $t$): titik memotong paksi-$t$ ialah masa **pusingan U ($v = 0$)**; puncak/lembah melengkung ialah masa **halaju ekstrem ($a = 0$)**; kawasan di **atas paksi-$t$** ialah gerakan ke kanan, manakala kawasan di **bawah paksi-$t$** ialah gerakan patah balik ke kiri!',
+            bm: 'Pada graf halaju-masa ($v$ lawan $t$): titik memotong paksi-$t$ ialah masa **pusingan U ($v = 0$)**; puncak/lembah melengkung ialah masa **halaju maksimum / minimum ($a = 0$)**; kawasan di **atas paksi-$t$** ialah gerakan ke kanan, manakala kawasan di **bawah paksi-$t$** ialah gerakan patah balik ke kiri!',
             en: 'On a $v$-$t$ graph: $t$-intercepts mark **U-turns ($v = 0$)**; turning points mark **max/min velocity ($a = 0$)**; area **above** the $t$-axis is forward travel and area **below** is backward travel (sum $|\\text{both areas}|$ for total distance!).'
           }
         }

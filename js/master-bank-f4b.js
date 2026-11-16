@@ -34,7 +34,7 @@ window.AddMathApp.masterBank = window.AddMathApp.masterBank || {};
         code: '6.2', marks: 3,
         topic: { bm: 'Penukaran Persamaan Pecahan kepada Bentuk Linear', en: 'Linearizing Fractional Equations' },
         q: {
-          bm: 'Tunjukkan bagaimana persamaan $y = \\frac{p}{x} + qx$ boleh menghasilkan garis lurus apabila $xy$ diplotkan melawan $x^2$, dan nyatakan kecerunan serta pintasan mencancang. [3m]',
+          bm: 'Tunjukkan bagaimana persamaan $y = \\frac{p}{x} + qx$ boleh menghasilkan garis lurus apabila $xy$ diplotkan melawan $x^2$, dan nyatakan kecerunan serta pintasan-$Y$ (paksi menegak). [3m]',
           en: 'Show how $y = \\frac{p}{x} + qx$ yields a straight line when $xy$ is plotted against $x^2$, and state its gradient and vertical intercept. [3m]'
         },
         mistakes: {
@@ -43,18 +43,18 @@ window.AddMathApp.masterBank = window.AddMathApp.masterBank || {};
         },
         scheme: [
           { badge: 'K1', bm: 'Darab semua sebutan dengan $x$: $xy = qx^2 + p$.', en: 'Multiply every term by $x$: $xy = qx^2 + p$.' },
-          { badge: 'N1', bm: 'Bandingkan $Y = mX + c$ dengan $Y = xy$ dan $X = x^2$: kecerunan $m = q$, pintasan mencancang $c = p$.', en: 'With $Y = xy$ and $X = x^2$: gradient $m = q$, vertical intercept $c = p$.' }
+          { badge: 'N1', bm: 'Bandingkan $Y = mX + c$ dengan $Y = xy$ dan $X = x^2$: kecerunan $m = q$, pintasan-$Y$ iaitu $c = p$.', en: 'With $Y = xy$ and $X = x^2$: gradient $m = q$, vertical intercept $c = p$.' }
         ]
       },
       {
         code: '6.3', marks: 4,
-        topic: { bm: 'Mencari Pemalar daripada Dua Titik Graf Penyudahan Linear', en: 'Finding Constants from Two Points on a Linearized Graph' },
+        topic: { bm: 'Mencari Pemalar daripada Dua Titik pada Graf Garis Lurus', en: 'Finding Constants from Two Points on a Linearized Graph' },
         q: {
           bm: 'Pemboleh ubah $x$ dan $y$ dihubungkan oleh $y = hx^2 + kx$. Graf garis lurus $\\frac{y}{x}$ melawan $x$ melalui titik $(2, 7)$ dan $(6, 15)$. Cari nilai pemalar $h$ dan $k$. [4m]',
           en: 'Variables $x$ and $y$ are related by $y = hx^2 + kx$. A straight-line graph of $\\frac{y}{x}$ against $x$ passes through $(2, 7)$ and $(6, 15)$. Find constants $h$ and $k$. [4m]'
         },
         mistakes: {
-          bm: ['Tertukar kedudukan kecerunan $h$ dengan pintasan-$Y$ iaitu $k$, atau menggantikan $y = 7$ terus ke dalam persamaan asal sedangkan paksi mencancang ialah $\\frac{y}{x}$.'],
+          bm: ['Tertukar kedudukan kecerunan $h$ dengan pintasan-$Y$ iaitu $k$, atau menggantikan $y = 7$ terus ke dalam persamaan asal sedangkan paksi menegak ($Y$) ialah $\\frac{y}{x}$.'],
           en: ['Swapping gradient $h$ with intercept $k$, or substituting $y = 7$ directly instead of $\\frac{y}{x} = 7$.']
         },
         scheme: [
@@ -81,7 +81,7 @@ window.AddMathApp.masterBank = window.AddMathApp.masterBank || {};
       },
       {
         code: '6.5', marks: 3,
-        topic: { bm: 'Mengesan Titik Terpencil pada Garis Penyudahan Terbaik', en: 'Detecting an Outlier on a Line of Best Fit' },
+        topic: { bm: 'Mengesan Titik Terpencil (*Outlier*) pada Garis Penyuaian Terbaik', en: 'Detecting an Outlier on a Line of Best Fit' },
         q: {
           bm: 'Set data linear $(X, Y)$ direkodkan sebagai $(1, 3.1),\\; (2, 5.0),\\; (3, 6.9),\\; (4, 10.2),\\; (5, 11.0)$. Kenal pasti satu titik terpencil (*outlier*) yang salah direkod dan anggarkan nilai sebenar $Y$ bagi titik itu. [3m]',
           en: 'Linear data $(X, Y)$ is recorded as $(1, 3.1),\\; (2, 5.0),\\; (3, 6.9),\\; (4, 10.2),\\; (5, 11.0)$. Identify the wrongly recorded outlier and estimate its true $Y$ value. [3m]'
@@ -98,9 +98,9 @@ window.AddMathApp.masterBank = window.AddMathApp.masterBank || {};
       },
       {
         code: '6.6', marks: 3,
-        topic: { bm: 'Penyudahan Linear Melibatkan Pembahagian Eksponen', en: 'Linearizing Reciprocal Exponential Functions' },
+        topic: { bm: 'Menukar Persamaan $y = \\frac{k}{p^x}$ kepada Bentuk Linear', en: 'Linearizing Reciprocal Exponential Functions' },
         q: {
-          bm: 'Tunjukkan bahawa $y = \\frac{k}{p^x}$ boleh dijelmakan kepada garis lurus apabila $\\log_{10} y$ diplotkan melawan $x$. Nyatakan kecerunan dan pintasan mencancang. [3m]',
+          bm: 'Tunjukkan bahawa $y = \\frac{k}{p^x}$ boleh ditukarkan kepada bentuk garis lurus apabila $\\log_{10} y$ diplotkan melawan $x$. Nyatakan kecerunan dan pintasan-$Y$. [3m]',
           en: 'Show that $y = \\frac{k}{p^x}$ forms a straight line when $\\log_{10} y$ is plotted against $x$. State its gradient and vertical intercept. [3m]'
         },
         mistakes: {
@@ -109,12 +109,12 @@ window.AddMathApp.masterBank = window.AddMathApp.masterBank || {};
         },
         scheme: [
           { badge: 'K1', bm: '$\\log_{10} y = \\log_{10} k - \\log_{10}(p^x) = (-\\log_{10} p)x + \\log_{10} k$.', en: '$\\log_{10} y = (-\\log_{10} p)x + \\log_{10} k$.' },
-          { badge: 'N1', bm: 'Kecerunan $m = -\\log_{10} p$, pintasan mencancang $c = \\log_{10} k$.', en: 'Gradient $m = -\\log_{10} p$, vertical intercept $c = \\log_{10} k$.' }
+          { badge: 'N1', bm: 'Kecerunan $m = -\\log_{10} p$, pintasan-$Y$ iaitu $c = \\log_{10} k$.', en: 'Gradient $m = -\\log_{10} p$, vertical intercept $c = \\log_{10} k$.' }
         ]
       },
       {
         code: '6.7', marks: 4,
-        topic: { bm: 'Plot Salingan $\\frac{1}{y}$ Melawan $\\frac{1}{x}$', en: 'Reciprocal Plot $\\frac{1}{y}$ Against $\\frac{1}{x}$' },
+        topic: { bm: 'Graf Pecahan $\\frac{1}{y}$ Melawan $\\frac{1}{x}$', en: 'Reciprocal Plot $\\frac{1}{y}$ Against $\\frac{1}{x}$' },
         q: {
           bm: 'Diberi $\\frac{a}{y} + \\frac{b}{x} = 1$. Graf $\\frac{1}{y}$ melawan $\\frac{1}{x}$ ialah garis lurus yang melalui $(1, 3)$ dan $(4, 9)$. Cari nilai pemalar $a$ dan $b$. [4m]',
           en: 'Given $\\frac{a}{y} + \\frac{b}{x} = 1$. The graph of $\\frac{1}{y}$ against $\\frac{1}{x}$ passes through $(1, 3)$ and $(4, 9)$. Find constants $a$ and $b$. [4m]'
@@ -150,27 +150,27 @@ window.AddMathApp.masterBank = window.AddMathApp.masterBank || {};
         code: '6.9', marks: 3,
         topic: { bm: 'Hukum Kuasa $y = 5x^n$ pada Paksi Logaritma', en: 'Power Law $y = 5x^n$ on Log-Log Axes' },
         q: {
-          bm: 'Persamaan $y = 5x^n$ menghasilkan garis lurus berkecerunan $3$ apabila $\\log_{10} y$ diplotkan melawan $\\log_{10} x$. Cari nilai $n$ dan pintasan mencancang graf tersebut. [3m]',
+          bm: 'Persamaan $y = 5x^n$ menghasilkan garis lurus berkecerunan $3$ apabila $\\log_{10} y$ diplotkan melawan $\\log_{10} x$. Cari nilai $n$ dan pintasan-$Y$ bagi graf tersebut. [3m]',
           en: 'The equation $y = 5x^n$ yields a straight line of gradient $3$ when $\\log_{10} y$ is plotted against $\\log_{10} x$. Find $n$ and the vertical intercept. [3m]'
         },
         mistakes: {
-          bm: ['Menyatakan pintasan mencancang terus sebagai $5$ dan bukannya $\\log_{10} 5 \\approx 0.6990$.'],
+          bm: ['Menyatakan pintasan-$Y$ terus sebagai $5$ dan bukannya $\\log_{10} 5 \\approx 0.6990$.'],
           en: ['Stating the vertical intercept as $5$ instead of $\\log_{10} 5 \\approx 0.6990$.']
         },
         scheme: [
           { badge: 'K1', bm: '$\\log_{10} y = n\\log_{10} x + \\log_{10} 5$.', en: '$\\log_{10} y = n\\log_{10} x + \\log_{10} 5$.' },
-          { badge: 'N1', bm: 'Nilai $n = 3$; pintasan mencancang $c = \\log_{10} 5 \\approx 0.6990$.', en: '$n = 3$; vertical intercept $c = \\log_{10} 5 \\approx 0.6990$.' }
+          { badge: 'N1', bm: 'Nilai $n = 3$; pintasan-$Y$ iaitu $c = \\log_{10} 5 \\approx 0.6990$.', en: '$n = 3$; vertical intercept $c = \\log_{10} 5 \\approx 0.6990$.' }
         ]
       },
       {
         code: '6.10', marks: 4,
-        topic: { bm: 'Aplikasi Hukum Kuasa Dua Songsang Keamatan Cahaya', en: 'Inverse-Square Law Application in Physics' },
+        topic: { bm: 'Aplikasi Sains: Keamatan Cahaya ($I = \\frac{k}{d^2}$)', en: 'Inverse-Square Law Application in Physics' },
         q: {
           bm: 'Keamatan cahaya $I$ pada jarak $d\\text{ m}$ diberi oleh $I = \\frac{k}{d^2}$. Eksperimen mendapati apabila $d = 2,\\; I = 25$ dan apabila $d = 5,\\; I = 4$. Nyatakan paksi-paksi linear yang menghasilkan garis lurus melalui asalan, dan cari nilai $k$. [4m]',
           en: 'Light intensity $I$ at distance $d\\text{ m}$ obeys $I = \\frac{k}{d^2}$. Given $I = 25$ at $d = 2$ and $I = 4$ at $d = 5$, state the axes that give a line through the origin and find $k$. [4m]'
         },
         mistakes: {
-          bm: ['Mencadangkan plot $I$ melawan $d^2$ (yang masih melengkung hiperbola) bukannya $I$ melawan $\\frac{1}{d^2}$.'],
+          bm: ['Mencadangkan plot $I$ melawan $d^2$ (yang masih menghasilkan graf melengkung, bukan garis lurus) bukannya $I$ melawan $\\frac{1}{d^2}$.'],
           en: ['Suggesting plotting $I$ against $d^2$ (still curved) instead of $I$ against $\\frac{1}{d^2}$.']
         },
         scheme: [
@@ -188,7 +188,7 @@ window.AddMathApp.masterBank = window.AddMathApp.masterBank || {};
         code: '7.1', marks: 3,
         topic: { bm: 'Pembahagian Tembereng Garis Mengikut Nisbah $m : n$', en: 'Internal Division of a Line Segment in Ratio $m : n$' },
         q: {
-          bm: 'Titik $P$ membahagikan tembereng garis yang menyambungkan $A(-2, 3)$ dan $B(8, -2)$ secara dalaman dengan nisbah $AP : PB = 2 : 3$. Cari koordinat titik $P$. [3m]',
+          bm: 'Titik $P$ membahagikan tembereng garis yang menyambungkan $A(-2, 3)$ dan $B(8, -2)$ dengan nisbah $AP : PB = 2 : 3$. Cari koordinat titik $P$. [3m]',
           en: 'Point $P$ divides the line segment joining $A(-2, 3)$ and $B(8, -2)$ internally in the ratio $AP : PB = 2 : 3$. Find the coordinates of $P$. [3m]'
         },
         mistakes: {
@@ -523,13 +523,13 @@ window.AddMathApp.masterBank = window.AddMathApp.masterBank || {};
     'f4-c9': [
       {
         code: '9.1', marks: 4,
-        topic: { bm: 'Kes Berambiguiti Petua Sinus (SSA)', en: 'Ambiguous Case of the Sine Rule (SSA)' },
+        topic: { bm: 'Kes Dua Segi Tiga Mungkin (*Ambiguous Case* Petua Sinus SSA)', en: 'Ambiguous Case of the Sine Rule (SSA)' },
         q: {
-          bm: 'Dalam $\\triangle ABC$, diberi $\\angle BAC = 35^\\circ$, $AB = 9\\text{ cm}$, dan $BC = 6\\text{ cm}$. Tunjukkan bahawa kes berambiguiti wujud dan cari dua nilai yang mungkin bagi $\\angle ACB$. [4m]',
+          bm: 'Dalam $\\triangle ABC$, diberi $\\angle BAC = 35^\\circ$, $AB = 9\\text{ cm}$, dan $BC = 6\\text{ cm}$. Tunjukkan bahawa dua segi tiga berbeza boleh dibentuk (kes berambiguiti / *ambiguous case*) dan cari dua nilai yang mungkin bagi $\\angle ACB$. [4m]',
           en: 'In $\\triangle ABC$, $\\angle BAC = 35^\\circ$, $AB = 9\\text{ cm}$, and $BC = 6\\text{ cm}$. Show that the ambiguous case exists and find the two possible values of $\\angle ACB$. [4m]'
         },
         mistakes: {
-          bm: ['Hanya memberikan jawapan sudut tirus kalkulator ($59.36^\\circ$) dan terlupa sudut cakah pelengkap $180^\\circ - 59.36^\\circ = 120.64^\\circ$.'],
+          bm: ['Hanya memberikan jawapan sudut tirus kalkulator ($59.36^\\circ$) dan terlupa satu lagi kemungkinan sudut cakah iaitu $180^\\circ - 59.36^\\circ = 120.64^\\circ$.'],
           en: ['Giving only the acute calculator angle ($59.36^\\circ$) and missing the obtuse supplement $180^\\circ - 59.36^\\circ = 120.64^\\circ$.']
         },
         scheme: [
@@ -641,15 +641,15 @@ window.AddMathApp.masterBank = window.AddMathApp.masterBank || {};
         code: '9.8', marks: 4,
         topic: { bm: 'Sudut Antara Pepenjuru Ruang Kuboid dengan Tapak', en: 'Angle Between Cuboid Space Diagonal and Base' },
         q: {
-          bm: 'Sebuah kuboid mempunyai tapak mengufuk $ABCD$ berukuran $10\\text{ cm} \\times 6\\text{ cm}$ dan tinggi tegak $AE = 4\\text{ cm}$ ($E$ tegak di atas $A$). Hitung sudut antara garis $EC$ dengan satah tapak $ABCD$. [4m]',
+          bm: 'Sebuah kuboid mempunyai tapak rata (mengufuk) $ABCD$ berukuran $10\\text{ cm} \\times 6\\text{ cm}$ dan tinggi tegak $AE = 4\\text{ cm}$ ($E$ tegak di atas $A$). Hitung sudut antara garis $EC$ dengan satah tapak $ABCD$. [4m]',
           en: 'A cuboid has horizontal base $ABCD$ ($10\\text{ cm} \\times 6\\text{ cm}$) and vertical height $AE = 4\\text{ cm}$ ($E$ above $A$). Find the angle between $EC$ and base $ABCD$. [4m]'
         },
         mistakes: {
-          bm: ['Salah memilih unjuran ortogon bagi $EC$ pada tapak sebagai $AB$ atau $BC$ bukannya pepenjuru tapak $AC$.'],
+          bm: ['Salah memilih garisan "bayang-bayang" pada tapak (*unjuran ortogon*) bagi $EC$ sebagai $AB$ atau $BC$, bukannya pepenjuru tapak $AC$.'],
           en: ['Identifying the orthogonal projection of $EC$ on the base as $AB$ or $BC$ instead of diagonal $AC$.']
         },
         scheme: [
-          { badge: 'K1', bm: 'Unjuran ortogon ialah $AC = \\sqrt{10^2 + 6^2} = \\sqrt{136} \\approx 11.662\\text{ cm}$.', en: 'Base diagonal $AC = \\sqrt{136} \\approx 11.662\\text{ cm}$.' },
+          { badge: 'K1', bm: 'Garisan bayang-bayang pada tapak (pepenjuru $AC$) $= \\sqrt{10^2 + 6^2} = \\sqrt{136} \\approx 11.662\\text{ cm}$.', en: 'Base diagonal $AC = \\sqrt{136} \\approx 11.662\\text{ cm}$.' },
           { badge: 'N1', bm: '$\\tan\\angle ECA = \\frac{4}{\\sqrt{136}} \\implies \\angle ECA = 18.93^\\circ$.', en: '$\\angle ECA = 18.93^\\circ$.' }
         ]
       },
@@ -677,11 +677,11 @@ window.AddMathApp.masterBank = window.AddMathApp.masterBank || {};
           en: 'In $\\triangle ABC$, $AB = 13\\text{ cm}$, $BC = 14\\text{ cm}$, and $AC = 15\\text{ cm}$. Calculate the shortest distance from vertex $B$ to side $AC$. [4m]'
         },
         mistakes: {
-          bm: ['Mengandaikan garis tinggi dari $B$ membahagi dua sama sisi $AC = 15\\text{ cm}$ kepada $7.5\\text{ cm}$, yang palsu kerana segi tiga ini bukan kaki sama!'],
+          bm: ['Mengandaikan garis tinggi dari $B$ membahagi dua sama sisi $AC = 15\\text{ cm}$ kepada $7.5\\text{ cm}$, sedangkan anggapan ini salah kerana segi tiga ini bukan segi tiga sama kaki!'],
           en: ['Assuming the altitude from $B$ bisects $AC = 15\\text{ cm}$ into $7.5\\text{ cm}$, which fails for a scalene triangle!']
         },
         scheme: [
-          { badge: 'K1', bm: 'Semi-perimeter $s = \\frac{13+14+15}{2} = 21$; Rumus Heron: $\\text{Luas} = \\sqrt{21(8)(7)(6)} = 84\\text{ cm}^2$.', en: 'Heron\'s Formula with $s = 21$: $\\text{Area} = 84\\text{ cm}^2$.' },
+          { badge: 'K1', bm: 'Separuh perimeter $s = \\frac{13+14+15}{2} = 21$; Rumus Heron: $\\text{Luas} = \\sqrt{21(8)(7)(6)} = 84\\text{ cm}^2$.', en: 'Heron\'s Formula with $s = 21$: $\\text{Area} = 84\\text{ cm}^2$.' },
           { badge: 'N1', bm: '$\\frac{1}{2}(15)h = 84 \\implies h = \\frac{168}{15} = 11.2\\text{ cm}$.', en: '$\\frac{1}{2}(15)h = 84 \\implies h = 11.2\\text{ cm}$.' }
         ]
       }

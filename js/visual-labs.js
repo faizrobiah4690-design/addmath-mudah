@@ -1,6 +1,6 @@
 /**
- * AddMath Mudah — Makmal Visual Interaktif HTML5 Canvas (Fasa 1: Bab 1–5)
- * Mesra Mudah Alih (Retina DPI, Sentuhan Pelungsur Masa Nyata & Dwibahasa BM/EN)
+ * AddMath Mudah — Makmal Visual Interaktif HTML5 Canvas (Fasa 1: Tingkatan 4 Bab 1–5)
+ * Mesra Mudah Alih (Retina DPI, Slider Masa Nyata & Dwibahasa BM/EN)
  */
 window.AddMathApp = window.AddMathApp || {};
 
@@ -11,8 +11,8 @@ window.AddMathApp = window.AddMathApp || {};
   function setupCanvas(canvas) {
     const dpr = window.devicePixelRatio || 1;
     const rect = canvas.getBoundingClientRect();
-    const w = Math.max(280, rect.width || 560);
-    const h = Math.max(240, rect.height || 300);
+    const w = Math.max(260, rect.width || 560);
+    const h = Math.max(240, rect.height || 290);
     canvas.width = w * dpr;
     canvas.height = h * dpr;
     const ctx = canvas.getContext('2d');
@@ -78,10 +78,10 @@ window.AddMathApp = window.AddMathApp || {};
 
   App.visualLabs = {
     'f4-c1': {
-      title: { bm: 'Makmal Pantulan |f(x)| & Songsang f⁻¹(x)', en: 'Modulus |f(x)| & Inverse Mirror Lab' },
+      title: { bm: 'Makmal Pantulan Modulus |f(x)| & Songsang f⁻¹(x)', en: 'Modulus |f(x)| & Inverse Mirror Lab' },
       desc: {
-        bm: 'Gerakkan pelungsur m dan c bagi f(x) = mx + c. Perhatikan bucu tajam pantulan |f(x)| (hijau) dan pantulan songsang f⁻¹(x) merentasi y = x (ungu)!',
-        en: 'Slide m and c for f(x) = mx + c. Watch V-reflection |f(x)| (green) and inverse f⁻¹(x) mirroring across y = x (purple)!'
+        bm: 'Gerakkan slider m dan c bagi f(x) = mx + c. Perhatikan pantulan bentuk-V |f(x)| (hijau) dan pantulan songsang f⁻¹(x) (merah jambu) pada cermin y = x!',
+        en: 'Slide m and c for f(x) = mx + c. Watch V-reflection |f(x)| (green) and inverse f⁻¹(x) (pink) mirroring across y = x!'
       },
       controls: [
         { id: 'm', label: { bm: 'Kecerunan m', en: 'Gradient m' }, min: -3, max: 3, step: 0.5, default: 2 },
@@ -90,16 +90,17 @@ window.AddMathApp = window.AddMathApp || {};
       render: function (canvas, vals, lang, isDark) {
         const { ctx, w, h } = setupCanvas(canvas);
         const { toX, toY } = drawCartesianGrid(ctx, w, h, [-8, 8], [-6, 6], isDark);
-        const m = Number(vals.m) || 0.5;
-        const c = Number(vals.c) || 0;
+        const m = Number.isFinite(Number(vals.m)) ? Number(vals.m) : 2;
+        const c = Number.isFinite(Number(vals.c)) ? Number(vals.c) : -2;
 
-        // Symmetry line y = x
+        // Symmetry mirror line y = x
         plotCurve(ctx, toX, toY, [-8, 8], (x) => x, isDark ? '#64748b' : '#94a3b8', true, 1.4);
         // Original f(x)
         plotCurve(ctx, toX, toY, [-8, 8], (x) => m * x + c, '#6366f1', true, 2);
         // Modulus |f(x)|
         plotCurve(ctx, toX, toY, [-8, 8], (x) => Math.abs(m * x + c), '#10b981', false, 3);
-        // Inverse f^-1(x) if m != 0
+
+        // Inverse f^-1(x) only exists if m != 0 (One-to-One!)
         if (Math.abs(m) > 0.01) {
           plotCurve(ctx, toX, toY, [-8, 8], (x) => (x - c) / m, '#ec4899', false, 2.4);
           const vx = -c / m;
@@ -107,32 +108,42 @@ window.AddMathApp = window.AddMathApp || {};
             ctx.fillStyle = '#10b981';
             ctx.beginPath(); ctx.arc(toX(vx), toY(0), 5.5, 0, Math.PI * 2); ctx.fill();
           }
+          return lang === 'bm'
+            ? `Biru putus: f(x) = ${m}x ${U.signedNum(c)}  |  Hijau: |f(x)| (Bucu V pada x = ${U.roundStr(-c / m, 2)})  |  Merah jambu: f⁻¹(x)`
+            : `Dashed blue: f(x) = ${m}x ${U.signedNum(c)}  |  Green: |f(x)| (V-vertex at x = ${U.roundStr(-c / m, 2)})  |  Pink: f⁻¹(x)`;
         }
 
         return lang === 'bm'
-          ? `Biru putus: f(x) = ${m}x ${U.signedNum(c)}  |  Hijau: y = |f(x)| (Bucu V pada x = ${m !== 0 ? U.roundStr(-c / m, 2) : 'tiada'})  |  Merah jambu: f⁻¹(x)`
-          : `Dashed blue: f(x) = ${m}x ${U.signedNum(c)}  |  Green: y = |f(x)| (V-vertex at x = ${m !== 0 ? U.roundStr(-c / m, 2) : 'none'})  |  Pink: f⁻¹(x)`;
+          ? `m = 0: f(x) = ${c} ialah garis mendatar (Banyak-ke-Satu) → TIADA fungsi songsang f⁻¹(x)!`
+          : `m = 0: f(x) = ${c} is horizontal (Many-to-One) → Inverse f⁻¹(x) does NOT exist!`;
       }
     },
 
     'f4-c2': {
-      title: { bm: 'Makmal Parabola Kuadratik & Pembezalayan Δ', en: 'Quadratic Parabola & Discriminant Δ Lab' },
+      title: { bm: 'Makmal Bentuk Kuadratik & Pembezalayan (Δ = b² − 4ac)', en: 'Quadratic Parabola & Discriminant Δ Lab' },
       desc: {
-        bm: 'Ubah a, b, dan c pada f(x) = ax² + bx + c untuk melihat bagaimana Δ = b² − 4ac mengawal bilangan punca nyata serta kedudukan verteks (h, k).',
-        en: 'Adjust a, b, and c in f(x) = ax² + bx + c to see how Δ = b² − 4ac controls real roots and vertex (h, k).'
+        bm: 'Gerakkan slider a, b dan c pada f(x) = ax² + bx + c untuk melihat bagaimana Δ = b² − 4ac menentukan bilangan punca serta kedudukan titik pusingan (verteks).',
+        en: 'Slide a, b, and c in f(x) = ax² + bx + c to see how Δ = b² − 4ac controls real roots and turning point (vertex).'
       },
       controls: [
         { id: 'a', label: { bm: 'Pekali bentuk a', en: 'Shape coeff a' }, min: -2, max: 2, step: 0.5, default: 1 },
         { id: 'b', label: { bm: 'Pekali b', en: 'Coeff b' }, min: -6, max: 6, step: 1, default: -2 },
-        { id: 'c', label: { bm: 'Pintasan c', en: 'Constant c' }, min: -5, max: 5, step: 1, default: -3 }
+        { id: 'c', label: { bm: 'Pemalar c', en: 'Constant c' }, min: -5, max: 5, step: 1, default: -3 }
       ],
       render: function (canvas, vals, lang, isDark) {
         const { ctx, w, h } = setupCanvas(canvas);
         const { toX, toY } = drawCartesianGrid(ctx, w, h, [-7, 7], [-7, 7], isDark);
-        let a = Number(vals.a);
-        if (Math.abs(a) < 0.1) a = 0.5;
-        const b = Number(vals.b) || 0;
-        const c = Number(vals.c) || 0;
+        const a = Number.isFinite(Number(vals.a)) ? Number(vals.a) : 1;
+        const b = Number.isFinite(Number(vals.b)) ? Number(vals.b) : -2;
+        const c = Number.isFinite(Number(vals.c)) ? Number(vals.c) : -3;
+
+        if (Math.abs(a) < 0.05) {
+          plotCurve(ctx, toX, toY, [-7, 7], (x) => b * x + c, '#8b5cf6', false, 3);
+          return lang === 'bm'
+            ? `Perhatian: Apabila a = 0, graf menjadi garis lurus y = ${b}x ${U.signedNum(c)} (bukan lagi kuadratik — syarat wajib kuadratik ialah a ≠ 0!).`
+            : `Note: When a = 0, the graph becomes a straight line y = ${b}x ${U.signedNum(c)} (quadratic functions require a ≠ 0!).`;
+        }
+
         const disc = b * b - 4 * a * c;
         const vx = -b / (2 * a);
         const vy = a * vx * vx + b * vx + c;
@@ -161,16 +172,19 @@ window.AddMathApp = window.AddMathApp || {};
 
         const status = disc > 0
           ? (lang === 'bm' ? '2 Punca Berbeza' : '2 Distinct Roots')
-          : (disc === 0 ? (lang === 'bm' ? '1 Titik Tangen (2 Punca Sama)' : 'Tangent (Equal Roots)') : (lang === 'bm' ? 'Tiada Punca Nyata' : 'No Real Roots'));
-        return `Δ = ${U.roundStr(disc, 2)} (${status})  |  Verteks: (${U.roundStr(vx, 2)}, ${U.roundStr(vy, 2)})`;
+          : (disc === 0 ? (lang === 'bm' ? 'Menyentuh 1 Titik (2 Punca Sama)' : 'Touches 1 Point (Equal Roots)') : (lang === 'bm' ? 'Tiada Punca Nyata' : 'No Real Roots'));
+        const vLbl = lang === 'bm'
+          ? (a > 0 ? 'Titik Minimum' : 'Titik Maksimum')
+          : (a > 0 ? 'Min Vertex' : 'Max Vertex');
+        return `Δ = ${U.roundStr(disc, 2)} (${status})  |  ${vLbl}: (${U.roundStr(vx, 2)}, ${U.roundStr(vy, 2)})`;
       }
     },
 
     'f4-c3': {
-      title: { bm: 'Makmal Persilangan Garis Linear & Bulatan Tak Linear', en: 'Linear Line & Non-Linear Circle Intersection Lab' },
+      title: { bm: 'Makmal Persilangan Garis Lurus & Bulatan', en: 'Linear Line & Non-Linear Circle Intersection Lab' },
       desc: {
-        bm: 'Gerakkan garis y = mx + c merentasi bulatan x² + y² = r² untuk melihat syarat 2 titik persilangan, garis tangen, atau tiada penyelesaian!',
-        en: 'Slide line y = mx + c across circle x² + y² = r² to observe 2 intersections, tangency, or no real solution!'
+        bm: 'Gerakkan slider m, c dan jejari r bagi garis y = mx + c dan bulatan x² + y² = r² untuk melihat 2 titik persilangan, garis tangen (1 titik), atau tiada persilangan!',
+        en: 'Slide m, c, and radius r for line y = mx + c across circle x² + y² = r² to see 2 intersections, tangency, or no real solution!'
       },
       controls: [
         { id: 'm', label: { bm: 'Kecerunan garis m', en: 'Line gradient m' }, min: -2, max: 2, step: 0.5, default: 1 },
@@ -180,8 +194,8 @@ window.AddMathApp = window.AddMathApp || {};
       render: function (canvas, vals, lang, isDark) {
         const { ctx, w, h } = setupCanvas(canvas);
         const { toX, toY } = drawCartesianGrid(ctx, w, h, [-7, 7], [-6, 6], isDark);
-        const m = Number(vals.m);
-        const c = Number(vals.c);
+        const m = Number.isFinite(Number(vals.m)) ? Number(vals.m) : 1;
+        const c = Number.isFinite(Number(vals.c)) ? Number(vals.c) : 1;
         const r = Number(vals.r) || 4;
 
         // Draw circle parametrically
@@ -204,7 +218,6 @@ window.AddMathApp = window.AddMathApp || {};
         const B = 2 * m * c;
         const C = c * c - r * r;
         const disc = B * B - 4 * A * C;
-        let info = '';
         if (disc > 1e-4) {
           const x1 = (-B - Math.sqrt(disc)) / (2 * A);
           const x2 = (-B + Math.sqrt(disc)) / (2 * A);
@@ -212,25 +225,28 @@ window.AddMathApp = window.AddMathApp || {};
             ctx.fillStyle = '#10b981';
             ctx.beginPath(); ctx.arc(toX(xv), toY(m * xv + c), 6, 0, Math.PI * 2); ctx.fill();
           });
-          info = lang === 'bm'
+          return lang === 'bm'
             ? `2 Titik Persilangan: (${U.roundStr(x1, 2)}, ${U.roundStr(m * x1 + c, 2)}) & (${U.roundStr(x2, 2)}, ${U.roundStr(m * x2 + c, 2)})`
             : `2 Intersection Points: (${U.roundStr(x1, 2)}, ${U.roundStr(m * x1 + c, 2)}) & (${U.roundStr(x2, 2)}, ${U.roundStr(m * x2 + c, 2)})`;
-        } else if (Math.abs(disc) <= 1e-4) {
+        }
+        if (Math.abs(disc) <= 1e-4) {
           const x0 = -B / (2 * A);
           ctx.fillStyle = '#f59e0b';
           ctx.beginPath(); ctx.arc(toX(x0), toY(m * x0 + c), 6.5, 0, Math.PI * 2); ctx.fill();
-          info = lang === 'bm' ? `Garis Tangen! Menyentuh pada 1 titik (${U.roundStr(x0, 2)}, ${U.roundStr(m * x0 + c, 2)})` : `Tangent! Touches at 1 point (${U.roundStr(x0, 2)}, ${U.roundStr(m * x0 + c, 2)})`;
-        } else {
-          info = lang === 'bm' ? 'Δ < 0 : Garis tidak menyilang bulatan (Tiada penyelesaian nyata)' : 'Δ < 0 : Line misses circle (No real solutions)';
+          return lang === 'bm'
+            ? `Garis Tangen! Menyentuh tepat pada 1 titik (${U.roundStr(x0, 2)}, ${U.roundStr(m * x0 + c, 2)})`
+            : `Tangent! Touches at 1 point (${U.roundStr(x0, 2)}, ${U.roundStr(m * x0 + c, 2)})`;
         }
-        return info;
+        return lang === 'bm'
+          ? 'Δ < 0 : Garis tidak menyentuh bulatan (Tiada penyelesaian nyata)'
+          : 'Δ < 0 : Line misses circle (No real solutions)';
       }
     },
 
     'f4-c4': {
-      title: { bm: 'Makmal Lengkung Indeks y = aˣ vs Logaritma y = logₐ x', en: 'Exponential y = aˣ vs Logarithm y = logₐ x Lab' },
+      title: { bm: 'Makmal Lengkung Indeks y = aˣ & Logaritma y = logₐ x', en: 'Exponential y = aˣ vs Logarithm y = logₐ x Lab' },
       desc: {
-        bm: 'Lihat bagaimana fungsi indeks y = aˣ (oren) dan fungsi logaritma y = logₐ x (biru) adalah songsangan sempurna antara satu sama lain merentasi y = x!',
+        bm: 'Lihat bagaimana lengkung indeks y = aˣ (oren) dan lengkung logaritma y = logₐ x (biru) adalah pantulan cermin antara satu sama lain merentasi garis y = x!',
         en: 'Observe how exponential y = aˣ (orange) and logarithmic y = logₐ x (blue) mirror across y = x as exact inverses!'
       },
       controls: [
@@ -243,7 +259,22 @@ window.AddMathApp = window.AddMathApp || {};
 
         plotCurve(ctx, toX, toY, [-4, 8], (x) => x, isDark ? '#64748b' : '#94a3b8', true, 1.4);
         plotCurve(ctx, toX, toY, [-4, 8], (x) => Math.pow(a, x), '#f59e0b', false, 3);
-        plotCurve(ctx, toX, toY, [0.03, 8], (x) => Math.log(x) / Math.log(a), '#0ea5e9', false, 3);
+
+        // Plot log_a(x) parametrically via x = a^y so it extends smoothly all the way down to y = -4
+        ctx.save();
+        ctx.strokeStyle = '#0ea5e9';
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        let started = false;
+        for (let i = 0; i <= 240; i++) {
+          const y = -4 + (i / 240) * 12;
+          const x = Math.pow(a, y);
+          if (x > 8.5) break;
+          if (!started) { ctx.moveTo(toX(x), toY(y)); started = true; }
+          else ctx.lineTo(toX(x), toY(y));
+        }
+        ctx.stroke();
+        ctx.restore();
 
         // Key intercepts (0,1) and (1,0)
         ctx.fillStyle = '#f59e0b';
@@ -252,16 +283,16 @@ window.AddMathApp = window.AddMathApp || {};
         ctx.beginPath(); ctx.arc(toX(1), toY(0), 5.5, 0, Math.PI * 2); ctx.fill();
 
         return lang === 'bm'
-          ? `Oren: y = ${a}ˣ melalui (0, 1)  |  Biru: y = log_${a}(x) melalui (1, 0), asimptot x = 0`
-          : `Orange: y = ${a}ˣ passes (0, 1)  |  Blue: y = log_${a}(x) passes (1, 0), asymptote x = 0`;
+          ? `Oren: y = ${a}ˣ memotong (0, 1)  |  Biru: y = log_${a}(x) memotong (1, 0), menghampiri paksi-y (x > 0)`
+          : `Orange: y = ${a}ˣ passes (0, 1)  |  Blue: y = log_${a}(x) passes (1, 0), asymptote at x = 0`;
       }
     },
 
     'f4-c5': {
-      title: { bm: 'Makmal Penumpuan Janjang Geometri & S∞', en: 'GP Convergence & Sum to Infinity S∞ Visualizer' },
+      title: { bm: 'Makmal Hasil Tambah Ketakterhinggaan S∞ (Janjang Geometri)', en: 'GP Sum to Infinity S∞ Visualizer' },
       desc: {
-        bm: 'Ubah nisbah sepunya r untuk melihat bagaimana hasil tambah terkumpul Sₙ menghampiri garisan had S∞ = a/(1 − r) apabila |r| < 1!',
-        en: 'Adjust common ratio r to watch cumulative sum Sₙ approach the ceiling S∞ = a/(1 − r) whenever |r| < 1!'
+        bm: 'Gerakkan slider a dan nisbah sepunya r untuk melihat bagaimana jumlah terkumpul S₁, S₂... semakin menghampiri garisan had S∞ = a/(1 − r) apabila |r| < 1!',
+        en: 'Slide first term a and common ratio r to watch cumulative sum Sₙ approach the ceiling S∞ = a/(1 − r) whenever |r| < 1!'
       },
       controls: [
         { id: 'a', label: { bm: 'Sebutan pertama a', en: 'First term a' }, min: 4, max: 16, step: 2, default: 10 },
@@ -275,7 +306,7 @@ window.AddMathApp = window.AddMathApp || {};
         const a = Number(vals.a) || 10;
         const r = Number(vals.r) || 0.5;
         const sInf = a / (1 - r);
-        const padL = 46, padR = 20, padT = 28, padB = 34;
+        const padL = 16, padR = 16, padT = 30, padB = 30;
         const plotW = w - padL - padR;
         const plotH = h - padT - padB;
         const maxY = sInf * 1.15;
@@ -290,26 +321,29 @@ window.AddMathApp = window.AddMathApp || {};
         ctx.beginPath(); ctx.moveTo(padL, yInf); ctx.lineTo(w - padR, yInf); ctx.stroke();
         ctx.fillStyle = '#ef4444';
         ctx.font = 'bold 12px sans-serif';
-        ctx.fillText(`S∞ = ${U.roundStr(sInf, 2)}`, padL + 8, yInf - 7);
+        ctx.fillText(`S∞ = ${U.roundStr(sInf, 2)}`, padL + 4, yInf - 7);
         ctx.restore();
 
-        // Plot bars for S_1 .. S_10
+        // Plot bars for S_1 .. S_10 cleanly centered for mobile & desktop
         const N = 10;
         const barGap = plotW / N;
         let cum = 0;
+        ctx.save();
+        ctx.textAlign = 'center';
+        ctx.font = '10px sans-serif';
         for (let i = 1; i <= N; i++) {
           const term = a * Math.pow(r, i - 1);
           cum += term;
-          const bx = padL + (i - 1) * barGap + barGap * 0.16;
-          const bw = barGap * 0.68;
+          const bx = padL + (i - 1) * barGap + barGap * 0.14;
+          const bw = barGap * 0.72;
           const by = toY(cum);
           const bh = padT + plotH - by;
-          ctx.fillStyle = 'rgba(16, 185, 129, 0.78)';
+          ctx.fillStyle = 'rgba(16, 185, 129, 0.8)';
           ctx.fillRect(bx, by, bw, bh);
           ctx.fillStyle = isDark ? '#cbd5e1' : '#334155';
-          ctx.font = '11px sans-serif';
-          ctx.fillText('S' + i, bx + bw * 0.2, h - 12);
+          ctx.fillText('S' + i, bx + bw / 2, h - 10);
         }
+        ctx.restore();
 
         return lang === 'bm'
           ? `a = ${a}, r = ${r} (|r| < 1)  |  S₅ = ${U.roundStr((a * (1 - Math.pow(r, 5))) / (1 - r), 2)}  →  Had S∞ = ${U.roundStr(sInf, 2)}`

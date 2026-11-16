@@ -63,7 +63,7 @@ window.AddMathApp.masterBank = window.AddMathApp.masterBank || {};
       },
       {
         code: '5.4', marks: 4,
-        topic: { bm: 'Pemiawaian Skor-$Z$ Taburan Normal', en: 'Standardizing $Z$-Scores in Normal Distribution' },
+        topic: { bm: 'Menukar kepada Skor-$Z$ Piawai (Taburan Normal)', en: 'Standardizing $Z$-Scores in Normal Distribution' },
         q: {
           bm: 'Jisim buah betik bertaburan secara normal $X \\sim N(55, 8^2)$. Cari (a) $P(X > 67)$, dan (b) $P(47 < X < 63)$. [4m]',
           en: 'Papaya masses follow $X \\sim N(55, 8^2)$. Find (a) $P(X > 67)$, and (b) $P(47 < X < 63)$. [4m]'
@@ -131,13 +131,13 @@ window.AddMathApp.masterBank = window.AddMathApp.masterBank || {};
       },
       {
         code: '5.8', marks: 3,
-        topic: { bm: 'Simetri Ekor Kiri Taburan Normal Piawai $P(Z < -z)$', en: 'Left-Tail Symmetry of Standard Normal Distribution' },
+        topic: { bm: 'Simetri Kawasan Kiri Taburan Normal Piawai $P(Z < -z)$', en: 'Left-Tail Symmetry of Standard Normal Distribution' },
         q: {
           bm: 'Bagi pemboleh ubah rawak normal piawai $Z \\sim N(0, 1)$, cari nilai $P(Z < -1.85)$. [3m]',
           en: 'For the standard normal variable $Z \\sim N(0, 1)$, find $P(Z < -1.85)$. [3m]'
         },
         mistakes: {
-          bm: ['Menolak bacaan jadual ekor atas daripada $1$ ($1 - 0.0322 = 0.9678$) sedangkan $Z < -1.85$ sudah merupakan ekor kecil di sebelah kiri!'],
+          bm: ['Menolak bacaan jadual kawasan kanan $P(Z > 1.85)$ daripada $1$ ($1 - 0.0322 = 0.9678$) sedangkan $Z < -1.85$ sudah merupakan kawasan kecil di hujung kiri!'],
           en: ['Computing $1 - 0.0322 = 0.9678$ when $Z < -1.85$ is already the small left tail!']
         },
         scheme: [
@@ -185,7 +185,7 @@ window.AddMathApp.masterBank = window.AddMathApp.masterBank || {};
     'f5-c6': [
       {
         code: '6.1', marks: 3,
-        topic: { bm: 'Tanda Suku Kedua (ASTC) & Nisbah Salingan', en: 'Quadrant II Signs (ASTC) & Reciprocal Ratios' },
+        topic: { bm: 'Tanda Sukuan II (ASTC) & Fungsi Salingan ($\\sec, \\csc, \\cot$)', en: 'Quadrant II Signs (ASTC) & Reciprocal Ratios' },
         q: {
           bm: 'Diberi $\\tan\\theta = -\\frac{3}{4}$ dan $90^\\circ < \\theta < 180^\\circ$. Tanpa menggunakan kalkulator, cari nilai $\\sin\\theta$ dan $\\sec\\theta$. [3m]',
           en: 'Given $\\tan\\theta = -\\frac{3}{4}$ and $90^\\circ < \\theta < 180^\\circ$, find $\\sin\\theta$ and $\\sec\\theta$ without a calculator. [3m]'
@@ -203,17 +203,17 @@ window.AddMathApp.masterBank = window.AddMathApp.masterBank || {};
         code: '6.2', marks: 6,
         topic: { bm: 'Lakaran Graf Kosinus & Bilangan Penyelesaian Garis Lurus', en: 'Sketching Cosine Graph & Counting Line Intersections' },
         q: {
-          bm: '(a) Lakarkan graf $y = 2\\cos 2x$ untuk $0 \\le x \\le \\pi$. [3m]\n(b) Seterusnya, pada paksi yang sama, lakarkan garis lurus yang sesuai untuk mencari bilangan penyelesaian bagi persamaan $\\pi\\cos 2x = x$ dalam julat itu. [3m]',
-          en: '(a) Sketch $y = 2\\cos 2x$ for $0 \\le x \\le \\pi$. [3m]\n(b) Hence, draw a suitable straight line on the same axes to state the number of solutions of $\\pi\\cos 2x = x$ in that interval. [3m]'
+          bm: '(a) Lakarkan graf $y = 2\\cos 2x$ untuk $0 \\le x \\le \\pi$. [3m]\n(b) Seterusnya, pada paksi yang sama, lakarkan garis lurus yang sesuai untuk mencari bilangan penyelesaian bagi persamaan $2\\pi\\cos 2x = \\pi - x$ dalam julat itu. [3m]',
+          en: '(a) Sketch $y = 2\\cos 2x$ for $0 \\le x \\le \\pi$. [3m]\n(b) Hence, draw a suitable straight line on the same axes to state the number of solutions of $2\\pi\\cos 2x = \\pi - x$ in that interval. [3m]'
         },
         mistakes: {
-          bm: ['Melukis garis $y = \\frac{x}{\\pi}$ bukannya mendarab kedua-dua belah dengan $\\frac{2}{\\pi}$ supaya sebelah kiri sepadan tepat dengan graf $y = 2\\cos 2x$!'],
-          en: ['Drawing $y = \\frac{x}{\\pi}$ instead of multiplying by $\\frac{2}{\\pi}$ to match the sketched curve $y = 2\\cos 2x$!']
+          bm: ['Melukis garis $y = \\pi - x$ secara terus tanpa membahagikan kedua-dua belah persamaan dengan $\\pi$ supaya sebelah kiri sepadan tepat dengan graf $y = 2\\cos 2x$!'],
+          en: ['Drawing $y = \\pi - x$ directly without dividing both sides by $\\pi$ to match the sketched curve $y = 2\\cos 2x$!']
         },
         scheme: [
           { badge: 'K1', bm: '(a) Satu kitaran kosinus lengkap pada $[0, \\pi]$ bermula di $(0, 2)$, minimum $(\\frac{\\pi}{2}, -2)$, berakhir di $(\\pi, 2)$.', en: '(a) One full cosine cycle on $[0, \\pi]$ from $(0, 2)$ through $(\\pi/2, -2)$ to $(\\pi, 2)$.' },
-          { badge: 'K1', bm: '(b) $\\cos 2x = \\frac{x}{\\pi} \\implies 2\\cos 2x = \\frac{2}{\\pi}x$: lukis garis lurus $y = \\frac{2}{\\pi}x$ melalui $(0, 0)$ dan $(\\pi, 2)$.', en: '(b) Rewrite as $2\\cos 2x = \\frac{2}{\\pi}x$; draw line through $(0, 0)$ and $(\\pi, 2)$.' },
-          { badge: 'N1', bm: 'Garis menyilang lengkung pada $2$ titik (termasuk $(\\pi, 2)$) $\\implies$ bilangan penyelesaian $= 2$.', en: 'Number of solutions $= 2$.' }
+          { badge: 'K1', bm: '(b) Bahagi $\\pi$: $2\\cos 2x = 1 - \\frac{x}{\\pi}$; lukis garis lurus $y = 1 - \\frac{x}{\\pi}$ melalui $(0, 1)$ dan $(\\pi, 0)$.', en: '(b) Divide by $\\pi$: $2\\cos 2x = 1 - \\frac{x}{\\pi}$; draw line through $(0, 1)$ and $(\\pi, 0)$.' },
+          { badge: 'N1', bm: 'Garis lurus memotong lengkung pada $2$ titik persilangan $\\implies$ bilangan penyelesaian $= 2$.', en: 'Line intersects the curve at $2$ points $\\implies$ number of solutions $= 2$.' }
         ]
       },
       {
@@ -355,9 +355,9 @@ window.AddMathApp.masterBank = window.AddMathApp.masterBank || {};
     'f5-c7': [
       {
         code: '7.1', marks: 4,
-        topic: { bm: 'Menterjemah Kekangan Perniagaan kepada Ketaksamaan Linear', en: 'Translating Business Constraints into Inequalities' },
+        topic: { bm: 'Menterjemah Syarat (Kekangan) Perniagaan kepada Ketaksamaan Linear', en: 'Translating Business Constraints into Inequalities' },
         q: {
-          bm: 'Sebuah bengkel menghasilkan $x$ buah kerusi kayu dan $y$ buah kerusi plastik sehari berdasarkan kekangan berikut:\nI: Jumlah pengeluaran tidak melebihi $100$ buah.\nII: Bilangan kerusi kayu adalah sekurang-kurangnya separuh daripada kerusi plastik.\nIII: Jumlah kos pengeluaran sekurang-kurangnya $\\text{RM }1600$ (kos seunit kayu $\\text{RM }40$, plastik $\\text{RM }20$).\nTulis tiga ketaksamaan linear selain $x \\ge 0$ dan $y \\ge 0$. [4m]',
+          bm: 'Sebuah bengkel menghasilkan $x$ buah kerusi kayu dan $y$ buah kerusi plastik sehari berdasarkan syarat-syarat (kekangan) berikut:\nI: Jumlah pengeluaran tidak melebihi $100$ buah.\nII: Bilangan kerusi kayu adalah sekurang-kurangnya separuh daripada kerusi plastik.\nIII: Jumlah kos pengeluaran sekurang-kurangnya $\\text{RM }1600$ (kos seunit kayu $\\text{RM }40$, plastik $\\text{RM }20$).\nTulis tiga ketaksamaan linear selain $x \\ge 0$ dan $y \\ge 0$. [4m]',
           en: 'A workshop makes $x$ wooden chairs and $y$ plastic chairs daily:\nI: Total output does not exceed $100$.\nII: Wooden chairs are at least half the plastic chairs.\nIII: Total cost is at least $\\text{RM }1600$ ($\\text{RM }40$ per wooden, $\\text{RM }20$ per plastic).\nWrite three linear inequalities other than $x \\ge 0, y \\ge 0$. [4m]'
         },
         mistakes: {
@@ -372,13 +372,13 @@ window.AddMathApp.masterBank = window.AddMathApp.masterBank || {};
       },
       {
         code: '7.2', marks: 4,
-        topic: { bm: 'Keuntungan Maksimum pada Bucu Rantau Tersaur $R$', en: 'Maximum Profit at Vertices of Feasible Region $R$' },
+        topic: { bm: 'Keuntungan Maksimum pada Bucu Rantau Berlorek $R$ (*Feasible Region*)', en: 'Maximum Profit at Vertices of Feasible Region $R$' },
         q: {
-          bm: 'Rantau tersaur $R$ mempunyai bucu-bucu pada $(20, 40)$, $(60, 20)$, dan $(40, 60)$. Cari keuntungan maksimum bagi fungsi objektif $P = 15x + 25y$ dan nyatakan koordinat titik optimumnya. [4m]',
+          bm: 'Rantau berlorek $R$ (rantau yang memenuhi semua syarat) mempunyai bucu-bucu pada $(20, 40)$, $(60, 20)$, dan $(40, 60)$. Cari keuntungan maksimum bagi rumus keuntungan (fungsi objektif) $P = 15x + 25y$ dan nyatakan koordinat titik optimumnya. [4m]',
           en: 'Feasible region $R$ has vertices $(20, 40)$, $(60, 20)$, and $(40, 60)$. Find the maximum profit for $P = 15x + 25y$ and state the optimal point. [4m]'
         },
         mistakes: {
-          bm: ['Meneka bucu secara rawak tanpa menguji semua bucu ke dalam fungsi objektif $P = 15x + 25y$.'],
+          bm: ['Meneka bucu secara rawak tanpa menguji semua bucu ke dalam rumus keuntungan $P = 15x + 25y$.'],
           en: ['Guessing a vertex visually without testing all vertices in $P = 15x + 25y$.']
         },
         scheme: [
@@ -404,9 +404,9 @@ window.AddMathApp.masterBank = window.AddMathApp.masterBank || {};
       },
       {
         code: '7.4', marks: 4,
-        topic: { bm: 'Meminimumkan Fungsi Kos pada Rantau Tersaur', en: 'Minimizing a Cost Function Over Region $R$' },
+        topic: { bm: 'Mencari Kos Minimum pada Bucu Rantau Berlorek $R$', en: 'Minimizing a Cost Function Over Region $R$' },
         q: {
-          bm: 'Bucu-bucu bagi suatu rantau tersaur $R$ ialah $(10, 30)$, $(20, 15)$, dan $(40, 10)$. Cari kos minimum bagi fungsi kos $C = 2x + 3y$. [4m]',
+          bm: 'Bucu-bucu bagi suatu rantau berlorek $R$ ialah $(10, 30)$, $(20, 15)$, dan $(40, 10)$. Cari kos minimum bagi fungsi kos $C = 2x + 3y$. [4m]',
           en: 'The vertices of feasible region $R$ are $(10, 30)$, $(20, 15)$, and $(40, 10)$. Find the minimum cost for $C = 2x + 3y$. [4m]'
         },
         mistakes: {
@@ -426,7 +426,7 @@ window.AddMathApp.masterBank = window.AddMathApp.masterBank || {};
           en: 'State when to draw a solid line versus a dashed line in linear programming, and how it affects choosing a vertex on that boundary. [2m]'
         },
         mistakes: {
-          bm: ['Melukis garis padu untuk ketaksamaan tegas $<$ atau $>$, lalu menerima titik di atas garis putus-putus sebagai penyelesaian sah!'],
+          bm: ['Melukis garis padu untuk ketaksamaan $<$ atau $>$ (tanpa tanda sama dengan), lalu menerima titik di atas garis putus-putus sebagai penyelesaian sah!'],
           en: ['Using a solid line for strict $<$ or $>$, or accepting a point lying on a dashed line!']
         },
         scheme: [
@@ -435,9 +435,9 @@ window.AddMathApp.masterBank = window.AddMathApp.masterBank || {};
       },
       {
         code: '7.6', marks: 3,
-        topic: { bm: 'Kaedah Garis Objektif Menggelongsor ($k = ax + by$)', en: 'Sliding Objective Line Method' },
+        topic: { bm: 'Kaedah Pembaris Menggelongsor Garis Pencari ($k = ax + by$)', en: 'Sliding Objective Line Method' },
         q: {
-          bm: 'Terangkan bagaimana garis objektif digunakan pada kertas graf untuk mencari nilai maksimum bagi $k = 3x + 4y$ dalam rantau $R$. [3m]',
+          bm: 'Terangkan bagaimana garis pencari (garis objektif) digunakan pada kertas graf untuk mencari nilai maksimum bagi $k = 3x + 4y$ dalam rantau $R$. [3m]',
           en: 'Explain how an objective line is used graphically to find the maximum of $k = 3x + 4y$ in region $R$. [3m]'
         },
         mistakes: {
@@ -467,23 +467,23 @@ window.AddMathApp.masterBank = window.AddMathApp.masterBank || {};
       },
       {
         code: '7.8', marks: 4,
-        topic: { bm: 'Syarat Penyelesaian Integer bagi Objek Diskret', en: 'Integer Requirement for Discrete Quantities' },
+        topic: { bm: 'Syarat Jawapan Nombor Bulat (Integer) bagi Bilangan Objek', en: 'Integer Requirement for Discrete Quantities' },
         q: {
-          bm: 'Dalam masalah menyewa $x$ buah bas dan $y$ buah van bagi memaksimumkan kapasiti penumpang, bucu persilangan tertinggi dalam rantau $R$ ialah $(15.4, 22.8)$ di bawah kekangan $x + y \\le 38$. Terangkan cara menentukan pasangan $(x, y)$ sebenar dan beri satu calon titik integer yang sah. [4m]',
-          en: 'When hiring $x$ buses and $y$ vans, the highest vertex of $R$ is $(15.4, 22.8)$ subject to $x + y \\le 38$. Explain how to pick the valid optimal solution and state a valid integer point nearby. [4m]'
+          bm: 'Dalam masalah menyewa $x$ buah bas dan $y$ buah van bagi memaksimumkan kapasiti penumpang, bucu persilangan tertinggi dalam rantau $R$ ialah $(15.2, 22.8)$ di bawah syarat $x + y \\le 38$ dan $2y \\le 3x$. Terangkan cara menentukan pasangan $(x, y)$ sebenar dan beri satu calon titik integer yang sah. [4m]',
+          en: 'When hiring $x$ buses and $y$ vans, the highest vertex of $R$ is $(15.2, 22.8)$ subject to $x + y \\le 38$ and $2y \\le 3x$. Explain how to pick the valid optimal solution and state a valid integer point nearby. [4m]'
         },
         mistakes: {
-          bm: ['Membundarkan terus kepada $(15, 23)$ secara automatik tanpa menyemak sama ada $(15, 23)$ masih berada **di dalam** kesemua ketaksamaan rantau $R$!'],
-          en: ['Blindly rounding to $(15, 23)$ without verifying it lies **inside** all inequalities of $R$!']
+          bm: ['Membundarkan terus kepada $(15, 23)$ secara automatik tanpa menyemak syarat — sedangkan $(15, 23)$ gagal memenuhi $2y \\le 3x$ ($46 > 45$, terkeluar dari rantau $R$)!'],
+          en: ['Blindly rounding to $(15, 23)$ without checking constraints — $(15, 23)$ violates $2y \\le 3x$ ($46 > 45$, outside $R$)!']
         },
         scheme: [
-          { badge: 'K1', bm: 'Oleh sebab bilangan kenderaan mestilah nombor bulat (integer), titik perpuluhan $(15.4, 22.8)$ tidak boleh diterima terus.', en: 'Vehicle counts must be integers, so $(15.4, 22.8)$ is invalid as-is.' },
-          { badge: 'N1', bm: 'Pilih titik integer terdekat **di dalam** rantau $R$ (contohnya $(15, 22)$ dengan $15 + 22 = 37 \\le 38$) yang memberi nilai objektif tertinggi.', en: 'Test nearest integer grid points **inside** $R$ (e.g. $(15, 22)$) that maximize the objective.' }
+          { badge: 'K1', bm: 'Oleh sebab bilangan kenderaan mestilah nombor bulat (integer), titik perpuluhan $(15.2, 22.8)$ tidak boleh diterima terus.', en: 'Vehicle counts must be integers, so $(15.2, 22.8)$ is invalid as-is.' },
+          { badge: 'N1', bm: 'Pilih titik nombor bulat terdekat yang **sah di dalam** rantau $R$ (contohnya $(16, 22)$ atau $(15, 22)$) yang memberi kapasiti tertinggi.', en: 'Test nearest integer points **inside** $R$ (e.g. $(16, 22)$ or $(15, 22)$) that maximize capacity.' }
         ]
       },
       {
         code: '7.9', marks: 4,
-        topic: { bm: 'Kekangan Peratusan daripada Jumlah Keseluruhan', en: 'Percentage of Total Output Constraint' },
+        topic: { bm: 'Syarat Peratusan daripada Jumlah Keseluruhan', en: 'Percentage of Total Output Constraint' },
         q: {
           bm: 'Sebuah kilang menetapkan bilangan produk gred premium ($x$) mestilah sekurang-kurangnya $20\\%$ daripada jumlah keseluruhan produk ($x + y$). Permudahkan ketaksamaan ini kepada bentuk termudah. [4m]',
           en: 'Premium units ($x$) must be at least $20\\%$ of total units ($x + y$). Write and simplify this linear inequality. [4m]'
@@ -540,8 +540,8 @@ window.AddMathApp.masterBank = window.AddMathApp.masterBank || {};
         code: '8.2', marks: 5,
         topic: { bm: 'Jumlah Jarak dengan Pusingan Arah Gerakan', en: 'Total Distance with Reversal of Motion' },
         q: {
-          bm: 'Suatu zarah bergerak melalui titik tetap $O$ dengan halaju $v = 3t^2 - 12t + 9\\text{ m s}^{-1}$. Hitung **jumlah jarak** yang dilalui oleh zarah dalam $4\\text{ saat}$ pertama. [5m]',
-          en: 'A particle passes through $O$ with velocity $v = 3t^2 - 12t + 9\\text{ m s}^{-1}$. Calculate the **total distance** travelled in the first $4\\text{ seconds}$. [5m]'
+          bm: 'Suatu zarah bergerak melalui titik tetap $O$ pada masa $t = 0$ dengan halaju $v = 3t^2 - 12t + 9\\text{ m s}^{-1}$. Hitung **jumlah jarak** yang dilalui oleh zarah dalam $4\\text{ saat}$ pertama. [5m]',
+          en: 'A particle passes through $O$ at $t = 0$ with velocity $v = 3t^2 - 12t + 9\\text{ m s}^{-1}$. Calculate the **total distance** travelled in the first $4\\text{ seconds}$. [5m]'
         },
         mistakes: {
           bm: ['Menggantikan $t = 4$ terus ke dalam $s(4) = 4\\text{ m}$ (itu ialah **sesaran bersih**, bukan jumlah jarak kerana zarah berpusing arah pada $t = 1$ dan $t = 3$)!'],
@@ -606,7 +606,7 @@ window.AddMathApp.masterBank = window.AddMathApp.masterBank || {};
         code: '8.6', marks: 3,
         topic: { bm: 'Nyahpecutan Malar sehingga Berhenti', en: 'Constant Deceleration Until Stopping' },
         q: {
-          bm: 'Sebuah kereta bergerak melalui $O$ dengan halaju $24\\text{ m s}^{-1}$ dan mengalami nyahpecutan malar $4\\text{ m s}^{-2}$ sehingga berhenti. Cari masa yang diambil untuk berhenti dan jarak breknya. [3m]',
+          bm: 'Sebuah kereta bergerak melalui $O$ dengan halaju $24\\text{ m s}^{-1}$ dan mengalami nyahpecutan malar (diperlahankan pada kadar tetap) $4\\text{ m s}^{-2}$ sehingga berhenti. Cari masa yang diambil untuk berhenti dan jarak breknya. [3m]',
           en: 'A car passes $O$ at $24\\text{ m s}^{-1}$ and decelerates uniformly at $4\\text{ m s}^{-2}$ until stopping. Find the stopping time and braking distance. [3m]'
         },
         mistakes: {
@@ -668,7 +668,7 @@ window.AddMathApp.masterBank = window.AddMathApp.masterBank || {};
       },
       {
         code: '8.10', marks: 4,
-        topic: { bm: 'Tinggi Maksimum Roket Air Mencancang', en: 'Maximum Height of a Vertically Launched Rocket' },
+        topic: { bm: 'Tinggi Maksimum Roket Air Dilancarkan Tegak Ke Atas', en: 'Maximum Height of a Vertically Launched Rocket' },
         q: {
           bm: 'Sebuah roket air dilancarkan tegak ke atas dari tanah dengan halaju awal $40\\text{ m s}^{-1}$ dan pecutan graviti $a = -10\\text{ m s}^{-2}$. Cari masa untuk mencapai tinggi maksimum dan nilai tinggi maksimum tersebut. [4m]',
           en: 'A water rocket is launched vertically upward from ground level at $40\\text{ m s}^{-1}$ with acceleration $a = -10\\text{ m s}^{-2}$. Find the time to reach maximum height and the maximum height. [4m]'

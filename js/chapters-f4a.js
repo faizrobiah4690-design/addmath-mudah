@@ -263,7 +263,7 @@ window.AddMathApp.chapters = [];
               ],
               hints: [
                 lang === 'bm' ? `Gunakan sifat songsang: jika $f^{-1}(${y0}) = x$, maka $f(x) = ${y0}$.` : `Use inverse property: if $f^{-1}(${y0}) = x$, then $f(x) = ${y0}$.`,
-                lang === 'bm' ? `Selesaikan $${a}x ${U.signedNum(b)} = ${y0}$$ untuk mencari $x$.` : `Solve $${a}x ${U.signedNum(b)} = ${y0}$$ for $x$.`
+                lang === 'bm' ? `Selesaikan $${a}x ${U.signedNum(b)} = ${y0}$ untuk mencari $x$.` : `Solve $${a}x ${U.signedNum(b)} = ${y0}$ for $x$.`
               ],
               steps: [
                 { badge: 'P1', title: lang === 'bm' ? 'Gunakan sifat songsang' : 'Apply inverse property', tex: `f(x) = ${y0} \\implies ${fTex} = ${y0}`, why: lang === 'bm' ? 'f⁻¹ memetakan imej kembali kepada objek.' : 'f⁻¹ maps image back to object.' },
@@ -273,8 +273,8 @@ window.AddMathApp.chapters = [];
           } else {
             // Absolute value evaluation |ax - b| at x = k
             const a = U.pick([2, 3, 4]);
-            const b = U.randInt(10, 22);
-            const x0 = U.randInt(1, 3); // ensures ax0 - b is negative!
+            const b = U.randInt(13, 25);
+            const x0 = U.randInt(1, 3); // guarantees ax0 - b <= -1!
             const rawInside = a * x0 - b;
             const ans = Math.abs(rawInside);
             return {
@@ -618,9 +618,9 @@ window.AddMathApp.chapters = [];
           const variant = U.pick([1, 2]);
           if (variant === 1) {
             const a = U.pick([2, 3, 4]);
-            const b = U.pick([-12, -9, -8, 6, 8, 12]);
+            const sor = U.pick([-4, -3, -2.5, -1.5, 1.5, 2, 3, 4]);
+            const b = U.round(-a * sor, 4);
             const c = U.randInt(-7, 7, true);
-            const sor = -b / a;
             const eqTex = U.polyTex([{ c: a, p: 2 }, { c: b, p: 1 }, { c: c, p: 0 }]) + ' = 0';
             return {
               tier: 1,
@@ -632,11 +632,11 @@ window.AddMathApp.chapters = [];
                 : `The quadratic equation $${eqTex}$ has roots $\\alpha$ and $\\beta$. Find the sum of roots, $\\alpha + \\beta$.`,
               answerType: 'number',
               correctValue: sor,
-              displayAnswerTex: `\\alpha + \\beta = ${U.fracTex(-b, a)}`,
-              intentMeta: { given: `a = ${a}, b = ${b}, c = ${c}`, goal: 'α + β = −b/a', conceptRule: 'SOR = −b/a' },
+              displayAnswerTex: `\\alpha + \\beta = ${U.roundStr(sor)}`,
+              intentMeta: { given: `a = ${a}, b = ${b}, c = ${c}`, goal: 'α + β = −b/a', conceptRule: 'HTP (SOR) = −b/a' },
               guidedSteps: [
                 { prompt: { bm: `Apakah nilai pekali $b$ dalam persamaan $${eqTex}$ (termasuk tandanya)?`, en: `What is coefficient $b$ in $${eqTex}$ (including sign)?` }, expected: b, hint: { bm: `Pekali bagi x ialah ${b}.`, en: `Coefficient of x is ${b}.` } },
-                { prompt: { bm: `Sekarang kira $-\\frac{b}{a} = -\\frac{${b}}{${a}}$:`, en: `Now evaluate $-\\frac{b}{a} = -\\frac{${b}}{${a}}$:` }, expected: sor, hint: { bm: `Hati-hati tanda negatif: ${sor}.`, en: `Watch the minus sign: ${sor}.` } }
+                { prompt: { bm: `Sekarang kira $-\\frac{b}{a} = -\\frac{${b}}{${a}}$:`, en: `Now evaluate $-\\frac{b}{a} = -\\frac{${b}}{${a}}$:` }, expected: sor, hint: { bm: `Hati-hati tanda negatif: ${U.roundStr(sor)}.`, en: `Watch the minus sign: ${U.roundStr(sor)}.` } }
               ],
               traps: [
                 { value: b / a, message: { bm: 'Diagnostik Tanda [J]: Anda tertinggal tanda negatif dalam rumus HTP = −b/a!', en: 'Sign Diagnosis [J]: You missed the minus sign in SOR = −b/a!' } }
@@ -846,8 +846,8 @@ window.AddMathApp.chapters = [];
             const res = U.solve3x3(M, D);
             if (!res.unique) {
               return {
-                problemTex: '\\text{Sistem Satah Tak Unik}',
-                steps: [{ badge: 'P1', title: lang === 'bm' ? 'Penentu Sifar' : 'Zero Determinant', tex: '\\det(A) = 0', why: lang === 'bm' ? 'Tiada titik persilangan tunggal.' : 'No unique intersection point.' }],
+                problemTex: lang === 'bm' ? '\\text{Satah Selari atau Bertindih}' : '\\text{Parallel or Coincident Planes}',
+                steps: [{ badge: 'P1', title: lang === 'bm' ? 'Tiada Penyelesaian Tunggal' : 'No Unique Intersection', tex: '\\text{Persamaan bergantung secara linear}', why: lang === 'bm' ? 'Tiada satu titik persilangan unik.' : 'No single unique intersection point.' }],
                 finalTex: lang === 'bm' ? '\\text{Tiada Penyelesaian Unik}' : '\\text{No Unique Solution}'
               };
             }
@@ -916,7 +916,8 @@ window.AddMathApp.chapters = [];
             intentMeta: { given: `y = x ${U.signedNum(k)}, x² + y² = ${R}`, goal: 'Kedua-dua punca x', conceptRule: 'Asingkan y dari linear, gantikan ke dalam tak linear' },
             guidedSteps: [
               { prompt: { bm: `Gantikan $y = x ${U.signedNum(k)}$ ke dalam $x^2 + y^2 = ${R}$ memberi $2x^2 ${U.signedNum(2 * k)}x + (${k * k - R}) = 0$. Bahagikan semua dengan $2$: apakah pemalar akhir dalam $x^2 ${U.signedNum(k)}x + C = 0$?`, en: `Substituting $y = x ${U.signedNum(k)}$ gives $2x^2 ${U.signedNum(2 * k)}x + (${k * k - R}) = 0$. Dividing by $2$, what is the constant term $C$?` }, expected: (k * k - R) / 2, hint: { bm: `(${k * k} − ${R}) ÷ 2 = ${(k * k - R) / 2}.`, en: `(${k * k} − ${R}) ÷ 2 = ${(k * k - R) / 2}.` } },
-              { prompt: { bm: `Salah satu punca positif bagi $x^2 ${U.signedNum(k)}x ${U.signedNum((k * k - R) / 2)} = 0$ ialah:`, en: `What is the positive root of $x^2 ${U.signedNum(k)}x ${U.signedNum((k * k - R) / 2)} = 0$?` }, expected: x1, hint: { bm: `Faktorkan kepada (x − ${x1})(x ${U.signedNum(-x2)}) = 0.`, en: `Factorize into (x − ${x1})(x ${U.signedNum(-x2)}) = 0.` } }
+              { prompt: { bm: `Punca pertama (positif) bagi $x^2 ${U.signedNum(k)}x ${U.signedNum((k * k - R) / 2)} = 0$ ialah:`, en: `What is the positive root of $x^2 ${U.signedNum(k)}x ${U.signedNum((k * k - R) / 2)} = 0$?` }, expected: x1, hint: { bm: `Faktorkan kepada (x − ${x1})(x ${U.signedNum(-x2)}) = 0.`, en: `Factorize into (x − ${x1})(x ${U.signedNum(-x2)}) = 0.` } },
+              { prompt: { bm: `Apakah pula punca kedua bagi $(x - ${x1})(x ${U.signedNum(-x2)}) = 0$?`, en: `What is the second root of $(x - ${x1})(x ${U.signedNum(-x2)}) = 0$?` }, expected: x2, hint: { bm: `Samakan faktor kedua dengan sifar: x = ${x2}.`, en: `Set the second factor to zero: x = ${x2}.` } }
             ],
             hints: [
               lang === 'bm' ? `Tulis $y = x ${U.signedNum(k)}$ dan gantikan ke dalam $x^2 + (x ${U.signedNum(k)})^2 = ${R}$.` : `Write $y = x ${U.signedNum(k)}$ and substitute into $x^2 + (x ${U.signedNum(k)})^2 = ${R}$.`,
@@ -1033,14 +1034,14 @@ window.AddMathApp.chapters = [];
       solvers: [
         {
           id: 'surd-rationalizer',
-          title: { bm: 'Penisbah Penyebut Surd Konjugat k / (a + √b)', en: 'Surd Conjugate Rationalizer k / (a + √b)' },
+          title: { bm: 'Kalkulator Menisbahkan Penyebut Surd k / (a + √b)', en: 'Surd Conjugate Rationalizer k / (a + √b)' },
           desc: {
-            bm: 'Nisbahkan penyebut k / (a + √b) kepada bentuk tepat p + q√b.',
+            bm: 'Hapuskan surd pada penyebut k / (a + √b) dengan mendarab pasangan konjugat kepada bentuk p + q√b.',
             en: 'Rationalize k / (a + √b) into exact simplified form p + q√b.'
           },
           inputs: [
             { id: 'k', label: { bm: 'Pengangka k', en: 'Numerator k' }, default: 14 },
-            { id: 'a', label: { bm: 'Sebutan bulat a', en: 'Integer term a' }, default: 3 },
+            { id: 'a', label: { bm: 'Nombor bulat a', en: 'Integer term a' }, default: 3 },
             { id: 'b', label: { bm: 'Nilai dalam surd b (√b)', en: 'Radicand b in √b' }, default: 2 }
           ],
           solve: function (v, lang) {
@@ -1049,18 +1050,22 @@ window.AddMathApp.chapters = [];
             const b = Math.max(2, Math.abs(Number(v.b) || 2));
             const denom = a * a - b;
             if (denom === 0) {
-              return { problemTex: '\\text{Penyebut sifar}', steps: [], finalTex: '\\text{Tak Tertakrif}' };
+              return { problemTex: lang === 'bm' ? '\\text{Penyebut sifar}' : '\\text{Zero denominator}', steps: [], finalTex: lang === 'bm' ? '\\text{Tak Tertakrif}' : '\\text{Undefined}' };
             }
             const pTex = U.fracTex(k * a, denom);
-            const qTex = U.fracTex(-k, denom);
+            const qNum = -k;
+            const qNeg = (qNum < 0) ^ (denom < 0);
+            const qAbsTex = U.fracTex(Math.abs(qNum), Math.abs(denom));
+            const surdCoeff = qAbsTex === '1' ? '' : qAbsTex;
+            const cleanFinal = `${pTex} ${qNeg ? '-' : '+'} ${surdCoeff}\\sqrt{${b}}`;
             return {
               problemTex: `\\frac{${k}}{${a} + \\sqrt{${b}}}`,
               steps: [
-                { badge: 'P1', title: lang === 'bm' ? 'Langkah 1: Tentukan konjugat penyebut' : 'Step 1: Identify conjugate surd', tex: `\\text{Konjugat} = ${a} - \\sqrt{${b}}`, why: lang === 'bm' ? 'Tukar tanda di tengah.' : 'Flip the middle sign.' },
+                { badge: 'P1', title: lang === 'bm' ? 'Langkah 1: Tentukan pasangan konjugat penyebut' : 'Step 1: Identify conjugate surd', tex: `${a} - \\sqrt{${b}}`, why: lang === 'bm' ? 'Tukar tanda di tengah sahaja.' : 'Flip the middle sign.' },
                 { badge: 'K1', title: lang === 'bm' ? 'Langkah 2: Darab atas dan bawah' : 'Step 2: Multiply numerator & denominator', tex: `\\frac{${k}(${a} - \\sqrt{${b}})}{${a}^2 - (\\sqrt{${b}})^2} = \\frac{${k * a} - ${k}\\sqrt{${b}}}{${denom}}`, why: lang === 'bm' ? '(a+√b)(a−√b) = a² − b menghapuskan punca.' : '(a+√b)(a−√b) = a² − b clears the radical.' },
-                { badge: 'J1', title: lang === 'bm' ? 'Langkah 3: Bentuk termudah' : 'Step 3: Simplest form', tex: `${pTex} + \\left(${qTex}\\right)\\sqrt{${b}}`, why: lang === 'bm' ? 'Permudahkan pecahan.' : 'Reduce fractions.' }
+                { badge: 'J1', title: lang === 'bm' ? 'Langkah 3: Bentuk paling ringkas' : 'Step 3: Simplest form', tex: cleanFinal, why: lang === 'bm' ? 'Permudahkan pecahan.' : 'Reduce fractions.' }
               ],
-              finalTex: `${pTex} + \\left(${qTex}\\right)\\sqrt{${b}}`
+              finalTex: cleanFinal
             };
           }
         },
@@ -1097,8 +1102,7 @@ window.AddMathApp.chapters = [];
       ],
       generateQuestion: function (tier, lang) {
         if (tier === 1) {
-          const base = U.pick([2, 3, 4, 5]);
-          const p = U.pick([2, 3]);
+          const [base, p] = U.pick([[2, 3], [3, 2], [3, 3], [4, 2], [5, 2]]);
           const target = Math.pow(base, p);
           const xAns = U.randInt(2, 10);
           const b = target - 2 * xAns;
@@ -1292,8 +1296,8 @@ window.AddMathApp.chapters = [];
               return {
                 problemTex: `\\text{JA / AP: } a = ${a},\\; d = ${dr},\\; n = ${n}`,
                 steps: [
-                  { badge: 'K1', title: lang === 'bm' ? `Sebutan ke-${n} (T_${n})` : `${n}-th Term (T_${n})`, tex: `T_{${n}} = ${a} + (${n - 1})(${dr}) = ${U.roundStr(tn)}`, why: lang === 'bm' ? 'Rumus Tₙ = a + (n−1)d.' : 'Formula Tₙ = a + (n−1)d.' },
-                  { badge: 'J1', title: lang === 'bm' ? `Hasil Tambah S_${n}` : `Sum S_${n}`, tex: `S_{${n}} = \\frac{${n}}{2}[2(${a}) + (${n - 1})(${dr})] = ${U.roundStr(sn)}`, why: lang === 'bm' ? 'Rumus Sₙ JA.' : 'AP sum formula.' }
+                  { badge: 'K1', title: lang === 'bm' ? `Sebutan ke-${n} ($T_{${n}}$)` : `${n}-th Term ($T_{${n}}$)`, tex: `T_{${n}} = ${a} + (${n - 1})(${dr}) = ${U.roundStr(tn)}`, why: lang === 'bm' ? 'Rumus Tₙ = a + (n−1)d.' : 'Formula Tₙ = a + (n−1)d.' },
+                  { badge: 'J1', title: lang === 'bm' ? `Hasil Tambah ($S_{${n}}$)` : `Sum ($S_{${n}}$)`, tex: `S_{${n}} = \\frac{${n}}{2}[2(${a}) + (${n - 1})(${dr})] = ${U.roundStr(sn)}`, why: lang === 'bm' ? 'Rumus Sₙ JA.' : 'AP sum formula.' }
                 ],
                 finalTex: `T_{${n}} = ${U.roundStr(tn)}, \\quad S_{${n}} = ${U.roundStr(sn)}`
               };
@@ -1305,9 +1309,9 @@ window.AddMathApp.chapters = [];
               return {
                 problemTex: `\\text{JG / GP: } a = ${a},\\; r = ${dr},\\; n = ${n}`,
                 steps: [
-                  { badge: 'K1', title: lang === 'bm' ? `Sebutan ke-${n} (T_${n})` : `${n}-th Term (T_${n})`, tex: `T_{${n}} = (${a})(${dr})^{${n - 1}} = ${U.roundStr(tn)}`, why: lang === 'bm' ? 'Rumus Tₙ = arⁿ⁻¹.' : 'Formula Tₙ = arⁿ⁻¹.' },
-                  { badge: 'K1', title: lang === 'bm' ? `Hasil Tambah S_${n}` : `Sum S_${n}`, tex: dr === 1 ? `S_{${n}} = ${U.roundStr(sn)}` : `S_{${n}} = \\frac{${a}(1 - (${dr})^{${n}})}{1 - (${dr})} = ${U.roundStr(sn)}`, why: lang === 'bm' ? 'Rumus Sₙ JG.' : 'GP sum formula.' },
-                  { badge: 'J1', title: lang === 'bm' ? 'Semakan S∞' : 'Sum to Infinity S∞', tex: hasInf ? `S_\\infty = \\frac{${a}}{1 - (${dr})} = ${U.roundStr(sInf)}` : `|r| \\ge 1 \\implies S_\\infty \\text{ tiada}`, why: lang === 'bm' ? 'Wujud hanya jika |r| < 1.' : 'Converges iff |r| < 1.' }
+                  { badge: 'K1', title: lang === 'bm' ? `Sebutan ke-${n} ($T_{${n}}$)` : `${n}-th Term ($T_{${n}}$)`, tex: `T_{${n}} = (${a})(${dr})^{${n - 1}} = ${U.roundStr(tn)}`, why: lang === 'bm' ? 'Rumus Tₙ = arⁿ⁻¹.' : 'Formula Tₙ = arⁿ⁻¹.' },
+                  { badge: 'K1', title: lang === 'bm' ? `Hasil Tambah ($S_{${n}}$)` : `Sum ($S_{${n}}$)`, tex: dr === 1 ? `S_{${n}} = ${U.roundStr(sn)}` : `S_{${n}} = \\frac{${a}(1 - (${dr})^{${n}})}{1 - (${dr})} = ${U.roundStr(sn)}`, why: lang === 'bm' ? 'Rumus Sₙ JG.' : 'GP sum formula.' },
+                  { badge: 'J1', title: lang === 'bm' ? 'Semakan S∞' : 'Sum to Infinity S∞', tex: hasInf ? `S_\\infty = \\frac{${a}}{1 - (${dr})} = ${U.roundStr(sInf)}` : (lang === 'bm' ? `|r| \\ge 1 \\implies S_\\infty \\text{ tiada}` : `|r| \\ge 1 \\implies \\text{No } S_\\infty`), why: lang === 'bm' ? 'Wujud hanya jika |r| < 1.' : 'Converges iff |r| < 1.' }
                 ],
                 finalTex: hasInf ? `T_{${n}} = ${U.roundStr(tn)}, \\; S_{${n}} = ${U.roundStr(sn)}, \\; S_\\infty = ${U.roundStr(sInf)}` : `T_{${n}} = ${U.roundStr(tn)}, \\; S_{${n}} = ${U.roundStr(sn)}`
               };
@@ -1319,9 +1323,9 @@ window.AddMathApp.chapters = [];
         if (tier === 1) {
           const r = U.pick([0.5, 0.25, 0.2, -0.5]);
           const a = U.pick([12, 18, 24, 36]);
-          const sInf = a / (1 - r);
-          const t2 = a * r;
-          const t3 = a * r * r;
+          const sInf = U.round(a / (1 - r), 4);
+          const t2 = U.round(a * r, 4);
+          const t3 = U.round(a * r * r, 4);
           return {
             tier: 1,
             tpLabel: 'TP1–TP2',

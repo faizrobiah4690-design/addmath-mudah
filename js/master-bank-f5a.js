@@ -81,9 +81,9 @@ window.AddMathApp.masterBank = window.AddMathApp.masterBank || {};
       },
       {
         code: '1.5', marks: 5,
-        topic: { bm: 'Panjang Tali Sawat Dua Takal Berlainan Jejari', en: 'Belt Length Around Two Pulleys' },
+        topic: { bm: 'Panjang Tali (*Belt*) Mengelilingi Dua Roda Takal (*Pulley*)', en: 'Belt Length Around Two Pulleys' },
         q: {
-          bm: 'Dua takal berjejari $R = 12\\text{ cm}$ dan $r = 4\\text{ cm}$ berjarak pusat $16\\text{ cm}$. Sudut sentuhan tali sawat pada takal besar ialah $4.189\\text{ rad}$ dan pada takal kecil ialah $2.094\\text{ rad}$. Hitung jumlah panjang tali sawat yang tegang mengelilingi kedua-dua takal. [5m]',
+          bm: 'Dua roda takal (*pulley*) berjejari $R = 12\\text{ cm}$ dan $r = 4\\text{ cm}$ mempunyai jarak antara pusat $16\\text{ cm}$. Sudut sentuhan tali (*belt*) pada takal besar ialah $4.189\\text{ rad}$ dan pada takal kecil ialah $2.094\\text{ rad}$. Hitung jumlah panjang tali yang tegang mengelilingi kedua-dua takal itu. [5m]',
           en: 'Two pulleys of radii $R = 12\\text{ cm}$ and $r = 4\\text{ cm}$ have centres $16\\text{ cm}$ apart. Belt contact angles are $4.189\\text{ rad}$ and $2.094\\text{ rad}$. Find the total taut belt length. [5m]'
         },
         mistakes: {
@@ -93,7 +93,7 @@ window.AddMathApp.masterBank = window.AddMathApp.masterBank || {};
         scheme: [
           { badge: 'K1', bm: 'Jumlah lengkok $= 12(4.189) + 4(2.094) = 50.268 + 8.376 = 58.644\\text{ cm}$.', en: 'Arcs $= 50.268 + 8.376 = 58.644\\text{ cm}$.' },
           { badge: 'K1', bm: 'Satu tangen lurus $= \\sqrt{16^2 - (12 - 4)^2} = \\sqrt{192} = 13.856\\text{ cm}$.', en: 'One straight tangent $= \\sqrt{16^2 - 8^2} = 13.856\\text{ cm}$.' },
-          { badge: 'N1', bm: 'Jumlah panjang tali sawat $= 58.644 + 2(13.856) = 86.36\\text{ cm}$.', en: 'Total belt length $= 86.36\\text{ cm}$.' }
+          { badge: 'N1', bm: 'Jumlah panjang tali $= 58.644 + 2(13.856) = 86.36\\text{ cm}$.', en: 'Total belt length $= 86.36\\text{ cm}$.' }
         ]
       },
       {
@@ -126,12 +126,12 @@ window.AddMathApp.masterBank = window.AddMathApp.masterBank || {};
         scheme: [
           { badge: 'K1', bm: '$\\cos\\left(\\frac{\\theta}{2}\\right) = \\frac{5}{10} = 0.5 \\implies \\frac{\\theta}{2} = \\frac{\\pi}{3} \\implies \\theta = \\frac{2\\pi}{3}\\text{ rad}$.', en: '$\\cos(\\theta/2) = 0.5 \\implies \\theta = \\frac{2\\pi}{3}\\text{ rad}$.' },
           { badge: 'K1', bm: '$\\text{Luas} = \\frac{1}{2}(10)^2\\left(\\frac{2\\pi}{3} - \\sin\\frac{2\\pi}{3}\\right)$.', en: '$\\text{Area} = 50\\left(\\frac{2\\pi}{3} - \\sin\\frac{2\\pi}{3}\\right)$.' },
-          { badge: 'N1', bm: '$61.42\\text{ cm}^2$.', en: '$61.42\\text{ cm}^2$.' }
+          { badge: 'N1', bm: '$61.42\\text{ cm}^2$ (atau $61.43\\text{ cm}^2$ bagi $\\pi = 3.142$).', en: '$61.42\\text{ cm}^2$ (or $61.43\\text{ cm}^2$ using $\\pi = 3.142$).' }
         ]
       },
       {
         code: '1.8', marks: 3,
-        topic: { bm: 'Penaakulan Perentas Membahagi Dua Sama Luas Bulatan', en: 'Chord Bisecting Circle Area Reasoning' },
+        topic: { bm: 'Kenapa Hanya Diameter Membahagi Dua Sama Luas Bulatan?', en: 'Chord Bisecting Circle Area Reasoning' },
         q: {
           bm: 'Terangkan secara matematik mengapa hanya perentas yang merupakan diameter boleh membahagi dua sama luas sebuah bulatan, dan nyatakan sudut pusat semibulatan itu dalam radian. [3m]',
           en: 'Explain mathematically why only a diameter chord bisects the area of a circle, and state the semicircle central angle in radians. [3m]'
@@ -191,7 +191,7 @@ window.AddMathApp.masterBank = window.AddMathApp.masterBank || {};
           en: 'Find $\\frac{dy}{dx}$ for $y = 3x^2 - 5x$ from first principles. [4m]'
         },
         mistakes: {
-          bm: ['Terus menggunakan petua kuasa tanpa menunjukkan tokokan $\\delta y$ dan had $\\lim_{\\delta x \\to 0}$ (markah sifar untuk prinsip pertama!), atau membuang simbol $\\lim$ terlalu awal.'],
+          bm: ['Terus menggunakan petua kuasa tanpa menunjukkan perubahan kecil $\\delta y$ dan langkah had $\\lim_{\\delta x \\to 0}$ (markah sifar untuk prinsip pertama!), atau membuang simbol $\\lim$ terlalu awal.'],
           en: ['Using power rule directly without $\\delta y / \\delta x$ and $\\lim_{\\delta x \\to 0}$ (earns zero for first principles!).']
         },
         scheme: [
@@ -204,11 +204,11 @@ window.AddMathApp.masterBank = window.AddMathApp.masterBank || {};
         code: '2.2', marks: 3,
         topic: { bm: 'Gabungan Petua Hasil Darab & Petua Rantai', en: 'Combined Product Rule & Chain Rule' },
         q: {
-          bm: 'Bezakan $y = (2x - 3)(x^2 + 4)^3$ terhadap $x$ dan permudahkan jawapan dalam bentuk terfaktor. [3m]',
+          bm: 'Bezakan $y = (2x - 3)(x^2 + 4)^3$ terhadap $x$ dan permudahkan jawapan dalam bentuk faktor termudah. [3m]',
           en: 'Differentiate $y = (2x - 3)(x^2 + 4)^3$ with respect to $x$ in factored form. [3m]'
         },
         mistakes: {
-          bm: ['Lupa mendarab terbitan dalaman $2x$ semasa membezakan $(x^2 + 4)^3$.'],
+          bm: ['Lupa mendarab hasil beza sebutan dalam kurungan ($2x$) semasa membezakan $(x^2 + 4)^3$.'],
           en: ['Forgetting inner derivative $2x$ when differentiating $(x^2 + 4)^3$.']
         },
         scheme: [
@@ -256,7 +256,7 @@ window.AddMathApp.masterBank = window.AddMathApp.masterBank || {};
           en: 'Find the coordinates of the stationary points of $y = 2x^3 - 9x^2 + 12x + 1$ and determine their nature. [5m]'
         },
         mistakes: {
-          bm: ['Terbalik tafsiran terbitan kedua: menyangka $\\frac{d^2y}{dx^2} > 0$ ialah maksimum sedangkan $> 0$ bermaksud cekung ke atas (**minimum**)!'],
+          bm: ['Terbalik tafsiran terbitan kedua: menyangka $\\frac{d^2y}{dx^2} > 0$ ialah maksimum sedangkan $> 0$ bermaksud lengkung senyum $\\cup$ (**titik minimum**)!'],
           en: ['Reversing the second-derivative test: thinking $\\frac{d^2y}{dx^2} > 0$ is maximum when it is **minimum**!']
         },
         scheme: [
@@ -472,7 +472,7 @@ window.AddMathApp.masterBank = window.AddMathApp.masterBank || {};
       },
       {
         code: '3.8', marks: 3,
-        topic: { bm: 'Sifat Kelinearan & Tambahan Had Kamiran Tentu', en: 'Additivity & Linearity Properties of Definite Integrals' },
+        topic: { bm: 'Sifat Operasi & Gabungan Had Kamiran Tentu', en: 'Additivity & Linearity Properties of Definite Integrals' },
         q: {
           bm: 'Diberi $\\int_1^5 f(x)\\,dx = 8$ dan $\\int_1^3 f(x)\\,dx = 3$, cari nilai bagi $\\int_3^5 [2f(x) - 1]\\,dx$. [3m]',
           en: 'Given $\\int_1^5 f(x)\\,dx = 8$ and $\\int_1^3 f(x)\\,dx = 3$, evaluate $\\int_3^5 [2f(x) - 1]\\,dx$. [3m]'
@@ -542,17 +542,17 @@ window.AddMathApp.masterBank = window.AddMathApp.masterBank || {};
       },
       {
         code: '4.2', marks: 3,
-        topic: { bm: 'Pilih Atur Huruf dengan Objek Secaman', en: 'Permutations of Letters with Identical Objects' },
+        topic: { bm: 'Pilih Atur Perkataan dengan Huruf Sama Berulang', en: 'Permutations of Letters with Identical Objects' },
         q: {
           bm: 'Cari bilangan susunan berbeza menggunakan semua huruf daripada perkataan $\\text{"KEJAYAAN"}$. [3m]',
           en: 'Find the number of distinct arrangements of all letters in the word $\\text{"KEJAYAAN"}$. [3m]'
         },
         mistakes: {
-          bm: ['Menulis $8! = 40320$ tanpa membahagikan dengan $3!$ bagi $3$ huruf $\\text{A}$ yang secaman.'],
+          bm: ['Menulis $8! = 40320$ tanpa membahagikan dengan $3!$ bagi $3$ huruf $\\text{A}$ yang sama (berulang).'],
           en: ['Writing $8!$ without dividing by $3!$ for the $3$ identical letter $\\text{A}$\'s.']
         },
         scheme: [
-          { badge: 'K1', bm: '$8$ huruf dengan $3$ huruf $\\text{A}$ secaman: $\\frac{8!}{3!}$.', en: '$\\frac{8!}{3!}$.' },
+          { badge: 'K1', bm: '$8$ huruf dengan $3$ huruf $\\text{A}$ yang sama (berulang): $\\frac{8!}{3!}$.', en: '$\\frac{8!}{3!}$.' },
           { badge: 'N1', bm: '$6720$ susunan.', en: '$6720$ arrangements.' }
         ]
       },
@@ -580,7 +580,7 @@ window.AddMathApp.masterBank = window.AddMathApp.masterBank || {};
           en: 'A committee of $5$ is chosen from $6$ teachers and $5$ prefects. Find the number of ways if it must contain exactly $3$ teachers. [4m]'
         },
         mistakes: {
-          bm: ['Menggunakan pilih atur $^nP_r$ sedangkan pemilihan ahli jawatankuasa tanpa jawatan tidak mementingkan tertib ($^nC_r$), atau menambah $^6C_3 + \\,^5C_2$ bukannya mendarab.'],
+          bm: ['Menggunakan pilih atur $^nP_r$ sedangkan pemilihan ahli jawatankuasa tanpa jawatan tidak mementingkan susunan/pangkat ($^nC_r$), atau menambah $^6C_3 + \\,^5C_2$ bukannya mendarab.'],
           en: ['Using $^nP_r$ instead of $^nC_r$, or adding $^6C_3 + \\,^5C_2$ instead of multiplying.']
         },
         scheme: [
@@ -632,7 +632,7 @@ window.AddMathApp.masterBank = window.AddMathApp.masterBank || {};
           en: ['Writing $(5 - 1)! = 24$ without multiplying by $2!$ for the adjacent pair.']
         },
         scheme: [
-          { badge: 'K1', bm: 'Ikat $2$ sahabat menjadi $1$ blok $\\implies 5$ entiti membulat: $(5 - 1)! \\times 2! = 4! \\times 2!$.', en: '$(5 - 1)! \\times 2! = 24 \\times 2$.' },
+          { badge: 'K1', bm: 'Ikat $2$ sahabat menjadi $1$ kumpulan $\\implies 5$ kumpulan disusun membulat: $(5 - 1)! \\times 2! = 4! \\times 2!$.', en: '$(5 - 1)! \\times 2! = 24 \\times 2$.' },
           { badge: 'N1', bm: '$48$ susunan.', en: '$48$ arrangements.' }
         ]
       },

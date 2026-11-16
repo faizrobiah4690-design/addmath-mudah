@@ -19,7 +19,7 @@ window.AddMathApp.teacherClinic = window.AddMathApp.teacherClinic || {};
         en: 'Chapter 1 Visual Poster: Mastering Functions (Mappings, Domain, Composite & Inverse)'
       },
       vocabBridge: {
-        bm: 'Kamus Istilah Poster: Object = Objek • Image = Imej • One-to-One = Satu-ke-Satu • Many-to-One = Banyak-ke-Satu • Range = Julat • Vertical Line Test = Ujian Garis Mencancang',
+        bm: 'Kamus Istilah Poster: Object = Objek • Image = Imej • One-to-One = Satu-ke-Satu • Many-to-One = Banyak-ke-Satu • Range = Julat • Vertical Line Test = Ujian Garis Mencancang (Garis Menegak)',
         en: 'Key KSSM Terms: Object (input x) • Image (output y) • Domain (input set) • Codomain (target set) • Range (actual images only)'
       },
       painSummary: {
@@ -91,7 +91,7 @@ window.AddMathApp.teacherClinic = window.AddMathApp.teacherClinic || {};
     'f4-c2': {
       poster: 'assets/posters/f4-c2.jpg',
       posterTitle: {
-        bm: 'Poster Visual Bab 2: Rahsia Fungsi Kuadratik (Bentuk Graf, Pembezalayan & Ketaksamaan)',
+        bm: 'Poster Visual Bab 2: Rahsia Fungsi Kuadratik (Bentuk Graf, Pembezalayan b² − 4ac & Ketaksamaan)',
         en: 'Chapter 2 Visual Poster: Quadratic Functions Decoded (Curve Shape, Discriminant & Inequalities)'
       },
       vocabBridge: {
@@ -115,7 +115,7 @@ window.AddMathApp.teacherClinic = window.AddMathApp.teacherClinic || {};
         {
           icon: '🔍',
           tag: { bm: 'Radar Pengesan Punca', en: 'Root Detector Radar' },
-          title: { bm: 'Pembezalayan $D = b^2 - 4ac$ Tanpa Perlu Selesaikan $x$', en: 'Discriminant $D = b^2 - 4ac$ Detects Intersection' },
+          title: { bm: 'Pembezalayan (*Discriminant*) $D = b^2 - 4ac$ Tanpa Perlu Kira $x$', en: 'Discriminant $D = b^2 - 4ac$ Detects Intersection' },
           desc: {
             bm: '**$D > 0$**: Memotong paksi-$x$ pada **2 titik berbeza**. **$D = 0$**: Menyentuh paksi-$x$ pada **1 titik (tangen / punca sama)**. **$D < 0$**: Terapung sepenuhnya (**tiada punca nyata**). Hati-hati: *"mempunyai punca nyata"* bermaksud **$D \\ge 0$**!',
             en: '**$D > 0$**: Cuts $x$-axis at **2 distinct points**. **$D = 0$**: Touches at **1 point (tangent / equal roots)**. **$D < 0$**: Floats with **no real roots**. Watch out: *"has real roots"* means **$D \\ge 0$**!'
@@ -238,7 +238,7 @@ window.AddMathApp.teacherClinic = window.AddMathApp.teacherClinic || {};
         en: 'Core Trio Connection: $a^x = y \\iff \\sqrt[x]{y} = a \\iff \\log_a y = x$ ($a > 0, a \\neq 1$)'
       },
       painSummary: {
-        bm: 'Pelajar sering mencipta "hukum palsu" seperti $\\log_a(x + y) = \\log_a x + \\log_a y$, menggabungkan logaritma berlainan asas secara terus, dan terlupa semak punca palsu apabila kuasa duakan persamaan surd!',
+        bm: 'Pelajar sering mencipta "hukum palsu" seperti $\\log_a(x + y) = \\log_a x + \\log_a y$, menggabungkan logaritma berlainan asas secara terus, dan terlupa uji semula jawapan untuk buang jawapan tak sah (*extraneous root*) apabila kuasa duakan persamaan surd!',
         en: 'Students invent fake laws like $\\log_a(x + y) = \\log_a x + \\log_a y$, combine logs of different bases directly, and forget to reject extraneous roots in surd equations!'
       },
       mentalModels: [
@@ -277,7 +277,7 @@ window.AddMathApp.teacherClinic = window.AddMathApp.teacherClinic || {};
         },
         {
           cue: { bm: 'Persamaan surd seperti $\\sqrt{2x + 3} = x$', en: 'Surd equation like $\\sqrt{2x + 3} = x$' },
-          action: { bm: 'Asingkan surd seorang diri di satu sebelah, kuasa duakan kedua-dua belah, dan **WAJIB uji semula jawapan $x$ ke dalam persamaan asal** (tolak punca palsu!).', en: 'Isolate the surd on one side, square both sides, and **ALWAYS test every root back in the original equation** to reject extraneous roots!' }
+          action: { bm: 'Asingkan surd seorang diri di satu sebelah, kuasa duakan kedua-dua belah, dan **WAJIB uji semula jawapan $x$ ke dalam persamaan asal** (tolak jawapan tak sah / *extraneous root*!).', en: 'Isolate the surd on one side, square both sides, and **ALWAYS test every root back in the original equation** to reject extraneous roots!' }
         },
         {
           cue: { bm: 'Persamaan eksponen asas berbeza yang tak boleh disamakan asasnya: $5^x = 7^{x-1}$', en: 'Exponential equation with incompatible bases like $5^x = 7^{x-1}$' },
@@ -328,7 +328,7 @@ window.AddMathApp.teacherClinic = window.AddMathApp.teacherClinic || {};
           tag: { bm: 'Perpuluhan Berulang = JG!', en: 'Recurring Decimal = GP!' },
           title: { bm: 'Hasil Tambah Ketakterhinggaan $S_\\infty = \\frac{a}{1 - r}$', en: 'Sum to Infinity Converges Only When $|r| < 1$' },
           desc: {
-            bm: 'Jika nisbah $|r| < 1$ (contohnya $r = \\frac{1}{2}$ atau $-0.3$), saiz sebutan mengecil menuju sifar lalu jumlahnya menumpu kepada $S_\\infty = \\frac{a}{1 - r}$. Gunakan ini untuk tukar perpuluhan berulang seperti $0.272727\\dots = 0.27 + 0.0027 + \\dots$ kepada pecahan tepat!',
+            bm: 'Jika nisbah $|r| < 1$ (contohnya $r = \\frac{1}{2}$ atau $-0.3$), saiz sebutan mengecil menuju sifar lalu jumlah keseluruhannya menghampiri nilai tetap $S_\\infty = \\frac{a}{1 - r}$. Gunakan ini untuk tukar perpuluhan berulang seperti $0.272727\\dots = 0.27 + 0.0027 + \\dots$ kepada pecahan tepat!',
             en: 'When $|r| < 1$, terms shrink toward zero so the infinite sum converges to $S_\\infty = \\frac{a}{1 - r}$. Break recurring decimals like $0.2727\\dots = 0.27 + 0.0027 + \\dots$ into a GP!'
           }
         }
@@ -356,11 +356,11 @@ window.AddMathApp.teacherClinic = window.AddMathApp.teacherClinic || {};
     'f4-c6': {
       poster: 'assets/posters/f4-c6.jpg',
       posterTitle: {
-        bm: 'Poster Visual Bab 6: Hukum Linear — Meluruskan Lengkung Kepada $Y = mX + c$',
-        en: 'Chapter 6 Visual Poster: Linear Law — Turning Curves into Straight Lines $Y = mX + c$'
+        bm: 'Poster Visual Bab 6: Hukum Linear — Meluruskan Lengkung Kepada Y = mX + c',
+        en: 'Chapter 6 Visual Poster: Linear Law — Turning Curves into Straight Lines Y = mX + c'
       },
       vocabBridge: {
-        bm: 'Kamus Istilah Poster: Linearization = Pelinearan • Line of Best Fit = Garis Penyuaian Terbaik • Gradient = Kecerunan ($m$) • Y-intercept = Pintasan-$Y$ ($c$)',
+        bm: 'Kamus Istilah Poster: Linearization = Tukar ke Bentuk Linear • Line of Best Fit = Garis Penyuaian Terbaik (Garis Paling Seimbang) • Gradient = Kecerunan ($m$) • Y-intercept = Pintasan-$Y$ ($c$)',
         en: 'Golden Rule: Capital $Y$ and $X$ may contain variables $x, y$ ONLY — constants ($a, b, p, q$) belong exclusively inside $m$ and $c$!'
       },
       painSummary: {
@@ -379,7 +379,7 @@ window.AddMathApp.teacherClinic = window.AddMathApp.teacherClinic || {};
         },
         {
           icon: '🛠️',
-          tag: { bm: '2 Senjata Pelinearan', en: '2 Transformation Weapons' },
+          tag: { bm: '2 Cara Tukar Jadi Garis Lurus', en: '2 Transformation Weapons' },
           title: { bm: 'Bila Guna Bahagi Algebra vs Bila Guna $\\log_{10}$?', en: 'Algebraic Division vs Logarithmic Transformation' },
           desc: {
             bm: '1️⃣ **Ada tanda $+$ atau $-$ polinomial** (seperti $y = ax^2 + bx$): darab atau bahagi seluruh persamaan dengan $x$ atau $x^2$ ($\\frac{y}{x} = ax + b$).<br>2️⃣ **Satu sebutan hasil darab berkuasa** (seperti $y = ab^x$ atau $y = px^n$): ambil **$\\log_{10}$ di kedua-dua belah** ($\\log_{10} y = (\\log_{10} b)x + \\log_{10} a$)!',
@@ -389,16 +389,16 @@ window.AddMathApp.teacherClinic = window.AddMathApp.teacherClinic || {};
         {
           icon: '📏',
           tag: { bm: 'Peraturan Kertas Graf Kertas 2', en: 'Paper 2 Graph Paper Rules' },
-          title: { bm: 'Garis Penyuaian Terbaik = Seimbang Atas & Bawah!', en: 'Line of Best Fit = Balanced Points!' },
+          title: { bm: 'Garis Penyuaian Terbaik (*Line of Best Fit*) = Seimbang Atas & Bawah!', en: 'Line of Best Fit = Balanced Points!' },
           desc: {
-            bm: 'Dalam Kertas 2 (10 markah!), bina jadual nilai $X$ dan $Y$ kepada **2 tempat perpuluhan**, plot pangkah halus $\\times$, dan lukis **1 garis lurus panjang licin** melalui seberapa banyak titik dengan baki titik terabur seimbang di kiri/kanan garis.',
+            bm: 'Dalam Kertas 2 (10 markah!), bina jadual nilai $X$ dan $Y$ kepada **2 tempat perpuluhan**, plot pangkah halus $\\times$, dan lukis **1 garis lurus panjang** melalui seberapa banyak titik dengan baki titik seimbang di kiri/kanan garis.',
             en: 'In Paper 2 (10 marks!), tabulate $X$ and $Y$ to **2 d.p.**, plot neat $\\times$ crosses, and draw **one single straight ruler line** balancing any slightly scattered points evenly on both sides.'
           }
         }
       ],
       triggers: [
         {
-          cue: { bm: 'Graf linear diberi dengan paksi menegak $\\frac{y}{x^2}$ dan paksi mengufuk $\\frac{1}{x}$', en: 'Linear graph given with vertical axis $\\frac{y}{x^2}$ and horizontal axis $\\frac{1}{x}$' },
+          cue: { bm: 'Graf linear diberi dengan paksi menegak $\\frac{y}{x^2}$ dan paksi mengufuk (mendatar) $\\frac{1}{x}$', en: 'Linear graph given with vertical axis $\\frac{y}{x^2}$ and horizontal axis $\\frac{1}{x}$' },
           action: { bm: 'Jangan mula daripada persamaan lengkung dahulu jika mengelirukan — tulis terus **$\\frac{y}{x^2} = m\\left(\\frac{1}{x}\\right) + c$**, cari $m$ dan $c$ daripada graf, baru darab $x^2$ untuk padankan persamaan asal!', en: 'Write the straight-line template **$\\frac{y}{x^2} = m\\left(\\frac{1}{x}\\right) + c$** directly from the given axes, find $m$ and $c$ first, then multiply by $x^2$ to compare!' }
         },
         {
@@ -406,7 +406,7 @@ window.AddMathApp.teacherClinic = window.AddMathApp.teacherClinic || {};
           action: { bm: 'Tekan antilog pada kalkulator (**SHIFT + log**): $p = 10^{1.301} = 20.00$!', en: 'Apply antilog (**SHIFT + log**): $p = 10^{1.301} = 20.00$!' }
         },
         {
-          cue: { bm: 'Paksi mengufuk kertas graf bermula pada $X = 2$ (bukan $X = 0$!)', en: 'Horizontal axis on the graph starts at $X = 2$ instead of $X = 0$' },
+          cue: { bm: 'Paksi mengufuk (mendatar) kertas graf bermula pada $X = 2$ (bukan $X = 0$!)', en: 'Horizontal axis on the graph starts at $X = 2$ instead of $X = 0$' },
           action: { bm: '**JANGAN baca titik potong garis menegak tepi sebagai $c$**! Kira kecerunan $m$ dahulu, kemudian ganti satu titik $(X_1, Y_1)$ pada garis ke dalam $Y_1 = mX_1 + c$ untuk kira $c$ sebenar!', en: '**NEVER read the left border intersection as $c$** when $X \\neq 0$! Find gradient $m$ first, then substitute a point $(X_1, Y_1)$ on the line into $Y_1 = mX_1 + c$!' }
         }
       ],
@@ -545,15 +545,15 @@ window.AddMathApp.teacherClinic = window.AddMathApp.teacherClinic || {};
     'f4-c9': {
       poster: 'assets/posters/f4-c9.jpg',
       posterTitle: {
-        bm: 'Poster Visual Bab 9: Penyelesaian Segi Tiga (Petua Sinus, Kosinus, Kes Berambiguiti & Luas)',
+        bm: 'Poster Visual Bab 9: Penyelesaian Segi Tiga (Petua Sinus, Kosinus, Kes 2 Segi Tiga / Ambiguous Case & Luas)',
         en: 'Chapter 9 Visual Poster: Solution of Triangles (Sine Rule, Cosine Rule, Ambiguous Case & Area)'
       },
       vocabBridge: {
-        bm: 'Kamus Istilah Poster: Opposite Pairs = Pasangan Sisi-Sudut Bertentangan • Included Angle (SAS) = Sudut Kandung (Kepit) • Ambiguous Case = Kes Berambiguiti • Acute / Obtuse = Tirus / Cakah',
+        bm: 'Kamus Istilah Poster: Opposite Pairs = Pasangan Sisi-Sudut Bertentangan • Included Angle (SAS) = Sudut Kandung (Kepit) • Ambiguous Case = Kes Berambiguiti (2 Segi Tiga Mungkin) • Acute / Obtuse = Tirus / Cakah',
         en: 'Calculator Alert: Make sure your calculator top screen shows `[D]` (Degrees), NOT `[R]` (Radians), throughout Chapter 9!'
       },
       painSummary: {
-        bm: 'Pelajar sering tersalah guna Petua Sinus pada segi tiga SAS, terlupa tekan punca kuasa dua $\\sqrt{\\phantom{x}}$ pada hujung Petua Kosinus, dan terlepas segi tiga kedua (sudut cakah $180^\\circ - \\theta$) dalam Kes Berambiguiti!',
+        bm: 'Pelajar sering tersalah guna Petua Sinus pada segi tiga SAS, terlupa tekan punca kuasa dua $\\sqrt{\\phantom{x}}$ pada hujung Petua Kosinus, dan terlepas segi tiga kedua (sudut cakah $180^\\circ - \\theta$) dalam Kes Berambiguiti (*Ambiguous Case* — 2 segi tiga mungkin)!',
         en: 'Students try to force Sine Rule onto SAS triangles, forget $\\sqrt{\\phantom{x}}$ at the end of Cosine Rule, and miss the obtuse angle $180^\\circ - \\theta$ in the SSA Ambiguous Case!'
       },
       mentalModels: [
@@ -568,7 +568,7 @@ window.AddMathApp.teacherClinic = window.AddMathApp.teacherClinic || {};
         },
         {
           icon: '🪃',
-          tag: { bm: 'Hayunan Kes Berambiguiti (SSA)', en: 'Swinging Gate Ambiguous Case' },
+          tag: { bm: 'Hayunan 2 Segi Tiga (Ambiguous Case SSA)', en: 'Swinging Gate Ambiguous Case' },
           title: { bm: 'Kenapa Satu Data Boleh Hasilkan 2 Segi Tiga Berbeza?', en: 'Why SSA Can Swing Into Two Valid Triangles' },
           desc: {
             bm: 'Dalam kes **SSA** (diberi sudut tirus $A$, sisi sebelah $b$, dan sisi bertentangan $a$ yang **lebih pendek daripada $b$** tetapi cukup panjang untuk cecah tapak), sisi $a$ boleh berayun ke luar (sudut tirus $\\theta$) atau **berayun ke dalam** membentuk **sudut cakah $180^\\circ - \\theta$**!',

@@ -64,11 +64,11 @@ window.AddMathApp = window.AddMathApp || {};
       : (lang === 'bm' ? 'Tiada punca nyata ($\\Delta < 0$)' : 'No real roots ($\\Delta < 0$)');
 
     return lang === 'bm'
-      ? `**Analisis Dinamik Kuadratik** bagi $${U.polyTex([{ c: a, p: 2 }, { c: b, p: 1 }, { c: c, p: 0 }])} = 0$:\n` +
-        `1. **[P1] Pembezalayan:** $\\Delta = (${b})^2 - 4(${a})(${c}) = ${U.roundStr(disc)}$\n` +
-        `2. **[K1] HTP & HDP:** $\\alpha + \\beta = ${U.roundStr(-b / a)}$, $\\alpha\\beta = ${U.roundStr(c / a)}$\n` +
+      ? `**Penyelesaian Persamaan Kuadratik** bagi $${U.polyTex([{ c: a, p: 2 }, { c: b, p: 1 }, { c: c, p: 0 }])} = 0$:\n` +
+        `1. **[P1] Pembezalayan (*Discriminant*):** $\\Delta = (${b})^2 - 4(${a})(${c}) = ${U.roundStr(disc)}$\n` +
+        `2. **[K1] Hasil Tambah & Darab Punca (HTP & HDP):** $\\alpha + \\beta = ${U.roundStr(-b / a)}$, $\\alpha\\beta = ${U.roundStr(c / a)}$\n` +
         `3. **[J1] Punca:** ${rootsStr}\n` +
-        `4. **Verteks Titik Pusingan:** $(${U.roundStr(h)},\\; ${U.roundStr(k)})$`
+        `4. **Titik Pusingan (Verteks):** $(${U.roundStr(h)},\\; ${U.roundStr(k)})$`
       : `**Dynamic Quadratic Solution** for $${U.polyTex([{ c: a, p: 2 }, { c: b, p: 1 }, { c: c, p: 0 }])} = 0$:\n` +
         `1. **[P1] Discriminant:** $\\Delta = (${b})^2 - 4(${a})(${c}) = ${U.roundStr(disc)}$\n` +
         `2. **[K1] SOR & POR:** $\\alpha + \\beta = ${U.roundStr(-b / a)}$, $\\alpha\\beta = ${U.roundStr(c / a)}$\n` +
@@ -90,10 +90,10 @@ window.AddMathApp = window.AddMathApp || {};
     const x2 = (-k - b) / a;
     const inner = U.polyTex([{ c: a, p: 1 }, { c: b, p: 0 }]);
     return lang === 'bm'
-      ? `**Penyelesaian Nilai Mutlak** bagi $|${inner}| = ${k}$:\n` +
-        `1. **[P1] Pecahkan dua cabang:** $${inner} = ${k}$ atau $${inner} = ${-k}$\n` +
-        `2. **[K1] Cabang 1:** $${a}x = ${k - b} \\implies x = ${U.roundStr(x1)}$\n` +
-        `3. **[J1] Cabang 2:** $${a}x = ${-k - b} \\implies x = ${U.roundStr(x2)}$`
+      ? `**Penyelesaian Nilai Mutlak (Modulus)** bagi $|${inner}| = ${k}$:\n` +
+        `1. **[P1] Pecahkan kepada dua kes:** $${inner} = ${k}$ atau $${inner} = ${-k}$\n` +
+        `2. **[K1] Kes 1:** $${a}x = ${k - b} \\implies x = ${U.roundStr(x1)}$\n` +
+        `3. **[J1] Kes 2:** $${a}x = ${-k - b} \\implies x = ${U.roundStr(x2)}$`
       : `**Modulus Step-by-Step Solution** for $|${inner}| = ${k}$:\n` +
         `1. **[P1] Split into two branches:** $${inner} = ${k}$ or $${inner} = ${-k}$\n` +
         `2. **[K1] Branch 1:** $${a}x = ${k - b} \\implies x = ${U.roundStr(x1)}$\n` +
@@ -149,10 +149,10 @@ window.AddMathApp = window.AddMathApp || {};
         ? `\\implies S_\\infty = \\frac{${t1}}{1 - (${U.roundStr(r)})} = ${U.roundStr(t1 / (1 - r))}`
         : (lang === 'bm' ? '(Tiada $S_\\infty$ kerana $|r| \\ge 1$)' : '(No $S_\\infty$ since $|r| \\ge 1$)');
       return lang === 'bm'
-        ? `**Pengesanan Automatik: Janjang Geometri (JG)**\n` +
+        ? `**Janjang Geometri (JG)**\n` +
           `1. **[P1]** Sebutan pertama $a = ${t1}$, nisbah sepunya $r = \\frac{${t2}}{${t1}} = ${U.roundStr(r)}$\n` +
           `2. **[K1]** Sebutan ke-6: $T_6 = ${t1}(${U.roundStr(r)})^5 = ${U.roundStr(t6)}$\n` +
-          `3. **[J1]** Ketakterhinggaan: ${sInfLine}`
+          `3. **[J1]** Hasil tambah ketakterhinggaan ($S_\\infty$): ${sInfLine}`
         : `**Auto-Detected: Geometric Progression (GP)**\n` +
           `1. **[P1]** First term $a = ${t1}$, common ratio $r = \\frac{${t2}}{${t1}} = ${U.roundStr(r)}$\n` +
           `2. **[K1]** 6th term: $T_6 = ${t1}(${U.roundStr(r)})^5 = ${U.roundStr(t6)}$\n` +
@@ -199,7 +199,7 @@ window.AddMathApp = window.AddMathApp || {};
       const dTerms = terms.filter((t) => t.p !== 0).map((t) => ({ c: U.round(t.c * t.p, 4), p: t.p - 1 }));
       const dTex = dTerms.length ? U.polyTex(dTerms) : '0';
       return lang === 'bm'
-        ? `**Pembezaan Simbolik Langsung** bagi $y = ${origTex}$:\n` +
+        ? `**Langkah Pembezaan** bagi $y = ${origTex}$:\n` +
           `1. **[P1] Petua Kuasa:** $\\frac{d}{dx}(ax^n) = anx^{n-1}$ (pemalar menjadi $0$)\n` +
           `2. **[J1] Terbitan Pertama:** $$\\frac{dy}{dx} = ${dTex}$$`
         : `**Live Symbolic Differentiation** for $y = ${origTex}$:\n` +
@@ -259,11 +259,11 @@ window.AddMathApp = window.AddMathApp || {};
       }).join('\n');
 
       return {
-        tag: l === 'bm' ? 'Pelan Langkah Kerja Dijana Secara Dinamik' : 'Dynamically Generated Step Plan',
+        tag: l === 'bm' ? 'Pelan Langkah demi Langkah' : 'Step-by-Step Working Plan',
         category: 'K',
         openGuided: true,
         reply: (l === 'bm'
-          ? `Berikut ialah **pelan langkah demi langkah** khusus untuk angka dalam soalan ini:\n\n${stepLines}\n\nSaya juga telah membuka kotak **Bimbingan Interaktif** di atas supaya awak boleh menguji pengiraan setiap langkah!`
+          ? `Berikut ialah **pelan langkah demi langkah** khusus untuk nombor dalam soalan ini:\n\n${stepLines}\n\nKotak **Bimbingan Interaktif** di atas juga telah dibuka supaya awak boleh cuba kira setiap langkah!`
           : `Here is the **step-by-step working plan** tailored to the exact numbers in this question:\n\n${stepLines}\n\nI've also opened the **Interactive Step Box** above so you can verify each step live!`)
       };
     }
@@ -280,13 +280,13 @@ window.AddMathApp = window.AddMathApp || {};
 
     if (intent === 'stuck_start') {
       return {
-        tag: l === 'bm' ? 'Intent Dikesan: Buntu Nak Mula' : 'Intent Detected: How to Start',
+        tag: l === 'bm' ? 'Cara Mulakan Soalan Ini' : 'How to Start This Question',
         category: 'P',
         openGuided: true,
         reply: l === 'bm'
           ? `Jom kita mulakan langkah pertama bersama-sama:\n` +
-            `- **Maklumat / Persediaan:** ${givenDisplay}\n` +
-            `- **Sasaran kita:** ${goalDisplay}\n\n` +
+            `- **Maklumat diberi:** ${givenDisplay}\n` +
+            `- **Apa yang dicari:** ${goalDisplay}\n\n` +
             `**Langkah 1:** ${firstGuided}`
           : `Let's kick off Step 1 together:\n` +
             `- **Key setup:** ${givenDisplay}\n` +
@@ -297,11 +297,11 @@ window.AddMathApp = window.AddMathApp || {};
 
     if (intent === 'formula_confusion') {
       return {
-        tag: l === 'bm' ? 'Intent Dikesan: Pemilihan Rumus [P]' : 'Intent Detected: Formula Selection [P]',
+        tag: l === 'bm' ? 'Formula Yang Perlu Diguna [P]' : 'Formula Selection [P]',
         category: 'P',
         reply: l === 'bm'
-          ? `Untuk subtopik **${U.t(question.subtopic, 'bm')}**, hubungan/rumus utama yang perlu digunakan ialah:\n` +
-            `- **Prinsip / Rumus Kunci:** ${ruleDisplay}\n` +
+          ? `Untuk subtopik **${U.t(question.subtopic, 'bm')}**, rumus utama yang perlu digunakan ialah:\n` +
+            `- **Rumus / Konsep Utama:** ${ruleDisplay}\n` +
             `- **Gantian Awal:** $${firstStep.tex}$\n\n` +
             `Cuba kira nilai daripada gantian di atas!`
           : `For **${U.t(question.subtopic, 'en')}**, the key governing formula is:\n` +
@@ -319,24 +319,24 @@ window.AddMathApp = window.AddMathApp || {};
             tag: l === 'bm' ? 'Semakan: Jawapan Betul!' : 'Check: Correct Answer!',
             category: 'ok',
             reply: l === 'bm'
-              ? `Sebenarnya nilai **${candidateWrong}** itu sudah **TEPAT**! Masukkan dalam kotak jawapan utama dan klik **Semak Jawapan** untuk menuntut XP awak!`
+              ? `Sebenarnya nilai **${candidateWrong}** itu sudah **TEPAT**! Masukkan dalam kotak jawapan utama dan klik **Semak Jawapan** untuk dapat XP awak!`
               : `Your value **${candidateWrong}** is actually **100% CORRECT**! Enter it in the main answer box and click **Check Answer** to claim your XP!`
           };
         }
         if (evalRes.trapHit) {
           return {
-            tag: l === 'bm' ? 'Diagnostik Punca Gagal Faham' : 'Misconception Root-Cause Found',
+            tag: l === 'bm' ? 'Punca Jawapan Tersasar' : 'Misconception Root-Cause Found',
             category: 'K',
             openGuided: true,
             reply: `${evalRes.feedback}\n\n**${l === 'bm' ? 'Langkah pembetulan' : 'Next corrective step'}:** ${firstGuided}`
           };
         }
         return {
-          tag: l === 'bm' ? 'Diagnostik Kiraan Anda' : 'Diagnosing Your Attempt',
+          tag: l === 'bm' ? 'Semakan Kiraan Awak' : 'Diagnosing Your Attempt',
           category: 'K',
           openGuided: true,
           reply: l === 'bm'
-            ? `Nilai **${candidateWrong}** belum tepat. Mari kita semak langkah demi langkah supaya kita jumpa di baris mana kiraan tersasar!\n\n**Semakan Langkah 1:** ${firstGuided}`
+            ? `Nilai **${candidateWrong}** belum tepat. Jom semak satu persatu supaya kita nampak di baris mana kiraan tersasar!\n\n**Semakan Langkah 1:** ${firstGuided}`
             : `Your value **${candidateWrong}** isn't quite right yet. Let's check each intermediate value in the Step Box above so we catch exactly which line drifted!\n\n**Step 1 Check:** ${firstGuided}`
         };
       }
@@ -345,7 +345,7 @@ window.AddMathApp = window.AddMathApp || {};
         category: 'K',
         openGuided: true,
         reply: l === 'bm'
-          ? `Taip jawapan yang awak dapat di dalam kotak jawapan dahulu (atau uji langkah satu persatu dalam kotak **Bimbingan Interaktif** di atas) supaya saya boleh mengesan dengan tepat punca kesilapan awak!`
+          ? `Taip jawapan yang awak dapat di dalam kotak jawapan dahulu (atau cuba langkah satu persatu dalam kotak **Bimbingan Interaktif** di atas) supaya saya boleh kesan di mana punca silapnya!`
           : `Enter the value you got into the answer box first (or test each step inside the **Interactive Step Box** above) so I can pinpoint the exact cause of the error!`
       };
     }
@@ -467,16 +467,16 @@ window.AddMathApp = window.AddMathApp || {};
         ? `**🩺 Klinik Cikgu Pakar — ${chTitle}:**\n\n${mmText}\n\n**Terjemahan Pantas Ayat Peperiksaan:**\n${trText}`
         : `**🩺 Teacher's Pain-Killer Clinic — ${chTitle}:**\n\n${mmText}\n\n**Exam-Phrase Trigger Decoder:**\n${trText}`;
     }
-    if (/(kesilapan|lazim|mistake|trap|perangkap|contoh soalan|skim|markah|k1|n1)/i.test(lower)) {
+    if (/(kesilapan|lazim|mistake|trap|perangkap|contoh soalan|skim|skema|markah|k1|n1)/i.test(lower)) {
       const bankList = (App.masterBank && App.masterBank[activeChapter.id]) || [];
       if (bankList.length) {
         const sampleItems = bankList.slice(0, 3).map((it) => {
           const mTxt = (it.mistakes[l] || it.mistakes.bm || [])[0] || '';
           const sTxt = it.scheme[0] ? `[${it.scheme[0].badge}] ${it.scheme[0][l] || it.scheme[0].bm}` : '';
-          return `- **Soalan ${it.code} (${U.t(it.topic, l)}):**\n  ⚠️ *${l === 'bm' ? 'Kesilapan Lazim' : 'Common Mistake'}:* ${mTxt}\n  ✅ *${l === 'bm' ? 'Langkah Kunci' : 'Key Step'}:* ${sTxt}`;
+          return `- **Soalan ${it.code} (${U.t(it.topic, l)}):**\n  ⚠️ *${l === 'bm' ? 'Kesilapan Lazim' : 'Common Mistake'}:* ${mTxt}\n  ✅ *${l === 'bm' ? 'Langkah Utama' : 'Key Step'}:* ${sTxt}`;
         }).join('\n\n');
         return l === 'bm'
-          ? `**Analisis Kesilapan Lazim & Skim Pemarkahan SPM — ${chTitle}:**\n\n${sampleItems}\n\n💡 *Buka tab **📋 Contoh SPM & Kesilapan (10)** dalam menu Belajar untuk melihat kesemua 10 soalan peperiksaan, kesilapan lazim & skim penuh K1/N1 bab ini!*`
+          ? `**Analisis Kesilapan Lazim & Skema Pemarkahan SPM — ${chTitle}:**\n\n${sampleItems}\n\n💡 *Buka tab **📋 Contoh SPM & Kesilapan (10)** dalam menu Belajar untuk melihat kesemua 10 soalan peperiksaan, kesilapan lazim & skema penuh K1/N1 bab ini!*`
           : `**SPM Common Mistakes & Marking Scheme — ${chTitle}:**\n\n${sampleItems}\n\n💡 *Open the **📋 SPM Examples & Mistakes (10)** sub-tab inside Learn to explore all 10 exam questions, common mistakes & K1/N1 schemes for this chapter!*`;
       }
     }
@@ -498,7 +498,7 @@ window.AddMathApp = window.AddMathApp || {};
         ? `**Jambatan Kinematik ($s \\leftrightarrow v \\leftrightarrow a$):**\n` +
           `- **Bezakan** ikut masa $t$: $s \\xrightarrow{d/dt} v \\xrightarrow{d/dt} a$\n` +
           `- **Kamirkan** ikut masa $t$: $a \\xrightarrow{\\int dt} v \\xrightarrow{\\int dt} s$\n` +
-          `- **Perangkap Jumlah Jarak:** Semak bila zarah berhenti/berpusing arah ($v = 0$) dahulu, dan jumlahkan kedua-dua keratan perjalanan!`
+          `- **Perangkap Jumlah Jarak:** Semak bila zarah berhenti/berpusing arah ($v = 0$) dahulu, dan jumlahkan jarak pergi serta patah balik!`
         : `**Kinematics Bridge ($s \\leftrightarrow v \\leftrightarrow a$):**\n` +
           `- **Differentiate** w.r.t. $t$: $s \\to v \\to a$; **Integrate** w.r.t. $t$: $a \\to v \\to s$.\n` +
           `- **Total Distance Trap:** Always solve $v = 0$ for turnaround time inside $[0, T]$ and sum each leg's absolute distance!`;
@@ -507,12 +507,12 @@ window.AddMathApp = window.AddMathApp || {};
     if (/(binomial|normal|kebarangkalian|skor-z|z-score|pilih atur|gabungan|npr|ncr)/i.test(lower)) {
       return l === 'bm'
         ? `**Panduan Pantas Statistik & Kebarangkalian T5:**\n` +
-          `- **$^nP_r$ vs $^nC_r$:** Tertib penting (kod/jawatan) $\\to \\,^nP_r$; pasukan/jawatankuasa tanpa jawatan $\\to \\,^nC_r$.\n` +
-          `- **Binomial $B(n,p)$:** Diskret; $P(X=r) = \\,^nC_r p^r q^{n-r}$, $\\mu = np$, $\\sigma = \\sqrt{npq}$.\n` +
-          `- **Normal $N(\\mu, \\sigma^2)$:** Selanjar; ingat nombor kedua ialah varians $\\sigma^2$, jadi bahagi dengan $\\sigma = \\sqrt{\\sigma^2}$ dalam $Z = \\frac{X-\\mu}{\\sigma}$!`
+          `- **$\\,{}^nP_r$ vs $\\,{}^nC_r$:** Susunan/pangkat penting (kod/jawatan) $\\to \\,{}^nP_r$; pilih kumpulan/jawatankuasa biasa $\\to \\,{}^nC_r$.\n` +
+          `- **Binomial $B(n,p)$:** Kiraan nombor bulat (diskret); $P(X=r) = \\,{}^nC_r p^r q^{n-r}$, $\\mu = np$, $\\sigma = \\sqrt{npq}$.\n` +
+          `- **Normal $N(\\mu, \\sigma^2)$:** Ukuran berterusan (selanjar); ingat nombor kedua ialah varians $\\sigma^2$, jadi bahagi dengan $\\sigma = \\sqrt{\\sigma^2}$ dalam $Z = \\frac{X-\\mu}{\\sigma}$!`
         : `**Form 5 Combinatorics & Distributions Guide:**\n` +
-          `- **$^nP_r$ vs $^nC_r$:** Order matters $\\to \\,^nP_r$; unordered committee $\\to \\,^nC_r$.\n` +
-          `- **Binomial $B(n,p)$:** $P(X=r) = \\,^nC_r p^r q^{n-r}$, $\\mu = np$, $\\sigma = \\sqrt{npq}$.\n` +
+          `- **$\\,{}^nP_r$ vs $\\,{}^nC_r$:** Order matters $\\to \\,{}^nP_r$; unordered committee $\\to \\,{}^nC_r$.\n` +
+          `- **Binomial $B(n,p)$:** $P(X=r) = \\,{}^nC_r p^r q^{n-r}$, $\\mu = np$, $\\sigma = \\sqrt{npq}$.\n` +
           `- **Normal $N(\\mu, \\sigma^2)$:** Watch $\\sigma^2$! Standardize using $\\sigma = \\sqrt{\\sigma^2}$ in $Z = \\frac{X-\\mu}{\\sigma}$.`;
     }
 

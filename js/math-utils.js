@@ -250,12 +250,24 @@ window.AddMathApp = window.AddMathApp || {};
     }
 
     if (question.answerType === 'choice') {
-      const isOk = String(raw) === String(question.correctValue);
+      const cleanedChoice = String(raw).replace(/[).]/g, '').trim();
+      const isOk = cleanedChoice === String(question.correctValue);
+      if (!isOk && Array.isArray(question.traps)) {
+        for (const trap of question.traps) {
+          if (cleanedChoice === String(trap.value)) {
+            return {
+              correct: false,
+              trapHit: true,
+              feedback: t(trap.message, l)
+            };
+          }
+        }
+      }
       return {
         correct: isOk,
         feedback: isOk
-          ? (l === 'bm' ? 'Tepat sekali! Konsep anda sangat kukuh.' : 'Spot on! Your conceptual understanding is solid.')
-          : (l === 'bm' ? 'Kurang tepat. Cuba semak semula syarat konsep atau buka Petunjuk.' : 'Not quite right. Re-check the conceptual condition or view a Hint.')
+          ? (l === 'bm' ? 'Tepat sekali! Konsep awak sangat kukuh.' : 'Spot on! Your conceptual understanding is solid.')
+          : (l === 'bm' ? 'Kurang tepat. Cuba semak semula kata kunci soalan atau klik "Bimbing Langkah demi Langkah".' : 'Not quite right. Re-check the key condition or click "Guide Me Step-by-Step".')
       };
     }
 
@@ -291,7 +303,7 @@ window.AddMathApp = window.AddMathApp || {};
           correct: false,
           trapHit: true,
           feedback: l === 'bm'
-            ? 'Hampir tepat! Nilai anda betul tetapi tertukar susunan pasangan tertib (x, y).'
+            ? 'Hampir tepat! Nilai awak betul tetapi tertukar susunan koordinat (x, y).'
             : 'Almost there! Your values are right, but the ordered pair (x, y) is swapped.'
         };
       }
@@ -301,15 +313,15 @@ window.AddMathApp = window.AddMathApp || {};
           correct: false,
           trapHit: true,
           feedback: l === 'bm'
-            ? 'Diagnostik Tanda (+/-): Nilai magnitud anda betul, tetapi tanda positif/negatif terbalik! Semak pemfaktoran (x - a)(x - b) = 0.'
+            ? 'Cuai Tanda (+/-): Nilai angka awak betul, tetapi tanda positif/negatif terbalik! Semak semula pemfaktoran (x - a)(x - b) = 0.'
             : 'Sign Diagnosis (+/-): Your magnitudes are right, but the signs are inverted! Check your factorization (x - a)(x - b) = 0.'
         };
       }
       return {
         correct: false,
         feedback: l === 'bm'
-          ? 'Jawapan belum tepat. Klik "Petunjuk Langkah" untuk semak jalan kerja anda.'
-          : 'Not quite accurate yet. Click "Step Hint" to check your working.'
+          ? 'Jawapan belum tepat. Klik "Bimbing Langkah demi Langkah" untuk semak jalan kerja awak.'
+          : 'Not quite accurate yet. Click "Guide Me Step-by-Step" to check your working.'
       };
     }
 
@@ -356,7 +368,7 @@ window.AddMathApp = window.AddMathApp || {};
         correct: false,
         trapHit: true,
         feedback: l === 'bm'
-          ? 'Diagnostik Kesilapan Tanda (+/-): Angka anda sudah betul, tetapi tanda positif/negatif tersilap! Semak semula tanda dalam langkah gantian.'
+          ? 'Cuai Tanda (+/-): Angka awak sudah betul, tetapi tanda positif/negatif terbalik! Semak semula tanda semasa ganti nilai.'
           : 'Sign Error Detected (+/-): Your magnitude is right, but the positive/negative sign is flipped! Re-check signs during substitution.'
       };
     }
@@ -364,8 +376,8 @@ window.AddMathApp = window.AddMathApp || {};
     return {
       correct: false,
       feedback: l === 'bm'
-        ? 'Jawapan belum tepat. Cuba semak langkah pengiraan atau tekan "Petunjuk Langkah" untuk bimbingan.'
-        : 'Not quite right yet. Check your calculation steps or click "Step Hint" for guided help.'
+        ? 'Jawapan belum tepat. Cuba semak langkah kiraan atau tekan "Bimbing Langkah demi Langkah".'
+        : 'Not quite right yet. Check your calculation steps or click "Guide Me Step-by-Step".'
     };
   }
 
@@ -392,6 +404,7 @@ window.AddMathApp = window.AddMathApp || {};
       .replace(/\\alpha/g, '&alpha;')
       .replace(/\\beta/g, '&beta;')
       .replace(/\\theta/g, '&theta;')
+      .replace(/\\checkmark/g, '&#10003;')
       .replace(/\\Delta/g, '&Delta;')
       .replace(/\\delta/g, '&delta;')
       .replace(/\\pi/g, '&pi;')

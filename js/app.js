@@ -26,6 +26,7 @@ window.AddMathApp = window.AddMathApp || {};
   let tutorMessages = [];
   let blitzTimer = null;
   let blitzAdvanceTimeout = null;
+  let blitzDeck = [];
   let blitzState = { active: false, finished: false, timeLeft: 60, score: 0, correctCount: 0, answeredCount: 0, streak: 0, idx: 0, lockedChoice: null };
   let homeFormFilter = 'all'; // 'all' | '4' | '5'
   let solverRunCount = 0;
@@ -255,7 +256,7 @@ window.AddMathApp = window.AddMathApp || {};
     const navMap = [
       { id: 'home', bm: 'Utama', en: 'Home', ico: '🏠' },
       { id: 'learn', bm: 'Belajar', en: 'Learn', ico: '📘' },
-      { id: 'blitz', bm: 'Kilat 60s', en: '60s Blitz', ico: '⚡' },
+      { id: 'blitz', bm: 'Kuiz 60s', en: '60s Blitz', ico: '⚡' },
       { id: 'tutor', bm: 'Cikgu AI', en: 'AI Coach', ico: '🧠' },
       { id: 'profile', bm: 'Formula & Skor', en: 'Vault & Stats', ico: '🏆' }
     ];
@@ -312,7 +313,7 @@ window.AddMathApp = window.AddMathApp || {};
           <span style="font-size:0.82rem;font-weight:700;">Combo 🔥 x${state.combo || 0}</span>
         </div>
         <h1 style="margin-top:10px;">${L('Kuasai Semua 18 Bab AddMath T4 & T5 Secara Visual!', 'Master All 18 Form 4 & 5 AddMath Chapters Visually!')}</h1>
-        <p>${L('Silibus penuh KSSM (T4 Bab 1–10 & T5 Bab 1–8) kini dilengkapi 180 Contoh Soalan Peperiksaan SPM, Analisis Kesilapan Lazim Murid & Skim Pemarkahan Penuh (K1/N1)!', 'Complete KSSM syllabus (F4 Ch 1–10 & F5 Ch 1–8) now equipped with 180 Master SPM Exam Questions, Common Student Mistakes & Analytical K1/N1 Marking Schemes!')}</p>
+        <p>${L('Silibus penuh KSSM (T4 Bab 1–10 & T5 Bab 1–8) kini dilengkapi 180 Contoh Soalan Peperiksaan SPM, Analisis Kesilapan Lazim Murid & Skema Pemarkahan Penuh (K1/N1)!', 'Complete KSSM syllabus (F4 Ch 1–10 & F5 Ch 1–8) now equipped with 180 Master SPM Exam Questions, Common Student Mistakes & Analytical K1/N1 Marking Schemes!')}</p>
         <div style="font-size:0.78rem;font-weight:700;">${L('Kemajuan Tahap Seterusnya', 'Next Rank Progress')} (${state.xp} XP)</div>
         <div class="xp-bar-wrap"><div class="xp-bar-fill" style="width:${rank.pct}%"></div></div>
       </div>
@@ -320,8 +321,8 @@ window.AddMathApp = window.AddMathApp || {};
       <div class="card" style="border-color:var(--primary);background:linear-gradient(180deg, var(--primary-soft), var(--surface));">
         <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
           <div style="flex:1;min-width:220px;">
-            <div style="font-size:0.75rem;font-weight:800;color:var(--primary);">🆕 ${L('CIRI BAHARU • BANK SOALAN MASTER SPM', 'NEW FEATURE • MASTER SPM QUESTION BANK')}</div>
-            <h3 style="font-size:1.05rem;margin:2px 0 4px;">📋 ${L('180 Contoh Soalan SPM, Kesilapan Lazim & Cara Menjawab Betul (K1/N1)', '180 SPM Exam Questions, Common Mistakes & Correct K1/N1 Methods')}</h3>
+            <div style="font-size:0.75rem;font-weight:800;color:var(--primary);">🆕 ${L('BANK SOALAN MASTER SPM • 18 BAB LENGKAP', 'MASTER SPM QUESTION BANK • ALL 18 CHAPTERS')}</div>
+            <h3 style="font-size:1.05rem;margin:2px 0 4px;">📋 ${L('180 Contoh Soalan SPM, Kesilapan Lazim & Skema Jawapan (K1/N1)', '180 SPM Exam Questions, Common Mistakes & Correct K1/N1 Methods')}</h3>
             <div style="font-size:0.84rem;color:var(--text-muted);">
               ${L(`10 soalan peperiksaan setiap bab merentasi kesemua 18 bab T4 & T5 • Dikuasai: ${totalBank.done} / ${totalBank.total} (${bankPct}%)`, `10 exam questions per chapter across all 18 F4 & F5 chapters • Mastered: ${totalBank.done} / ${totalBank.total} (${bankPct}%)`)}
             </div>
@@ -372,8 +373,8 @@ window.AddMathApp = window.AddMathApp || {};
 
       <div class="card">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;flex-wrap:wrap;gap:8px;">
-          <h3 style="font-size:1.02rem;">🎯 ${L('Misi Motivasi Harian', 'Daily Motivation Quests')}</h3>
-          <button class="btn btn-accent btn-sm" data-nav="blitz">⚡ ${L('Main Kilat Konsep 60s', 'Play 60s Concept Blitz')}</button>
+          <h3 style="font-size:1.02rem;">🎯 ${L('Misi Harian Anda', 'Daily Quests')}</h3>
+          <button class="btn btn-accent btn-sm" data-nav="blitz">⚡ ${L('Main Kuiz Pantas 60s', 'Play 60s Concept Blitz')}</button>
         </div>
         <div style="display:grid;gap:8px;font-size:0.88rem;">
           <div>${q1} ${L('Teroka 1 Makmal Graf Interaktif (+30 XP)', 'Explore 1 Interactive Graph Lab (+30 XP)')}</div>
@@ -487,7 +488,7 @@ window.AddMathApp = window.AddMathApp || {};
               ⚠️ ${showM ? L('Tutup Kesilapan Lazim', 'Hide Common Mistakes') : L('Kesilapan Lazim Murid', 'Common Mistakes')}
             </button>
             <button type="button" class="btn btn-sm ${showS ? 'btn-accent' : 'btn-outline'}" data-mbank-scheme="${key}">
-              ✅ ${showS ? L('Tutup Cara Menjawab & Skim', 'Hide Correct Method & Scheme') : L('Cara Menjawab Betul & Skim K1/N1', 'Correct Method & K1/N1 Scheme')}
+              ✅ ${showS ? L('Tutup Skema Jawapan', 'Hide Marking Scheme') : L('Cara Menjawab & Skema K1/N1', 'Correct Method & K1/N1 Scheme')}
             </button>
             <button type="button" class="btn btn-sm ${isDone ? 'btn-accent' : 'btn-outline'}" data-mbank-done="${key}">
               ${isDone ? `🏅 ${L('Telah Dikuasai ✓', 'Mastered ✓')}` : `🏅 ${L('Faham & Kuasai (+10 XP)', 'Mark Mastered (+10 XP)')}`}
@@ -497,7 +498,7 @@ window.AddMathApp = window.AddMathApp || {};
           ${showM ? `
             <div class="mbank-mistake-panel anim-in">
               <div style="font-weight:800;color:var(--danger);margin-bottom:6px;">
-                ⚠️ ${L('Analisis Kesilapan Lazim Murid (Elakkan Hilang Markah!):', 'Common Student Mistakes (Avoid Losing Marks!):')}
+                ⚠️ ${L('Kesilapan Lazim Murid (Elakkan Hilang Markah!):', 'Common Student Mistakes (Avoid Losing Marks!):')}
               </div>
               <ul style="padding-left:18px;display:grid;gap:5px;">
                 ${mistakesArr.map((mItem) => `<li>${U.renderMixed(mItem)}</li>`).join('')}
@@ -508,8 +509,8 @@ window.AddMathApp = window.AddMathApp || {};
           ${showS ? `
             <div class="mbank-scheme-panel anim-in">
               <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px;margin-bottom:4px;">
-                <strong style="color:var(--accent);">✅ ${L('Cara Menjawab Yang Betul & Skim Pemarkahan Analitik SPM:', 'Correct Solution Method & Analytical SPM Marking Scheme:')}</strong>
-                <span style="font-size:0.73rem;font-weight:700;color:var(--text-muted);">K1 = ${L('Kaedah', 'Method')} • N1 = ${L('Nilai Tepat', 'Accuracy')}</span>
+                <strong style="color:var(--accent);">✅ ${L('Cara Menjawab Betul & Skema Pemarkahan SPM:', 'Correct Solution Method & SPM Marking Scheme:')}</strong>
+                <span style="font-size:0.73rem;font-weight:700;color:var(--text-muted);">K1 = ${L('Kaedah', 'Method')} • N1 = ${L('Jawapan Tepat', 'Accuracy')}</span>
               </div>
               ${(it.scheme || []).map((st) => `
                 <div class="mbank-scheme-row">
@@ -566,7 +567,7 @@ window.AddMathApp = window.AddMathApp || {};
       <div class="mode-tabs">
         <button class="mode-tab ${activeSubTab === 'concept' ? 'active' : ''}" data-subtab="concept">🎨 ${L('Konsep & Makmal Graf', 'Concept & Visual Lab')}</button>
         <button class="mode-tab ${activeSubTab === 'bank' ? 'active' : ''}" data-subtab="bank">📋 ${L(`Contoh SPM & Kesilapan (${chapBank.total})`, `SPM Examples & Mistakes (${chapBank.total})`)}</button>
-        <button class="mode-tab ${activeSubTab === 'solver' ? 'active' : ''}" data-subtab="solver">🧮 ${L('Smart Solver Dinamik', 'Dynamic Smart Solver')}</button>
+        <button class="mode-tab ${activeSubTab === 'solver' ? 'active' : ''}" data-subtab="solver">🧮 ${L('Smart Solver (Kira Langkah)', 'Dynamic Smart Solver')}</button>
         <button class="mode-tab ${activeSubTab === 'practice' ? 'active' : ''}" data-subtab="practice">🎯 ${L('Latihan Berpandu TP1–TP6', 'Guided Practice TP1–TP6')}</button>
       </div>
     `;
@@ -586,7 +587,10 @@ window.AddMathApp = window.AddMathApp || {};
 
         ${lab ? `
         <div class="card">
-          <h3 style="font-size:1.05rem;margin-bottom:4px;">🔬 ${U.t(lab.title, App.lang)}</h3>
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;flex-wrap:wrap;margin-bottom:4px;">
+            <h3 style="font-size:1.05rem;">🔬 ${U.t(lab.title, App.lang)}</h3>
+            <button type="button" class="btn btn-outline btn-sm" id="btn-reset-lab" style="padding:4px 10px;min-height:28px;font-size:0.75rem;">🔄 ${L('Set Semula', 'Reset')}</button>
+          </div>
           <p style="font-size:0.85rem;color:var(--text-muted);margin-bottom:12px;">${U.t(lab.desc, App.lang)}</p>
           <canvas id="active-lab-canvas" class="lab-canvas"></canvas>
           <div id="lab-readout" style="margin-top:10px;font-size:0.84rem;font-weight:700;color:var(--primary);background:var(--primary-soft);padding:8px 12px;border-radius:10px;"></div>
@@ -636,9 +640,9 @@ window.AddMathApp = window.AddMathApp || {};
       bodyHtml = `
         <div class="card" style="border-color:var(--primary);">
           <div style="font-size:0.76rem;font-weight:800;color:var(--primary);">${U.t(ch.code, App.lang)} • ${L('BANK SOALAN MASTER SPM', 'MASTER SPM QUESTION BANK')}</div>
-          <h2 style="font-size:1.22rem;margin:2px 0 6px;">📋 ${U.t(ch.title, App.lang)} — ${L('Contoh Soalan, Kesilapan Lazim & Skim Pemarkahan', 'Exam Questions, Common Mistakes & Marking Scheme')}</h2>
+          <h2 style="font-size:1.22rem;margin:2px 0 6px;">📋 ${U.t(ch.title, App.lang)} — ${L('Contoh Soalan, Kesilapan Lazim & Skema Pemarkahan', 'Exam Questions, Common Mistakes & Marking Scheme')}</h2>
           <p style="font-size:0.86rem;color:var(--text-muted);">
-            ${U.renderMixed(L('Cuba fikirkan jalan kerja dahulu, kemudian semak **Kesilapan Lazim Murid** dan **Cara Menjawab Betul (K1 = Kaedah, N1 = Nilai Tepat)** supaya tidak hilang markah dalam peperiksaan sebenar!', 'Attempt mentally or on paper first, then inspect **Common Student Mistakes** and **Correct Analytical Working (K1 = Method, N1 = Accuracy)** so you never drop marks in the exam!'))}
+            ${U.renderMixed(L('Cuba fikirkan jalan kerja dahulu, kemudian semak **Kesilapan Lazim Murid** dan **Cara Menjawab Betul (K1 = Kaedah, N1 = Jawapan Tepat)** supaya tidak hilang markah dalam peperiksaan sebenar!', 'Attempt mentally or on paper first, then inspect **Common Student Mistakes** and **Correct Analytical Working (K1 = Method, N1 = Accuracy)** so you never drop marks in the exam!'))}
           </p>
           <div id="mbank-prog-wrap">${renderMasterBankProgHtml(ch)}</div>
           <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;">
@@ -723,9 +727,26 @@ window.AddMathApp = window.AddMathApp || {};
           </div>
 
           <label style="font-size:0.8rem;font-weight:700;">${L('Jawapan Anda:', 'Your Answer:')}</label>
+          ${q.answerType === 'choice' ? `
+            <div style="display:flex;gap:8px;flex-wrap:wrap;margin:6px 0 8px;">
+              ${['1', '2', '3'].map((optNum) => `
+                <button type="button" class="btn btn-sm ${String(draftAnswer).trim() === optNum ? 'btn-primary' : 'btn-outline'}" data-choice-pick="${optNum}">
+                  ${L('Pilihan', 'Option')} ${optNum}
+                </button>
+              `).join('')}
+            </div>
+          ` : ''}
           <input id="practice-ans-input" type="text" class="math-input" style="margin-top:4px;" value="${safeVal}" placeholder="${q.placeholder ? U.t(q.placeholder, App.lang) : L('Masukkan nilai atau pecahan (cth: 5 atau -3/2)', 'Enter number or fraction (e.g. 5 or -3/2)')}">
           <div class="keypad-row">
-            ${['-', '/', ',', '0', '1', '2', '3', '5'].map((chKey) => `<button class="key-chip" data-key-ins="${chKey}">${chKey}</button>`).join('')}
+            ${[
+              { lbl: '−', val: '-' },
+              { lbl: '/', val: '/' },
+              { lbl: '.', val: '.' },
+              { lbl: ',', val: ', ' },
+              { lbl: 'π', val: 'π' },
+              { lbl: '√(', val: 'sqrt(' }
+            ].map((k) => `<button type="button" class="key-chip" data-key-ins="${k.val}">${k.lbl}</button>`).join('')}
+            <button type="button" class="key-chip" id="btn-key-clear" title="${L('Padam', 'Clear')}">⌫ ${L('Padam', 'Clear')}</button>
           </div>
 
           <div style="display:flex;gap:8px;flex-wrap:wrap;">
@@ -915,7 +936,8 @@ window.AddMathApp = window.AddMathApp || {};
         if (id === 'b' && solver.id === 'surd-rationalizer') return U.pick([2, 3, 5, 6, 7, 10]);
         if (id === 'a' && solver.id === 'log-base-solver') return U.pick([2, 3, 4, 5, 10]);
         if (id === 'b' && solver.id === 'log-base-solver') return U.pick([8, 16, 25, 27, 64, 81, 125]);
-        if (solver.id === 'sas-cosine-solver') return U.randInt(5, 15);
+        if (solver.id === 'sas-triangle-solver') return U.randInt(5, 15);
+        if (solver.id === 'lp-vertex-optimizer' && (id === 'p' || id === 'q')) return U.pick([15, 20, 25, 30, 35, 40, 50]);
         return U.randInt(-6, 10, true);
       });
       inp.value = nextVal;
@@ -988,18 +1010,19 @@ window.AddMathApp = window.AddMathApp || {};
       container.innerHTML = `
         <div class="card" style="text-align:center;padding:28px 18px;">
           <div style="font-size:2.6rem;">⚡</div>
-          <h2 style="margin:8px 0;">${L('Cabaran Kilat Konsep 60 Saat (T4 & T5)!', '60-Second Concept Blitz (Form 4 & 5)!')}</h2>
+          <h2 style="margin:8px 0;">${L('Kuiz Pantas 60 Saat (60s Blitz — T4 & T5)!', '60-Second Concept Blitz (Form 4 & 5)!')}</h2>
           <p style="color:var(--text-muted);max-width:480px;margin:0 auto 16px;">
-            ${L('Uji kepantasan ingatan konsep & rumus kesemua 18 bab Tingkatan 4 & 5! Setiap jawapan betul memberi +15 XP dengan maklum balas warna segera.', 'Test your Form 4 & Form 5 concept & formula reflexes across all 18 chapters! Every right hit earns +15 XP with instant visual feedback.')}
+            ${L('Uji kepantasan ingatan konsep & formula kesemua 18 bab Tingkatan 4 & 5! Setiap jawapan betul memberi +15 XP serta-merta.', 'Test your Form 4 & Form 5 concept & formula reflexes across all 18 chapters! Every right hit earns +15 XP with instant visual feedback.')}
           </p>
           <div style="font-weight:800;margin-bottom:16px;color:var(--primary);">🏆 ${L('Skor Tertinggi Anda:', 'Your Best Score:')} ${state.highBlitz || 0}</div>
-          <button class="btn btn-primary" id="btn-start-blitz">🚀 ${L('Mula Cabaran Sekarang!', 'Start Blitz Now!')}</button>
+          <button class="btn btn-primary" id="btn-start-blitz">🚀 ${L('Mula Kuiz Sekarang!', 'Start Blitz Now!')}</button>
         </div>
       `;
       return;
     }
 
-    const item = App.blitzBank[blitzState.idx % App.blitzBank.length];
+    const qBankIdx = blitzDeck.length ? blitzDeck[blitzState.idx % blitzDeck.length] : (blitzState.idx % App.blitzBank.length);
+    const item = App.blitzBank[qBankIdx];
     const opts = App.lang === 'bm' ? item.options.bm : item.options.en;
     const locked = blitzState.lockedChoice;
     container.innerHTML = `
@@ -1049,8 +1072,8 @@ window.AddMathApp = window.AddMathApp || {};
       <div class="card">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;flex-wrap:wrap;gap:8px;">
           <div>
-            <h3 style="font-size:1.08rem;">🧠 ${L('Cikgu Pintar AddMath (Pengira & Pengesan Intent)', 'Smart AddMath Live Tutor')}</h3>
-            <div style="font-size:0.76rem;color:var(--text-muted);">${L('Konteks Semasa:', 'Active Topic:')} ${U.t(ch.title, App.lang)}</div>
+            <h3 style="font-size:1.08rem;">🧠 ${L('Cikgu AI AddMath (Tanya Konsep & Kira Langkah)', 'Smart AddMath Live Tutor')}</h3>
+            <div style="font-size:0.76rem;color:var(--text-muted);">${L('Bab Dipilih:', 'Active Topic:')} ${U.t(ch.title, App.lang)}</div>
           </div>
           <button class="btn btn-outline btn-sm" id="btn-config-key">🔑 ${hasKey ? L('Gemini API Aktif', 'Gemini API Active') : L('Sambung Gemini API (Pilihan)', 'Optional Gemini Key')}</button>
         </div>
@@ -1061,7 +1084,7 @@ window.AddMathApp = window.AddMathApp || {};
 
         <div class="intent-chips" style="margin-top:10px;">
           ${getClinic(ch.id) ? `<button class="intent-chip" data-tutor-chip="${L('Berikan analogi mudah ingat dan kata kunci peperiksaan bab ini', 'Give me the mental models and exam-phrase decoder for this chapter')}">🩺 ${L('Klinik & Analogi Cikgu', 'Teacher Clinic & Tricks')}</button>` : ''}
-          <button class="intent-chip" data-tutor-chip="${L('Apakah kesilapan lazim dan contoh soalan SPM bab ini?', 'What are the common mistakes and SPM examples for this chapter?')}">⚠️ ${L('Kesilapan Lazim & Skim SPM', 'Common Mistakes & SPM Scheme')}</button>
+          <button class="intent-chip" data-tutor-chip="${L('Apakah kesilapan lazim dan contoh soalan SPM bab ini?', 'What are the common mistakes and SPM examples for this chapter?')}">⚠️ ${L('Kesilapan Lazim & Skema SPM', 'Common Mistakes & SPM Scheme')}</button>
           <button class="intent-chip" data-tutor-chip="2x^2 - 7x + 3 = 0">2x² − 7x + 3 = 0</button>
           <button class="intent-chip" data-tutor-chip="d/dx(3x^3 - 5x^2 + 4x)">d/dx(3x³ − 5x² + 4x)</button>
           <button class="intent-chip" data-tutor-chip="int(6x^2 - 4x + 5)">∫(6x² − 4x + 5) dx</button>
@@ -1122,23 +1145,26 @@ window.AddMathApp = window.AddMathApp || {};
     const safeVault = vaultSearch.replace(/"/g, '&quot;');
     container.innerHTML = `
       <div class="card">
-        <h3 style="font-size:1.08rem;margin-bottom:8px;">📊 ${L('Radar Diagnostik Pembelajaran Anda', 'Your Diagnostic Learning Radar')}</h3>
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:8px;">
+          <h3 style="font-size:1.08rem;">📊 ${L('Rekod Prestasi & Analisis Kesilapan Anda', 'Your Learning Progress & Error Radar')}</h3>
+          <button type="button" class="btn btn-outline btn-sm" id="btn-reset-progress">🔄 ${L('Set Semula Rekod', 'Reset Progress')}</button>
+        </div>
         <p style="font-size:0.84rem;color:var(--text-muted);margin-bottom:12px;">
-          ${L('Enjin merekod punca kesilapan supaya awak tahu bahagian mana perlu diperkukuhkan:', 'Our engine tracks error patterns so you know exactly what to strengthen:')}
+          ${L('Sistem merekod jenis kesilapan supaya awak tahu bahagian mana perlu diperkemaskan:', 'Tracks your common error types so you know what to focus on:')}
         </p>
         <div class="grid-2">
-          <div class="step-item"><strong>✅ ${L('Soalan Latihan Selesai', 'Practice Questions Solved')}:</strong> ${state.solvedCount}</div>
-          <div class="step-item"><strong>📋 ${L('Bank Master SPM Dikuasai', 'Master SPM Bank Mastered')}:</strong> ${totalBank.done} / ${totalBank.total}</div>
-          <div class="step-item"><strong>📘 ${L('Isyarat Konsep / Rumus [P]', 'Concept / Formula Alerts [P]')}:</strong> ${r.P}</div>
-          <div class="step-item"><strong>🔧 ${L('Isyarat Langkah Algebra [K]', 'Method / Algebra Alerts [K]')}:</strong> ${r.K}</div>
-          <div class="step-item"><strong>🎯 ${L('Isyarat Tanda / Akhir [J]', 'Sign / Accuracy Alerts [J]')}:</strong> ${r.J}</div>
+          <div class="step-item"><strong>✅ ${L('Soalan Latihan Dijawab Betul', 'Practice Questions Solved')}:</strong> ${state.solvedCount}</div>
+          <div class="step-item"><strong>📋 ${L('Bank Soalan SPM Dikuasai', 'Master SPM Bank Mastered')}:</strong> ${totalBank.done} / ${totalBank.total}</div>
+          <div class="step-item"><strong>📘 ${L('Silap Pilih Formula / Konsep [P]', 'Concept / Formula Errors [P]')}:</strong> ${r.P}</div>
+          <div class="step-item"><strong>🔧 ${L('Silap Langkah Kiraan / Algebra [K]', 'Method / Algebra Errors [K]')}:</strong> ${r.K}</div>
+          <div class="step-item"><strong>🎯 ${L('Cuai Tanda (+/-) / Bundar [J]', 'Sign / Accuracy Slips [J]')}:</strong> ${r.J}</div>
         </div>
       </div>
 
       <div class="card">
         <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:12px;">
-          <h3 style="font-size:1.08rem;">📖 ${L('Buku Formula Pintar KSSM (18 Bab T4 & T5)', 'KSSM Master Formula Vault (All 18 Chapters)')}</h3>
-          <input id="vault-search-inp" type="text" class="math-input" style="max-width:300px;padding:8px 12px;font-size:0.88rem;" value="${safeVault}" placeholder="${L('Cari topik atau nama rumus...', 'Search topic or formula...')}">
+          <h3 style="font-size:1.08rem;">📖 ${L('Koleksi Formula Lengkap KSSM (18 Bab T4 & T5)', 'KSSM Master Formula Sheet (All 18 Chapters)')}</h3>
+          <input id="vault-search-inp" type="text" class="math-input" style="max-width:300px;padding:8px 12px;font-size:0.88rem;" value="${safeVault}" placeholder="${L('Cari topik atau nama formula...', 'Search topic or formula...')}">
         </div>
         <div id="vault-list-wrap">${renderVaultChaptersHtml()}</div>
       </div>
@@ -1196,8 +1222,27 @@ window.AddMathApp = window.AddMathApp || {};
     }
   });
 
+  window.addEventListener('resize', () => {
+    if (currentView === 'learn' && activeSubTab === 'concept') {
+      const ch = getActiveChapter();
+      const lab = App.visualLabs && App.visualLabs[ch.id];
+      const canvas = document.getElementById('active-lab-canvas');
+      if (lab && canvas) {
+        const vals = {};
+        document.querySelectorAll('[data-lab-ctrl]').forEach((el) => {
+          vals[el.getAttribute('data-lab-ctrl')] = parseFloat(el.value);
+        });
+        const info = lab.render(canvas, vals, App.lang, state.theme === 'dark');
+        const ro = document.getElementById('lab-readout');
+        if (ro) ro.textContent = info;
+      }
+    }
+  });
+
   document.addEventListener('click', async (e) => {
-    if (e.target.id === 'btn-close-poster-modal' || e.target.id === 'poster-modal-backdrop') {
+    const hit = (id) => Boolean(e.target.closest('#' + id));
+
+    if (hit('btn-close-poster-modal') || e.target.id === 'poster-modal-backdrop') {
       closePosterModal();
       return;
     }
@@ -1220,9 +1265,48 @@ window.AddMathApp = window.AddMathApp || {};
       return;
     }
 
-    if (e.target.id === 'btn-toggle-poster-gallery') {
+    if (hit('btn-toggle-poster-gallery')) {
       showHomePosterStrip = !showHomePosterStrip;
       renderMain();
+      return;
+    }
+
+    if (hit('btn-reset-lab')) {
+      const ch = getActiveChapter();
+      const lab = App.visualLabs && App.visualLabs[ch.id];
+      if (lab) {
+        (lab.controls || []).forEach((ctrl) => {
+          const inp = document.querySelector(`[data-lab-ctrl="${ctrl.id}"]`);
+          const lbl = document.getElementById('lbl-val-' + ctrl.id);
+          if (inp) inp.value = ctrl.default;
+          if (lbl) lbl.textContent = ctrl.default;
+        });
+        initActiveLab(ch.id);
+      }
+      return;
+    }
+
+    if (hit('btn-reset-progress')) {
+      const ok = window.confirm(L(
+        'Adakah anda pasti mahu set semula semua XP, penguasaan bab dan rekod latihan kepada sifar?',
+        'Are you sure you want to reset all XP, chapter mastery, and practice stats to zero?'
+      ));
+      if (ok) {
+        state.xp = 0;
+        state.streak = 1;
+        state.combo = 0;
+        state.solvedCount = 0;
+        state.kbatSolved = 0;
+        state.labsExplored = {};
+        state.mastery = {};
+        state.masterBankDone = {};
+        state.postersViewed = {};
+        state.radar = { P: 0, K: 0, J: 0, ok: 0 };
+        state.quests = { lab: false, solve3: false, kbat1: false };
+        state.highBlitz = 0;
+        G.saveState(state);
+        renderMain();
+      }
       return;
     }
 
@@ -1288,7 +1372,7 @@ window.AddMathApp = window.AddMathApp || {};
       if (expBtn) expBtn.innerHTML = `👁️ ${L('Buka Semua Kesilapan & Jawapan', 'Reveal All Mistakes & Schemes')}`;
     }
 
-    if (e.target.id === 'btn-mbank-expand-all') {
+    if (hit('btn-mbank-expand-all')) {
       mbankExpandAll = !mbankExpandAll;
       if (!mbankExpandAll) {
         mbankOpenMistake = {};
@@ -1386,7 +1470,7 @@ window.AddMathApp = window.AddMathApp || {};
       return;
     }
 
-    if (e.target.id === 'btn-solve-custom-eq') {
+    if (hit('btn-solve-custom-eq')) {
       const inp = document.getElementById('custom-eq-inp');
       if (inp && inp.value.trim()) {
         const eq = inp.value.trim();
@@ -1398,20 +1482,44 @@ window.AddMathApp = window.AddMathApp || {};
       return;
     }
 
-    const keyIns = e.target.closest('[data-key-ins]');
-    if (keyIns) {
+    const choicePick = e.target.closest('[data-choice-pick]');
+    if (choicePick) {
+      const val = choicePick.getAttribute('data-choice-pick');
+      draftAnswer = val;
       const inp = document.getElementById('practice-ans-input');
-      if (inp) { inp.value += keyIns.getAttribute('data-key-ins'); draftAnswer = inp.value; inp.focus(); }
+      if (inp) inp.value = val;
+      document.getElementById('btn-check-ans')?.click();
       return;
     }
 
-    if (e.target.id === 'btn-new-q') {
+    if (hit('btn-key-clear')) {
+      const inp = document.getElementById('practice-ans-input');
+      if (inp) { inp.value = ''; draftAnswer = ''; inp.focus(); }
+      return;
+    }
+
+    const keyIns = e.target.closest('[data-key-ins]');
+    if (keyIns) {
+      const inp = document.getElementById('practice-ans-input');
+      if (inp) {
+        const ins = keyIns.getAttribute('data-key-ins');
+        const st = inp.selectionStart ?? inp.value.length;
+        const en = inp.selectionEnd ?? inp.value.length;
+        inp.value = inp.value.slice(0, st) + ins + inp.value.slice(en);
+        draftAnswer = inp.value;
+        inp.focus();
+        inp.setSelectionRange(st + ins.length, st + ins.length);
+      }
+      return;
+    }
+
+    if (hit('btn-new-q')) {
       currentQuestion = null;
       renderMain();
       return;
     }
 
-    if (e.target.id === 'btn-check-ans') {
+    if (hit('btn-check-ans')) {
       const inp = document.getElementById('practice-ans-input');
       const box = document.getElementById('practice-feedback-box');
       if (!inp || !box) return;
@@ -1437,12 +1545,12 @@ window.AddMathApp = window.AddMathApp || {};
           else state.radar.J++;
         }
         G.saveState(state);
-        box.innerHTML = `<div class="trap-box anim-in">🔍 <strong>${L('Diagnostik Pintar:', 'Smart Diagnosis:')}</strong> ${U.renderMixed(res.feedback)}</div>`;
+        box.innerHTML = `<div class="trap-box anim-in">🔍 <strong>${L('Semakan Jawapan:', 'Answer Diagnosis:')}</strong> ${U.renderMixed(res.feedback)}</div>`;
       }
       return;
     }
 
-    if (e.target.id === 'btn-start-guided') {
+    if (hit('btn-start-guided')) {
       saveDraftAnswer();
       guidedActive = !guidedActive;
       if (guidedActive) guidedIndex = 0;
@@ -1453,7 +1561,7 @@ window.AddMathApp = window.AddMathApp || {};
       return;
     }
 
-    if (e.target.id === 'btn-hint-step') {
+    if (hit('btn-hint-step')) {
       const gSteps = currentQuestion.guidedSteps || [];
       const stepObj = gSteps[guidedIndex];
       const msg = document.getElementById('guided-step-msg');
@@ -1463,7 +1571,7 @@ window.AddMathApp = window.AddMathApp || {};
       return;
     }
 
-    if (e.target.id === 'btn-verify-step') {
+    if (hit('btn-verify-step')) {
       saveDraftAnswer();
       const gSteps = currentQuestion.guidedSteps || [];
       const stepObj = gSteps[guidedIndex];
@@ -1471,17 +1579,21 @@ window.AddMathApp = window.AddMathApp || {};
       const msg = document.getElementById('guided-step-msg');
       if (!stepObj || !inp || !msg) return;
       const v = U.parseStudentNumber(inp.value);
-      if (Number.isFinite(v) && Math.abs(v - Number(stepObj.expected)) <= 0.05) {
+      const expNum = U.parseStudentNumber(stepObj.expected);
+      const stepTol = Math.max(stepObj.tol || 0.02, Math.abs(expNum) * 0.01);
+      if (Number.isFinite(v) && Number.isFinite(expNum) && Math.abs(v - expNum) <= stepTol) {
         if (guidedIndex + 1 < gSteps.length) {
           guidedIndex++;
           awardXP(5);
           renderMain();
         } else {
-          draftAnswer = String(stepObj.expected);
+          draftAnswer = currentQuestion.answerType === 'pair' && Array.isArray(currentQuestion.correctValue)
+            ? currentQuestion.correctValue.join(', ')
+            : String(stepObj.expected);
           renderMain();
           const msgAfter = document.getElementById('guided-step-msg');
           if (msgAfter) {
-            msgAfter.innerHTML = `<span style="color:var(--accent);font-weight:800;">🎉 ${L('Semua langkah tepat! Jawapan telah diisi di atas — tekan "Semak Jawapan" untuk menuntut XP penuh!', 'All steps verified! Final value filled above — press "Check Answer" for full XP!')}</span>`;
+            msgAfter.innerHTML = `<span style="color:var(--accent);font-weight:800;">🎉 ${L('Semua langkah tepat! Jawapan telah diisi di atas — tekan "Semak Jawapan" untuk dapat XP penuh!', 'All steps verified! Final value filled above — press "Check Answer" for full XP!')}</span>`;
           }
         }
       } else {
@@ -1490,7 +1602,7 @@ window.AddMathApp = window.AddMathApp || {};
       return;
     }
 
-    if (e.target.id === 'btn-show-sol') {
+    if (hit('btn-show-sol')) {
       saveDraftAnswer();
       showFullSolution = !showFullSolution;
       renderMain();
@@ -1510,7 +1622,7 @@ window.AddMathApp = window.AddMathApp || {};
       return;
     }
 
-    if (e.target.id === 'btn-ask-intent') {
+    if (hit('btn-ask-intent')) {
       saveDraftAnswer();
       const inp = document.getElementById('intent-free-inp');
       if (inp && inp.value.trim()) {
@@ -1522,9 +1634,14 @@ window.AddMathApp = window.AddMathApp || {};
       return;
     }
 
-    if (e.target.id === 'btn-start-blitz') {
+    if (hit('btn-start-blitz')) {
       if (blitzTimer) clearInterval(blitzTimer);
       if (blitzAdvanceTimeout) clearTimeout(blitzAdvanceTimeout);
+      blitzDeck = App.blitzBank.map((_, i) => i);
+      for (let i = blitzDeck.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [blitzDeck[i], blitzDeck[j]] = [blitzDeck[j], blitzDeck[i]];
+      }
       blitzState = {
         active: true,
         finished: false,
@@ -1533,7 +1650,7 @@ window.AddMathApp = window.AddMathApp || {};
         correctCount: 0,
         answeredCount: 0,
         streak: 0,
-        idx: Math.floor(Math.random() * App.blitzBank.length),
+        idx: 0,
         lockedChoice: null
       };
       renderMain();
@@ -1549,7 +1666,7 @@ window.AddMathApp = window.AddMathApp || {};
       return;
     }
 
-    if (e.target.id === 'btn-end-blitz') {
+    if (hit('btn-end-blitz')) {
       finishBlitzRound();
       return;
     }
@@ -1557,7 +1674,8 @@ window.AddMathApp = window.AddMathApp || {};
     const blitzOpt = e.target.closest('[data-blitz-opt]');
     if (blitzOpt && blitzState.active && blitzState.lockedChoice === null) {
       const chosen = Number(blitzOpt.getAttribute('data-blitz-opt'));
-      const item = App.blitzBank[blitzState.idx % App.blitzBank.length];
+      const qBankIdx = blitzDeck.length ? blitzDeck[blitzState.idx % blitzDeck.length] : (blitzState.idx % App.blitzBank.length);
+      const item = App.blitzBank[qBankIdx];
       blitzState.lockedChoice = chosen;
       blitzState.answeredCount++;
       if (chosen === item.ans) {
@@ -1571,7 +1689,7 @@ window.AddMathApp = window.AddMathApp || {};
       blitzAdvanceTimeout = setTimeout(() => {
         if (!blitzState.active) return;
         blitzState.lockedChoice = null;
-        blitzState.idx = (blitzState.idx + 1 + Math.floor(Math.random() * 3)) % App.blitzBank.length;
+        blitzState.idx++;
         if (currentView === 'blitz') renderMain();
       }, 600);
       return;
@@ -1587,7 +1705,7 @@ window.AddMathApp = window.AddMathApp || {};
       return;
     }
 
-    if (e.target.id === 'btn-send-tutor') {
+    if (hit('btn-send-tutor')) {
       const inp = document.getElementById('tutor-inp');
       if (inp && inp.value.trim()) {
         const txt = inp.value.trim();
@@ -1601,7 +1719,7 @@ window.AddMathApp = window.AddMathApp || {};
       return;
     }
 
-    if (e.target.id === 'btn-config-key') {
+    if (hit('btn-config-key')) {
       const cur = localStorage.getItem('addmath_gemini_key') || '';
       const next = window.prompt(L('Masukkan kunci Gemini API (biarkan kosong untuk guna Enjin Pintar Dalaman):', 'Enter Gemini API Key (leave blank for Built-in Smart Engine):'), cur);
       if (next !== null) {
@@ -1612,8 +1730,8 @@ window.AddMathApp = window.AddMathApp || {};
       return;
     }
 
-    if (e.target.id === 'btn-lang-bm' || e.target.id === 'btn-lang-en') {
-      App.lang = e.target.id === 'btn-lang-bm' ? 'bm' : 'en';
+    if (hit('btn-lang-bm') || hit('btn-lang-en')) {
+      App.lang = hit('btn-lang-bm') ? 'bm' : 'en';
       state.lang = App.lang;
       currentQuestion = null;
       G.saveState(state);
@@ -1621,7 +1739,7 @@ window.AddMathApp = window.AddMathApp || {};
       return;
     }
 
-    if (e.target.id === 'btn-theme') {
+    if (hit('btn-theme')) {
       state.theme = state.theme === 'dark' ? 'light' : 'dark';
       G.saveState(state);
       renderMain();
