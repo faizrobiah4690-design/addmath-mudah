@@ -29,7 +29,7 @@ window.AddMathApp = window.AddMathApp || {};
     if (/(rumus|formula|petua|hukum mana|which rule|which formula|pakai apa)/i.test(s)) {
       return 'formula_confusion';
     }
-    if (/(kenapa salah|why was i wrong|saya dapat|jawapan saya|i got|why wrong|tanda|negatif|positif|silap kat mana|sangkut)/i.test(s)) {
+    if (/(kenapa salah|why was i wrong|saya dapat|jawapan saya|i got|why wrong|tanda|negatif|positif|silap kat mana|sangkut|sign|negative|positive|wrong)/i.test(s)) {
       return 'diagnose_wrong';
     }
     if (/(analogi|cara ingat|mudah ingat|mnemonik|mnemonic|memory trick|mental model|explain like|klinik cikgu)/i.test(s)) {
@@ -41,121 +41,177 @@ window.AddMathApp = window.AddMathApp || {};
     return 'generate_steps';
   }
 
+  const STRICT_NUM_RE = /^[+-]?(?:\d+\.?\d*|\.\d+)$/;
+
+  function parseStrictNum(str) {
+    const s = String(str || '').trim();
+    if (!STRICT_NUM_RE.test(s)) return NaN;
+    const n = Number(s);
+    return Number.isFinite(n) ? n : NaN;
+  }
+
+  function parseLiveCoeff(str, def) {
+    if (!str || str === '+') return def;
+    if (str === '-') return -def;
+    return parseStrictNum(str);
+  }
+
   // Live Quadratic Solver: e.g. "2x^2 - 7x + 3 = 0"
   function trySolveLiveQuadratic(text, lang) {
-    const cleaned = text.replace(/²/g, '^2').replace(/\s+/g, '').replace(/=0$/, '');
-    const m = cleaned.match(/^([+-]?\d*\.?\d*)x\^2([+-]\d*\.?\d*x)?([+-]\d+\.?\d*)?$/i);
+    const cleaned = text.replace(/−/g, '-').replace(/²/g, '^2').replace(/\s+/g, '').replace(/=0$/, '');
+    const m = cleaned.match(/^([+-]?(?:\d+\.?\d*|\.\d+)?)x\^2([+-](?:\d+\.?\d*|\.\d+)?x)?([+-](?:\d+\.?\d*|\.\d+))?$/i);
     if (!m) return null;
-    const parseCoeff = (str, def) => {
-      if (!str || str === '+') return def;
-      if (str === '-') return -def;
-      return parseFloat(str);
-    };
-    const a = parseCoeff(m[1], 1);
-    const b = m[2] ? parseCoeff(m[2].replace(/x/i, ''), 1) : 0;
-    const c = m[3] ? parseFloat(m[3]) : 0;
-    if (!Number.isFinite(a) || a === 0) return null;
+    const a = parseLiveCoeff(m[1], 1);
+    const b = m[2] ? parseLiveCoeff(m[2].replace(/x/i, ''), 1) : 0;
+    const c = m[3] ? parseStrictNum(m[3]) : 0;
+    if (!Number.isFinite(a) || a === 0 || !Number.isFinite(b) || !Number.isFinite(c)) return null;
 
-    const disc = b * b - 4 * a * c;
+    const rawDisc = b * b - 4 * a * c;
+    const disc = Math.abs(rawDisc) < 1e-10 ? 0 : rawDisc;
     const h = -b / (2 * a);
     const k = a * h * h + b * h + c;
-    const rootsStr = disc >= 0
-      ? `$x_1 = ${U.roundStr((-b - Math.sqrt(disc)) / (2 * a))},\\; x_2 = ${U.roundStr((-b + Math.sqrt(disc)) / (2 * a))}$`
-      : (lang === 'bm' ? 'Tiada punca nyata ($\\Delta < 0$)' : 'No real roots ($\\Delta < 0$)');
+    const sor = -b / a;
+    const por = c / a;
+    if (!Number.isFinite(b * b) || !Number.isFinite(4 * a * c) || !Number.isFinite(disc) || !Number.isFinite(h) || !Number.isFinite(k) || !Number.isFinite(sor) || !Number.isFinite(por)) {
+      return lang === 'bm'
+        ? `**Had Berangka Terlampaui:** Pekali persamaan kuadratik ini terlalu besar ($> 10^{308}$) untuk dikira secara terhingga.`
+        : `**Numerical Limit Exceeded:** The coefficients in this quadratic equation are too large ($> 10^{308}$) for finite evaluation.`;
+    }
+    let rootsStr;
+    if (disc > 0) {
+      const r1 = (-b - Math.sqrt(disc)) / (2 * a);
+      const r2 = (-b + Math.sqrt(disc)) / (2 * a);
+      if (!Number.isFinite(r1) || !Number.isFinite(r2)) {
+        return lang === 'bm'
+          ? `**Had Berangka Terlampaui:** Punca persamaan ini melebihi had nombor nyata ($> 10^{308}$).`
+          : `**Numerical Limit Exceeded:** The roots of this equation exceed finite floating-point limits ($> 10^{308}$).`;
+      }
+      rootsStr = `$x_1 = ${U.roundStr(r1)},\\; x_2 = ${U.roundStr(r2)}$`;
+    } else if (disc === 0) {
+      const r = U.roundStr(-b / (2 * a));
+      rootsStr = `$x_1 = ${r},\\; x_2 = ${r}$`;
+    } else {
+      rootsStr = lang === 'bm' ? 'Tiada punca nyata ($\\Delta < 0$)' : 'No real roots ($\\Delta < 0$)';
+    }
 
     return lang === 'bm'
       ? `**Penyelesaian Persamaan Kuadratik** bagi $${U.polyTex([{ c: a, p: 2 }, { c: b, p: 1 }, { c: c, p: 0 }])} = 0$:\n` +
         `1. **[P1] Pembezalayan (*Discriminant*):** $\\Delta = (${b})^2 - 4(${a})(${c}) = ${U.roundStr(disc)}$\n` +
-        `2. **[K1] Hasil Tambah & Darab Punca (HTP & HDP):** $\\alpha + \\beta = ${U.roundStr(-b / a)}$, $\\alpha\\beta = ${U.roundStr(c / a)}$\n` +
+        `2. **[K1] Hasil Tambah & Darab Punca (HTP & HDP):** $\\alpha + \\beta = ${U.roundStr(sor)}$, $\\alpha\\beta = ${U.roundStr(por)}$\n` +
         `3. **[J1] Punca:** ${rootsStr}\n` +
         `4. **Titik Pusingan (Verteks):** $(${U.roundStr(h)},\\; ${U.roundStr(k)})$`
       : `**Dynamic Quadratic Solution** for $${U.polyTex([{ c: a, p: 2 }, { c: b, p: 1 }, { c: c, p: 0 }])} = 0$:\n` +
         `1. **[P1] Discriminant:** $\\Delta = (${b})^2 - 4(${a})(${c}) = ${U.roundStr(disc)}$\n` +
-        `2. **[K1] SOR & POR:** $\\alpha + \\beta = ${U.roundStr(-b / a)}$, $\\alpha\\beta = ${U.roundStr(c / a)}$\n` +
+        `2. **[K1] SOR & POR:** $\\alpha + \\beta = ${U.roundStr(sor)}$, $\\alpha\\beta = ${U.roundStr(por)}$\n` +
         `3. **[J1] Roots:** ${rootsStr}\n` +
         `4. **Turning Point (Vertex):** $(${U.roundStr(h)},\\; ${U.roundStr(k)})$`;
   }
 
   // Live Modulus Equation Solver: e.g. "|2x - 5| = 9"
   function trySolveLiveModulus(text, lang) {
-    const cleaned = text.replace(/\s+/g, '');
-    const m = cleaned.match(/^\|([+-]?\d*\.?\d*)x([+-]\d+\.?\d*)?\|=([+-]?\d+\.?\d*)$/i);
+    const cleaned = text.replace(/−/g, '-').replace(/\s+/g, '');
+    const m = cleaned.match(/^\|([+-]?(?:\d+\.?\d*|\.\d+)?)x([+-](?:\d+\.?\d*|\.\d+))?\|=([+-]?(?:\d+\.?\d*|\.\d+))$/i);
     if (!m) return null;
-    const a = (!m[1] || m[1] === '+') ? 1 : (m[1] === '-' ? -1 : parseFloat(m[1]));
-    const b = m[2] ? parseFloat(m[2]) : 0;
-    const k = parseFloat(m[3]);
-    if (!a || !Number.isFinite(k)) return null;
+    const a = parseLiveCoeff(m[1], 1);
+    const b = m[2] ? parseStrictNum(m[2]) : 0;
+    const k = parseStrictNum(m[3]);
+    if (!Number.isFinite(a) || a === 0 || !Number.isFinite(b) || !Number.isFinite(k)) return null;
     if (k < 0) return lang === 'bm' ? 'Tiada penyelesaian nyata kerana nilai mutlak tidak boleh negatif ($k < 0$).' : 'No real solution because absolute value cannot be negative ($k < 0$).';
     const x1 = (k - b) / a;
     const x2 = (-k - b) / a;
     const inner = U.polyTex([{ c: a, p: 1 }, { c: b, p: 0 }]);
+    const axStr = a === 1 ? 'x' : (a === -1 ? '-x' : `${a}x`);
     return lang === 'bm'
       ? `**Penyelesaian Nilai Mutlak (Modulus)** bagi $|${inner}| = ${k}$:\n` +
         `1. **[P1] Pecahkan kepada dua kes:** $${inner} = ${k}$ atau $${inner} = ${-k}$\n` +
-        `2. **[K1] Kes 1:** $${a}x = ${k - b} \\implies x = ${U.roundStr(x1)}$\n` +
-        `3. **[J1] Kes 2:** $${a}x = ${-k - b} \\implies x = ${U.roundStr(x2)}$`
+        `2. **[K1] Kes 1:** $${axStr} = ${U.roundStr(k - b)} \\implies x = ${U.roundStr(x1)}$\n` +
+        `3. **[J1] Kes 2:** $${axStr} = ${U.roundStr(-k - b)} \\implies x = ${U.roundStr(x2)}$`
       : `**Modulus Step-by-Step Solution** for $|${inner}| = ${k}$:\n` +
         `1. **[P1] Split into two branches:** $${inner} = ${k}$ or $${inner} = ${-k}$\n` +
-        `2. **[K1] Branch 1:** $${a}x = ${k - b} \\implies x = ${U.roundStr(x1)}$\n` +
-        `3. **[J1] Branch 2:** $${a}x = ${-k - b} \\implies x = ${U.roundStr(x2)}$`;
+        `2. **[K1] Branch 1:** $${axStr} = ${U.roundStr(k - b)} \\implies x = ${U.roundStr(x1)}$\n` +
+        `3. **[J1] Branch 2:** $${axStr} = ${U.roundStr(-k - b)} \\implies x = ${U.roundStr(x2)}$`;
   }
 
   // Live Function Inverse Solver: e.g. "f(x) = 3x - 5"
   function trySolveLiveFunction(text, lang) {
-    const cleaned = text.replace(/\s+/g, '');
-    const m = cleaned.match(/f\(x\)=([+-]?\d*\.?\d*)x([+-]\d+\.?\d*)?/i);
+    const cleaned = text.replace(/−/g, '-').replace(/\s+/g, '');
+    const m = cleaned.match(/^f\(x\)=([+-]?(?:\d+\.?\d*|\.\d+)?)x([+-](?:\d+\.?\d*|\.\d+))?$/i);
     if (!m) return null;
-    const a = (!m[1] || m[1] === '+') ? 1 : (m[1] === '-' ? -1 : parseFloat(m[1]));
-    const b = m[2] ? parseFloat(m[2]) : 0;
-    if (!a) return null;
-    const signB = -b >= 0 ? ' + ' + Math.abs(b) : ' - ' + Math.abs(b);
+    const a = parseLiveCoeff(m[1], 1);
+    const b = m[2] ? parseStrictNum(m[2]) : 0;
+    if (!Number.isFinite(a) || a === 0 || !Number.isFinite(b)) return null;
+    const signB = -b >= 0 ? '+ ' + Math.abs(b) : '- ' + Math.abs(b);
+    const ax = a === 1 ? 'x' : (a === -1 ? '-x' : `${a}x`);
+    const rhsY = b === 0 ? 'y' : `y ${signB}`;
+    const rhsX = b === 0 ? 'x' : `x ${signB}`;
+    const isoX = a === 1 ? rhsY : (a === -1 ? U.polyTex([{ c: -1, p: 1 }, { c: b, p: 0 }], 'y') : `\\frac{${rhsY}}{${a}}`);
+    const invX = a === 1 ? rhsX : (a === -1 ? U.polyTex([{ c: -1, p: 1 }, { c: b, p: 0 }], 'x') : `\\frac{${rhsX}}{${a}}`);
+    const fxTex = U.polyTex([{ c: a, p: 1 }, { c: b, p: 0 }]);
     return lang === 'bm'
-      ? `**Janaan Langkah Fungsi Songsang** bagi $f(x) = ${U.polyTex([{ c: a, p: 1 }, { c: b, p: 0 }])}$:\n` +
-        `1. **[P1]** Biar $y = ${U.polyTex([{ c: a, p: 1 }, { c: b, p: 0 }])}$\n` +
-        `2. **[K1]** Asingkan $x$: $${a}x = y ${signB} \\implies x = \\frac{y ${signB}}{${a}}$\n` +
-        `3. **[J1]** Fungsi songsang: $$f^{-1}(x) = \\frac{x ${signB}}{${a}}$$`
-      : `**Generated Inverse Function Steps** for $f(x) = ${U.polyTex([{ c: a, p: 1 }, { c: b, p: 0 }])}$:\n` +
-        `1. **[P1]** Let $y = ${U.polyTex([{ c: a, p: 1 }, { c: b, p: 0 }])}$\n` +
-        `2. **[K1]** Isolate $x$: $${a}x = y ${signB} \\implies x = \\frac{y ${signB}}{${a}}$\n` +
-        `3. **[J1]** Inverse function: $$f^{-1}(x) = \\frac{x ${signB}}{${a}}$$`;
+      ? `**Janaan Langkah Fungsi Songsang** bagi $f(x) = ${fxTex}$:\n` +
+        `1. **[P1]** Biar $y = ${fxTex}$\n` +
+        `2. **[K1]** Asingkan $x$: $${ax} = ${rhsY} \\implies x = ${isoX}$\n` +
+        `3. **[J1]** Fungsi songsang: $$f^{-1}(x) = ${invX}$$`
+      : `**Generated Inverse Function Steps** for $f(x) = ${fxTex}$:\n` +
+        `1. **[P1]** Let $y = ${fxTex}$\n` +
+        `2. **[K1]** Isolate $x$: $${ax} = ${rhsY} \\implies x = ${isoX}$\n` +
+        `3. **[J1]** Inverse function: $$f^{-1}(x) = ${invX}$$`;
   }
 
   // Live Sequence Detector (AP / GP): e.g. "12, 6, 3" or "4, 9, 14"
   function trySolveLiveSequence(text, lang) {
-    const nums = text.split(',').map((p) => parseFloat(p.trim())).filter(Number.isFinite);
-    if (nums.length < 3) return null;
-    const [t1, t2, t3] = nums;
-    const isAP = Math.abs((t2 - t1) - (t3 - t2)) < 1e-6;
-    const isGP = t1 !== 0 && t2 !== 0 && Math.abs((t2 / t1) - (t3 / t2)) < 1e-6;
+    const parts = String(text || '').replace(/−/g, '-').split(',').map((p) => p.trim());
+    if (parts.length < 3 || parts.some((p) => !STRICT_NUM_RE.test(p))) return null;
+    const nums = parts.map(Number);
+    if (nums.some((n) => !Number.isFinite(n))) return null;
+
+    const t1 = nums[0];
+    const t2 = nums[1];
+    const d = t2 - t1;
+    const apTol = 1e-6 * Math.max(1, Math.abs(d));
+    const isAP = nums.slice(2).every((val, idx) => Math.abs((val - nums[idx + 1]) - d) < apTol);
+
+    const allNonZero = nums.every((n) => n !== 0);
+    const r = allNonZero ? t2 / t1 : NaN;
+    const gpTol = 1e-6 * Math.max(1, Math.abs(r));
+    const isGP = allNonZero && Number.isFinite(r) && nums.slice(2).every((val, idx) => Math.abs((val / nums[idx + 1]) - r) < gpTol);
+    const t1Fmt = t1 < 0 ? `(${t1})` : `${t1}`;
 
     if (isAP) {
-      const d = t2 - t1;
       const t10 = t1 + 9 * d;
       const s10 = 5 * (2 * t1 + 9 * d);
+      if (!Number.isFinite(d) || !Number.isFinite(t10) || !Number.isFinite(s10)) {
+        return lang === 'bm'
+          ? `**Pengesanan Automatik: Janjang Aritmetik (JA)**\n1. **[P1]** Sebutan pertama $a = ${t1}$\n2. **[J1]** Nilai $d$, $T_{10}$, atau $S_{10}$ melebihi had nombor nyata ($> 10^{308}$).`
+          : `**Auto-Detected: Arithmetic Progression (AP)**\n1. **[P1]** First term $a = ${t1}$\n2. **[J1]** Values $d$, $T_{10}$, or $S_{10}$ exceed finite floating-point limits ($> 10^{308}$).`;
+      }
       return lang === 'bm'
         ? `**Pengesanan Automatik: Janjang Aritmetik (JA)**\n` +
-          `1. **[P1]** Sebutan pertama $a = ${t1}$, beza sepunya $d = ${t2} - ${t1} = ${U.roundStr(d)}$\n` +
+          `1. **[P1]** Sebutan pertama $a = ${t1}$, beza sepunya $d = ${t2} - ${t1Fmt} = ${U.roundStr(d)}$\n` +
           `2. **[K1]** Rumus sebutan ke-$n$: $T_n = ${t1} + (n - 1)(${U.roundStr(d)})$\n` +
           `3. **[J1]** Contoh nilai: $T_{10} = ${U.roundStr(t10)}$ dan $S_{10} = ${U.roundStr(s10)}$`
         : `**Auto-Detected: Arithmetic Progression (AP)**\n` +
-          `1. **[P1]** First term $a = ${t1}$, common difference $d = ${t2} - ${t1} = ${U.roundStr(d)}$\n` +
+          `1. **[P1]** First term $a = ${t1}$, common difference $d = ${t2} - ${t1Fmt} = ${U.roundStr(d)}$\n` +
           `2. **[K1]** General $n$-th term: $T_n = ${t1} + (n - 1)(${U.roundStr(d)})$\n` +
           `3. **[J1]** Sample evaluation: $T_{10} = ${U.roundStr(t10)}$ and $S_{10} = ${U.roundStr(s10)}$`;
     }
     if (isGP) {
-      const r = t2 / t1;
       const t6 = t1 * Math.pow(r, 5);
+      const sInfVal = Math.abs(r) < 1 ? t1 / (1 - r) : null;
       const sInfLine = Math.abs(r) < 1
-        ? `\\implies S_\\infty = \\frac{${t1}}{1 - (${U.roundStr(r)})} = ${U.roundStr(t1 / (1 - r))}`
+        ? (Number.isFinite(sInfVal) ? `$\\implies S_\\infty = \\frac{${t1}}{1 - (${U.roundStr(r)})} = ${U.roundStr(sInfVal)}$` : (lang === 'bm' ? '(Nilai $S_\\infty$ melebihi had $> 10^{308}$)' : '($S_\\infty$ exceeds limit $> 10^{308}$)'))
         : (lang === 'bm' ? '(Tiada $S_\\infty$ kerana $|r| \\ge 1$)' : '(No $S_\\infty$ since $|r| \\ge 1$)');
+      const t6Str = Number.isFinite(t6)
+        ? `${U.roundStr(t6)}`
+        : (lang === 'bm' ? '\\text{Melebihi had } (> 10^{308})' : '\\text{Exceeds limit } (> 10^{308})');
       return lang === 'bm'
         ? `**Janjang Geometri (JG)**\n` +
-          `1. **[P1]** Sebutan pertama $a = ${t1}$, nisbah sepunya $r = \\frac{${t2}}{${t1}} = ${U.roundStr(r)}$\n` +
-          `2. **[K1]** Sebutan ke-6: $T_6 = ${t1}(${U.roundStr(r)})^5 = ${U.roundStr(t6)}$\n` +
+          `1. **[P1]** Sebutan pertama $a = ${t1}$, nisbah sepunya $r = \\frac{${t2}}{${t1Fmt}} = ${U.roundStr(r)}$\n` +
+          `2. **[K1]** Sebutan ke-6: $T_6 = ${t1Fmt}(${U.roundStr(r)})^5 = ${t6Str}$\n` +
           `3. **[J1]** Hasil tambah ketakterhinggaan ($S_\\infty$): ${sInfLine}`
         : `**Auto-Detected: Geometric Progression (GP)**\n` +
-          `1. **[P1]** First term $a = ${t1}$, common ratio $r = \\frac{${t2}}{${t1}} = ${U.roundStr(r)}$\n` +
-          `2. **[K1]** 6th term: $T_6 = ${t1}(${U.roundStr(r)})^5 = ${U.roundStr(t6)}$\n` +
+          `1. **[P1]** First term $a = ${t1}$, common ratio $r = \\frac{${t2}}{${t1Fmt}} = ${U.roundStr(r)}$\n` +
+          `2. **[K1]** 6th term: $T_6 = ${t1Fmt}(${U.roundStr(r)})^5 = ${t6Str}$\n` +
           `3. **[J1]** Sum to infinity: ${sInfLine}`;
     }
     return null;
@@ -165,7 +221,7 @@ window.AddMathApp = window.AddMathApp || {};
   function trySolveLiveCalculus(text, lang) {
     const raw = String(text || '').trim();
     const isDiff = /^(d\/dx|bezakan|differentiate)\b/i.test(raw);
-    const isInt = /^(int|∫|kamirkan|integrate)\b/i.test(raw);
+    const isInt = /^(?:(?:int|kamirkan|integrate)\b|∫)/i.test(raw);
     if (!isDiff && !isInt) return null;
 
     let body = raw
@@ -173,22 +229,24 @@ window.AddMathApp = window.AddMathApp || {};
       .replace(/dx$/i, '')
       .trim();
     if (body.startsWith('(') && body.endsWith(')')) body = body.slice(1, -1);
-    body = body.replace(/²/g, '^2').replace(/³/g, '^3').replace(/\s+/g, '');
-    if (!body) return null;
+    body = body.replace(/−/g, '-').replace(/²/g, '^2').replace(/³/g, '^3').replace(/\s+/g, '');
+    if (!body || /[+\-^]$/.test(body)) return null;
 
-    const tokens = body.match(/([+-]?[^+-]+)/g);
-    if (!tokens) return null;
+    const tokens = body.match(/([+-]?(?:[^^+\-]|\^[+-]?)+)/g);
+    if (!tokens || tokens.join('') !== body) return null;
 
     const terms = [];
-    for (const tk of tokens) {
-      const m = tk.match(/^([+-]?\d*\.?\d*)x(?:\^([+-]?\d+))?$/i);
+    for (let idx = 0; idx < tokens.length; idx++) {
+      const tk = tokens[idx];
+      if (idx > 0 && !/^[+-]/.test(tk)) return null;
+      const m = tk.match(/^([+-]?(?:\d+\.?\d*|\.\d+)?)x(?:\^([+-]?\d+))?$/i);
       if (m) {
-        const c = (!m[1] || m[1] === '+') ? 1 : (m[1] === '-' ? -1 : parseFloat(m[1]));
+        const c = parseLiveCoeff(m[1], 1);
         const p = m[2] !== undefined ? parseInt(m[2], 10) : 1;
         if (!Number.isFinite(c) || !Number.isFinite(p)) return null;
         terms.push({ c, p });
       } else {
-        const num = parseFloat(tk);
+        const num = parseStrictNum(tk);
         if (!Number.isFinite(num)) return null;
         terms.push({ c: num, p: 0 });
       }
@@ -196,7 +254,7 @@ window.AddMathApp = window.AddMathApp || {};
 
     const origTex = U.polyTex(terms);
     if (isDiff) {
-      const dTerms = terms.filter((t) => t.p !== 0).map((t) => ({ c: U.round(t.c * t.p, 4), p: t.p - 1 }));
+      const dTerms = terms.filter((t) => Math.abs(t.c) >= 1e-9 && t.p !== 0).map((t) => ({ c: U.round(t.c * t.p, 4), p: t.p - 1 }));
       const dTex = dTerms.length ? U.polyTex(dTerms) : '0';
       return lang === 'bm'
         ? `**Langkah Pembezaan** bagi $y = ${origTex}$:\n` +
@@ -206,28 +264,97 @@ window.AddMathApp = window.AddMathApp || {};
           `1. **[P1] Power Rule:** $\\frac{d}{dx}(ax^n) = anx^{n-1}$ (constants vanish to $0$)\n` +
           `2. **[J1] First Derivative:** $$\\frac{dy}{dx} = ${dTex}$$`;
     }
-    const iParts = terms.map((t) => {
-      if (t.p === -1) return `${U.roundStr(t.c)}\\ln|x|`;
+    const nonZeroTerms = terms.filter((t) => Math.abs(t.c) >= 1e-9);
+    const iParts = nonZeroTerms.map((t) => {
+      if (t.p === -1) {
+        const c = U.round(t.c, 4);
+        if (c === 1) return '\\ln|x|';
+        if (c === -1) return '-\\ln|x|';
+        return `${U.roundStr(c)}\\ln|x|`;
+      }
       const np = t.p + 1;
       const nc = t.c / np;
       const coeffStr = Number.isInteger(nc) ? (nc === 1 ? '' : (nc === -1 ? '-' : String(nc))) : U.fracTex(t.c, np);
       return np === 1 ? `${coeffStr}x` : `${coeffStr}x^{${np}}`;
     });
-    const joined = iParts.join(' + ').replace(/\+\s*-/g, '- ');
+    const joined = iParts.length ? iParts.join(' + ').replace(/\+\s*-/g, '- ') : '';
+    const intResult = joined ? `${joined} + c` : 'c';
     return lang === 'bm'
       ? `**Pengamiran Tak Tentu Langsung** bagi $\\int (${origTex})\\,dx$:\n` +
         `1. **[P1] Petua Songsang Kuasa:** Tambah kuasa dengan $1$ dan bahagi kuasa baru\n` +
-        `2. **[J1] Hasil Kamiran (Wajib tulis $+c$!):** $$\\int (${origTex})\\,dx = ${joined} + c$$`
+        `2. **[J1] Hasil Kamiran (Wajib tulis $+c$!):** $$\\int (${origTex})\\,dx = ${intResult}$$`
       : `**Live Indefinite Integration** for $\\int (${origTex})\\,dx$:\n` +
         `1. **[P1] Reverse Power Rule:** Add $1$ to each exponent and divide by new power\n` +
-        `2. **[J1] Result (Always include $+c$!):** $$\\int (${origTex})\\,dx = ${joined} + c$$`;
+        `2. **[J1] Result (Always include $+c$!):** $$\\int (${origTex})\\,dx = ${intResult}$$`;
+  }
+
+  function resolveIntentMeta(val, lang) {
+    if (!val) return '';
+    if (typeof val === 'object') {
+      if (lang === 'en') return val.en ? String(val.en).trim() : '';
+      return U.t(val, lang);
+    }
+    // Legacy chapters (pre-M2..M5 upgrade) pass plain BM strings in intentMeta
+    if (lang === 'en') return '';
+    return String(val);
+  }
+
+  const META_MATH_FUNCS = new Set([
+    'sin', 'cos', 'tan', 'sec', 'csc', 'cot',
+    'log', 'ln', 'lg', 'lim', 'mod', 'max', 'min',
+    'exp', 'abs', 'rad', 'deg'
+  ]);
+
+  function normalizeUnicodeTex(str) {
+    return str
+      .replace(/⁻¹/g, '^{-1}')
+      .replace(/⁰/g, '^{0}')
+      .replace(/¹/g, '^{1}')
+      .replace(/²/g, '^{2}')
+      .replace(/³/g, '^{3}')
+      .replace(/−/g, '-')
+      .replace(/→/g, '\\to ')
+      .replace(/←/g, '\\leftarrow ')
+      .replace(/⟹/g, '\\implies ')
+      .replace(/⟺/g, '\\iff ')
+      .replace(/≤/g, '\\le ')
+      .replace(/≥/g, '\\ge ')
+      .replace(/≠/g, '\\ne ')
+      .replace(/≈/g, '\\approx ')
+      .replace(/×/g, '\\times ')
+      .replace(/÷/g, '\\div ')
+      .replace(/±/g, '\\pm ')
+      .replace(/°/g, '^\\circ')
+      .replace(/α/g, '\\alpha ')
+      .replace(/β/g, '\\beta ')
+      .replace(/θ/g, '\\theta ')
+      .replace(/π/g, '\\pi ')
+      .replace(/μ/g, '\\mu ')
+      .replace(/σ/g, '\\sigma ')
+      .replace(/Δ/g, '\\Delta ')
+      .replace(/(^|[^\\])%/g, '$1\\%')
+      .replace(/\s{2,}/g, ' ')
+      .trim();
   }
 
   function formatSafeMetaMath(str) {
     if (!str) return '-';
     const s = String(str).trim();
+    if (!s) return '-';
     if (s.includes('$')) return s;
-    if (/[²³₁₂₀≥≤⟹⟺ⁿᵣ°&]|(\b(persamaan|kerusi|meja|titik|paksi|julat|naik)\b)/i.test(s)) {
+    const hasLatexCmd = /\\(?:[a-zA-Z]+|%)/.test(s);
+    if (hasLatexCmd) {
+      return '$' + normalizeUnicodeTex(s) + '$';
+    }
+    const hasUnsafeCharOrUnicode = /[⁰¹²³⁴⁵⁶⁷⁸⁹⁻₀-₉ₐₙᵢᵣ≥≤≠≈⟹⟺→←√∞±×÷°&%−αβθπμσΔ]/.test(s);
+    const words = s.match(/\b[a-zA-Z]*[a-z]{2,}[a-zA-Z]*\b/g) || [];
+    const hasProseWord = words.some((w) => {
+      const lw = w.toLowerCase();
+      if (META_MATH_FUNCS.has(lw)) return false;
+      if (lw.length >= 3) return true;
+      return /^(and|or|is|in|at|to|of|by|on|if|as|no|so|di|ke)$/.test(lw);
+    });
+    if (hasUnsafeCharOrUnicode || hasProseWord) {
       return '`' + s + '`';
     }
     return '$' + s + '$';
@@ -236,26 +363,44 @@ window.AddMathApp = window.AddMathApp || {};
   // Context-Aware Socratic Coach for the ACTIVE Practice Question!
   function coachOnQuestion(userText, question, chapter, lastStudentAnswer, lang) {
     const l = lang || App.lang || 'bm';
+    const q = question || {};
+    const chapId = chapter ? chapter.id : '';
+    const chapTitle = chapter ? U.t(chapter.title, l) : (l === 'bm' ? 'Matematik Tambahan' : 'Additional Mathematics');
+    const formatStepTex = (texVal) => {
+      const rawTex = U.t(texVal, l).trim();
+      if (!rawTex) return '-';
+      if (/^\$\$[\s\S]+\$\$$/.test(rawTex) || /^\$[^$\n]+\$$/.test(rawTex)) return rawTex;
+      const stripped = rawTex.replace(/^\$+|\$+$/g, '').trim();
+      return stripped ? `$${stripped}$` : '-';
+    };
     const intent = detectIntent(userText);
-    const meta = question.intentMeta || {};
-    const gSteps = question.guidedSteps || [];
-    const firstGuided = gSteps[0] ? U.t(gSteps[0].prompt, l) : (question.hints && question.hints[0]) || '';
-    const firstStep = (question.steps && question.steps[0]) || { badge: 'P1', title: '', tex: '', why: '' };
-    const givenDisplay = (l === 'bm' && meta.given) ? formatSafeMetaMath(U.t(meta.given, l)) : `$${firstStep.tex}$`;
-    const ruleDisplay = (l === 'bm' && meta.conceptRule) ? U.t(meta.conceptRule, l) : (firstStep.why || question.hints[0] || `$${firstStep.tex}$`);
-    const goalDisplay = (l === 'bm' && meta.goal) ? U.t(meta.goal, l) : (firstStep.title || U.t(question.subtopic, l));
+    const meta = q.intentMeta || {};
+    const gSteps = q.guidedSteps || [];
+    const firstHint = U.t(q.hints && q.hints[0], l);
+    const firstGuided = gSteps[0] ? U.t(gSteps[0].prompt, l) : firstHint;
+    const firstStep = (q.steps && q.steps[0]) || { badge: 'P1', title: '', tex: '', why: '' };
+    const fallbackTex = formatStepTex(firstStep.tex);
+    const metaGiven = resolveIntentMeta(meta.given, l);
+    const metaRule = resolveIntentMeta(meta.conceptRule, l);
+    const metaGoal = resolveIntentMeta(meta.goal, l);
+    const givenDisplay = metaGiven ? formatSafeMetaMath(metaGiven) : fallbackTex;
+    const ruleDisplay = metaRule || U.t(firstStep.why, l) || firstHint || fallbackTex;
+    const goalDisplay = metaGoal || U.t(firstStep.title, l) || U.t(q.subtopic, l);
 
-    const numInMsgMatch = String(userText || '').match(/(-?\d+(\.\d+)?)/);
+    const numInMsgMatch = String(userText || '').match(/(-?\d+(?:\/\d+|\.\d+)?)/);
     const candidateWrong = lastStudentAnswer || (numInMsgMatch ? numInMsgMatch[1] : '');
 
     // Dynamically construct step-by-step guided plan WITHOUT exposing only the final answer prematurely, OR showing all setup steps clearly!
     if (intent === 'generate_steps') {
-      const stepLines = (question.steps || []).map((st, idx) => {
-        const isLast = idx === question.steps.length - 1;
-        if (isLast && question.steps.length > 1) {
-          return `${idx + 1}. **[${st.badge}] ${st.title}:** ${l === 'bm' ? 'Permudahkan langkah di atas untuk mendapat jawapan akhir! *(Klik "Jana Skema Penuh SPM" di atas jika mahu semak angka akhir)*' : 'Simplify the expression above to get the final answer! *(Click "Generate Full SPM Working" above to reveal the final number)*'}`;
+      const stepsList = (q.steps || []).filter(Boolean);
+      const stepLines = stepsList.map((st, idx) => {
+        const isLast = idx === stepsList.length - 1;
+        const stTitle = U.t(st.title, l);
+        const stWhy = U.t(st.why, l);
+        if (isLast && stepsList.length > 1) {
+          return `${idx + 1}. **[${st.badge}] ${stTitle}:** ${l === 'bm' ? 'Permudahkan langkah di atas untuk mendapat jawapan akhir! *(Klik "Jana Skema Penuh SPM" di atas jika mahu semak angka akhir)*' : 'Simplify the expression above to get the final answer! *(Click "Generate Full SPM Working" above to reveal the final number)*'}`;
         }
-        return `${idx + 1}. **[${st.badge}] ${st.title}:** $${st.tex}$ — *${st.why}*`;
+        return `${idx + 1}. **[${st.badge}] ${stTitle}:** ${formatStepTex(st.tex)} — *${stWhy}*`;
       }).join('\n');
 
       return {
@@ -300,20 +445,20 @@ window.AddMathApp = window.AddMathApp || {};
         tag: l === 'bm' ? 'Formula Yang Perlu Diguna [P]' : 'Formula Selection [P]',
         category: 'P',
         reply: l === 'bm'
-          ? `Untuk subtopik **${U.t(question.subtopic, 'bm')}**, rumus utama yang perlu digunakan ialah:\n` +
+          ? `Untuk subtopik **${U.t(q.subtopic, 'bm')}**, rumus utama yang perlu digunakan ialah:\n` +
             `- **Rumus / Konsep Utama:** ${ruleDisplay}\n` +
-            `- **Gantian Awal:** $${firstStep.tex}$\n\n` +
+            `- **Gantian Awal:** ${fallbackTex}\n\n` +
             `Cuba kira nilai daripada gantian di atas!`
-          : `For **${U.t(question.subtopic, 'en')}**, the key governing formula is:\n` +
+          : `For **${U.t(q.subtopic, 'en')}**, the key governing formula is:\n` +
             `- **Key Principle:** ${ruleDisplay}\n` +
-            `- **Initial Substitution:** $${firstStep.tex}$\n\n` +
+            `- **Initial Substitution:** ${fallbackTex}\n\n` +
             `Try evaluating the substitution above!`
       };
     }
 
     if (intent === 'diagnose_wrong') {
       if (candidateWrong) {
-        const evalRes = U.evaluateAnswer(question, candidateWrong, l);
+        const evalRes = U.evaluateAnswer(q, candidateWrong, l);
         if (evalRes.correct) {
           return {
             tag: l === 'bm' ? 'Semakan: Jawapan Betul!' : 'Check: Correct Answer!',
@@ -351,7 +496,7 @@ window.AddMathApp = window.AddMathApp || {};
     }
 
     // Mental model / Guru Cemerlang memory hook ('mental_model')
-    const clinic = App.teacherClinic && App.teacherClinic[chapter.id];
+    const clinic = App.teacherClinic && chapId && App.teacherClinic[chapId];
     if (intent === 'mental_model' && clinic && clinic.mentalModels && clinic.mentalModels.length) {
       const m0 = clinic.mentalModels[0];
       const m1 = clinic.mentalModels[1] || m0;
@@ -369,7 +514,7 @@ window.AddMathApp = window.AddMathApp || {};
     }
 
     // Concept explanation ('why_concept') — explain clearly using chapter & subtopic context!
-    const subName = question.subtopic ? U.t(question.subtopic, l) : U.t(chapter.title, l);
+    const subName = q.subtopic ? U.t(q.subtopic, l) : chapTitle;
     const rxTip = clinic && clinic.rxFix
       ? (l === 'bm' ? `\n- ⚠️ **Elakkan Silap Biasa:** Jangan buat ${U.t(clinic.rxFix.wrong, 'bm')}` : `\n- ⚠️ **Avoid Common Trap:** Never do ${U.t(clinic.rxFix.wrong, 'en')}`)
       : '';
@@ -409,6 +554,10 @@ window.AddMathApp = window.AddMathApp || {};
     const calcOut = trySolveLiveCalculus(msg, l);
     if (calcOut) return calcOut;
 
+    const chTitle = activeChapter
+      ? U.t(activeChapter.title, l)
+      : (l === 'bm' ? 'Matematik Tambahan' : 'Additional Mathematics');
+
     // 2. Optional Gemini API Key if configured
     const apiKey = localStorage.getItem('addmath_gemini_key');
     if (apiKey && navigator.onLine) {
@@ -416,12 +565,15 @@ window.AddMathApp = window.AddMathApp || {};
         const sysPrompt = l === 'bm'
           ? 'Anda ialah Cikgu Pintar Matematik Tambahan KSSM SPM Malaysia. Fahami intent pelajar, terangkan konsep dengan mudah menggunakan LaTeX ($...$), dan jana bimbingan langkah demi langkah mengikut markah P, K, J.'
           : 'You are an expert Malaysian KSSM SPM Additional Mathematics Tutor. Understand student intent, use LaTeX ($...$), and generate clear step-by-step guidance with P, K, J marks.';
+        const promptText = l === 'bm'
+          ? `[Topik: ${chTitle}] Soalan pelajar: ${msg}`
+          : `[Topic: ${chTitle}] Student question: ${msg}`;
         const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${encodeURIComponent(apiKey)}`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             systemInstruction: { parts: [{ text: sysPrompt }] },
-            contents: [{ role: 'user', parts: [{ text: `[Topik: ${U.t(activeChapter.title, l)}] Soalan pelajar: ${msg}` }] }]
+            contents: [{ role: 'user', parts: [{ text: promptText }] }]
           })
         });
         if (resp.ok) {
@@ -458,8 +610,7 @@ window.AddMathApp = window.AddMathApp || {};
         : `**AP vs GP Quick Guide:**\n- **Arithmetic (AP):** Constant difference $d = T_2 - T_1$, $T_n = a + (n-1)d$.\n- **Geometric (GP):** Constant ratio $r = T_2 / T_1$, $T_n = ar^{n-1}$, and for $|r| < 1$, $S_\\infty = \\frac{a}{1-r}$.\n\n*Try typing any sequence like \`18, 6, 2\` or \`5, 9, 13\` and watch me analyze it live!*`;
     }
 
-    const chTitle = U.t(activeChapter.title, l);
-    const activeClinic = App.teacherClinic && App.teacherClinic[activeChapter.id];
+    const activeClinic = activeChapter && App.teacherClinic && App.teacherClinic[activeChapter.id];
     if (activeClinic && /(analogi|cara ingat|mudah ingat|mnemonik|mnemonic|memory|klinik|kata kunci|trigger|sakit kepala|tak faham)/i.test(lower)) {
       const mmText = (activeClinic.mentalModels || []).map((m) => `- ${m.icon} **${U.t(m.title, l)}:** ${U.t(m.desc, l)}`).join('\n\n');
       const trText = (activeClinic.triggers || []).slice(0, 2).map((tr) => `- 🔑 *${U.t(tr.cue, l)}* $\\rightarrow$ ${U.t(tr.action, l)}`).join('\n');
@@ -468,11 +619,11 @@ window.AddMathApp = window.AddMathApp || {};
         : `**🩺 Teacher's Pain-Killer Clinic — ${chTitle}:**\n\n${mmText}\n\n**Exam-Phrase Trigger Decoder:**\n${trText}`;
     }
     if (/(kesilapan|lazim|mistake|trap|perangkap|contoh soalan|skim|skema|markah|k1|n1)/i.test(lower)) {
-      const bankList = (App.masterBank && App.masterBank[activeChapter.id]) || [];
+      const bankList = (activeChapter && App.masterBank && App.masterBank[activeChapter.id]) || [];
       if (bankList.length) {
         const sampleItems = bankList.slice(0, 3).map((it) => {
-          const mTxt = (it.mistakes[l] || it.mistakes.bm || [])[0] || '';
-          const sTxt = it.scheme[0] ? `[${it.scheme[0].badge}] ${it.scheme[0][l] || it.scheme[0].bm}` : '';
+          const mTxt = ((it.mistakes && (it.mistakes[l] || it.mistakes.bm)) || [])[0] || '';
+          const sTxt = it.scheme && it.scheme[0] ? `[${it.scheme[0].badge}] ${U.t(it.scheme[0], l)}` : '';
           return `- **Soalan ${it.code} (${U.t(it.topic, l)}):**\n  ⚠️ *${l === 'bm' ? 'Kesilapan Lazim' : 'Common Mistake'}:* ${mTxt}\n  ✅ *${l === 'bm' ? 'Langkah Utama' : 'Key Step'}:* ${sTxt}`;
         }).join('\n\n');
         return l === 'bm'

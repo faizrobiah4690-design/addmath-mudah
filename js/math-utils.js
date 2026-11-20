@@ -55,6 +55,7 @@ window.AddMathApp = window.AddMathApp || {};
   function roundStr(val, dp = 4) {
     if (!Number.isFinite(val)) return 'Undefined';
     const r = round(val, dp);
+    if (!Number.isFinite(r)) return val.toExponential(3);
     if (Object.is(r, -0)) return '0';
     return String(r);
   }
@@ -211,36 +212,72 @@ window.AddMathApp = window.AddMathApp || {};
     return arr[Math.floor(Math.random() * arr.length)];
   }
 
-  // Parse student numeric expression (supports fractions like -3/4, pi, sqrt(2))
+  function parseStudentAtom(atom) {
+    const a = String(atom || '').trim();
+    if (!a) return NaN;
+    if (/^[+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:e[+-]?\d+)?$/i.test(a)) {
+      const n = Number(a);
+      return Number.isFinite(n) ? n : NaN;
+    }
+    const sm = a.match(/^([+-]?)\s*sqrt\(([^)]+)\)$/i);
+    if (sm) {
+      const inner = sm[2].trim();
+      if (!/^[+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:e[+-]?\d+)?$/i.test(inner)) return NaN;
+      const v = Number(inner);
+      if (!Number.isFinite(v) || v < 0) return NaN;
+      return (sm[1] === '-' ? -1 : 1) * Math.sqrt(v);
+    }
+    return NaN;
+  }
+
+  // Parse student numeric expression (supports fractions like -3/4, pi, sqrt(2), sqrt(2)/2)
   function parseStudentNumber(raw) {
     if (raw === null || raw === undefined) return NaN;
-    let s = String(raw).trim()
-      .replace(/,/g, '')
-      .replace(/−/g, '-')
-      .replace(/π/gi, String(Math.PI))
-      .replace(/\bpi\b/gi, String(Math.PI))
-      .replace(/%/g, '');
+    let s = String(raw).trim().replace(/−/g, '-');
     if (!s) return NaN;
-    // Simple fraction a/b
-    if (/^[+-]?\d+(\.\d+)?\s*\/\s*[+-]?\d+(\.\d+)?$/.test(s)) {
-      const parts = s.split('/');
-      const den = parseFloat(parts[1]);
-      if (den === 0) return NaN;
-      return parseFloat(parts[0]) / den;
+
+    // Strip at most ONE trailing '%' (reject '5%0', '50%%', '%50', '%')
+    if (s.includes('%')) {
+      if (!/^[^%]+%$/.test(s)) return NaN;
+      s = s.slice(0, -1).trim();
+      if (!s) return NaN;
     }
-    // sqrt(x)
-    s = s.replace(/sqrt\(([^)]+)\)/gi, (_, inner) => {
-      const v = parseFloat(inner);
-      return Number.isFinite(v) && v >= 0 ? String(Math.sqrt(v)) : 'NaN';
-    });
-    const num = Number(s);
-    return Number.isFinite(num) ? num : NaN;
+
+    // Validate comma grouping (only strip ',' when matching valid thousands groups like 1,000 or 1,234.56)
+    if (s.includes(',')) {
+      const parts = s.split('/');
+      if (parts.length > 2) return NaN;
+      const validCommaNumRe = /^[+-]?\d{1,3}(?:,\d{3})+(?:\.\d+)?$/;
+      const cleanParts = parts.map((p) => {
+        const tp = p.trim();
+        if (!tp.includes(',')) return tp;
+        return validCommaNumRe.test(tp) ? tp.replace(/,/g, '') : null;
+      });
+      if (cleanParts.some((p) => p === null)) return NaN;
+      s = cleanParts.join('/');
+    }
+
+    s = s
+      .replace(/(^|[^0-9.a-zA-Z])π(?![0-9.a-zA-Z])/gi, '$1' + String(Math.PI))
+      .replace(/\bpi\b/gi, String(Math.PI))
+      .trim();
+    if (!s) return NaN;
+    if (s.includes('/')) {
+      const parts = s.split('/');
+      if (parts.length !== 2) return NaN;
+      const num = parseStudentAtom(parts[0]);
+      const den = parseStudentAtom(parts[1]);
+      if (!Number.isFinite(num) || !Number.isFinite(den) || den === 0) return NaN;
+      const q = num / den;
+      return Number.isFinite(q) ? q : NaN;
+    }
+    return parseStudentAtom(s);
   }
 
   // Smart Answer Evaluator + SPM Trap Detector
   function evaluateAnswer(question, userInput, lang) {
     const l = lang || App.lang || 'bm';
-    const raw = String(userInput || '').trim();
+    const raw = (userInput === null || userInput === undefined) ? '' : String(userInput).trim();
     if (!raw) {
       return {
         correct: false,
@@ -274,8 +311,11 @@ window.AddMathApp = window.AddMathApp || {};
     const tol = question.tolerance !== undefined ? question.tolerance : 0.05;
 
     if (question.answerType === 'pair') {
-      // Expect two numbers separated by comma, 'or', 'dan', space, semicolon
-      const parts = raw.split(/[,;]|(?:\bor\b)|(?:\bdan\b)|(?:\band\b)|\s+/i).map(p => p.trim()).filter(Boolean);
+      // Expect two numbers separated primarily by comma, semicolon, 'or', 'dan', 'and' (fallback to whitespace)
+      const primaryParts = raw.split(/[,;]|(?:\bor\b)|(?:\bdan\b)|(?:\band\b)/i).map(p => p.trim()).filter(Boolean);
+      const parts = primaryParts.length >= 2
+        ? primaryParts
+        : (primaryParts.length === 1 ? primaryParts[0].split(/\s+/).map(p => p.trim()).filter(Boolean) : []);
       if (parts.length < 2) {
         return {
           correct: false,
@@ -284,12 +324,30 @@ window.AddMathApp = window.AddMathApp || {};
             : 'This question requires 2 values. Separate them with a comma (e.g., 2, -5).'
         };
       }
+      if (parts.length > 2) {
+        return {
+          correct: false,
+          feedback: l === 'bm'
+            ? 'Soalan ini memerlukan tepat 2 nilai sahaja (contoh: 2, -5).'
+            : 'This question requires exactly 2 values (e.g., 2, -5).'
+        };
+      }
       const u1 = parseStudentNumber(parts[0]);
       const u2 = parseStudentNumber(parts[1]);
+      if (!Number.isFinite(u1) || !Number.isFinite(u2)) {
+        return {
+          correct: false,
+          feedback: l === 'bm'
+            ? 'Format nombor tidak dikenali. Masukkan dua nombor sah dipisahkan dengan koma (contoh: 2, -5).'
+            : 'Number format not recognized. Enter two valid numbers separated by a comma (e.g., 2, -5).'
+        };
+      }
       const [c1, c2] = question.correctValue;
       const ordered = question.orderedPair === true;
-      const matchDirect = Math.abs(u1 - c1) <= tol && Math.abs(u2 - c2) <= tol;
-      const matchSwapped = !ordered && Math.abs(u1 - c2) <= tol && Math.abs(u2 - c1) <= tol;
+      const tol1 = Math.max(tol, Math.abs(c1) * 0.005);
+      const tol2 = Math.max(tol, Math.abs(c2) * 0.005);
+      const matchDirect = Math.abs(u1 - c1) <= tol1 && Math.abs(u2 - c2) <= tol2;
+      const matchSwapped = !ordered && Math.abs(u1 - c2) <= tol2 && Math.abs(u2 - c1) <= tol1;
       if (matchDirect || matchSwapped) {
         return {
           correct: true,
@@ -298,7 +356,7 @@ window.AddMathApp = window.AddMathApp || {};
             : 'Excellent! Both values match the SPM marking scheme!'
         };
       }
-      if (ordered && Math.abs(u1 - c2) <= tol && Math.abs(u2 - c1) <= tol) {
+      if (ordered && Math.abs(u1 - c2) <= tol2 && Math.abs(u2 - c1) <= tol1) {
         return {
           correct: false,
           trapHit: true,
@@ -307,8 +365,44 @@ window.AddMathApp = window.AddMathApp || {};
             : 'Almost there! Your values are right, but the ordered pair (x, y) is swapped.'
         };
       }
-      // Check sign error on pair
-      if (Math.abs(u1 + c1) <= tol && Math.abs(u2 + c2) <= tol) {
+      // Check question-specific traps for pair (both [t1, t2] pairs and scalar traps)
+      if (Array.isArray(question.traps)) {
+        for (const trap of question.traps) {
+          if (Array.isArray(trap.value) && trap.value.length >= 2) {
+            const t1 = Number(trap.value[0]);
+            const t2 = Number(trap.value[1]);
+            if (Number.isFinite(t1) && Number.isFinite(t2)) {
+              const trapTol1 = Math.max(tol, Math.abs(t1) * 0.01);
+              const trapTol2 = Math.max(tol, Math.abs(t2) * 0.01);
+              const hitDirect = Math.abs(u1 - t1) <= trapTol1 && Math.abs(u2 - t2) <= trapTol2;
+              const hitSwapped = !ordered && Math.abs(u1 - t2) <= trapTol2 && Math.abs(u2 - t1) <= trapTol1;
+              if (hitDirect || hitSwapped) {
+                return {
+                  correct: false,
+                  trapHit: true,
+                  feedback: t(trap.message, l)
+                };
+              }
+            }
+          } else if (trap.value !== null && trap.value !== undefined && trap.value !== '') {
+            const trapVal = Number(trap.value);
+            if (Number.isFinite(trapVal)) {
+              const trapTol = Math.max(tol, Math.abs(trapVal) * 0.01);
+              if (Math.abs(u1 - trapVal) <= trapTol || Math.abs(u2 - trapVal) <= trapTol) {
+                return {
+                  correct: false,
+                  trapHit: true,
+                  feedback: t(trap.message, l)
+                };
+              }
+            }
+          }
+        }
+      }
+      // Check sign error on pair (direct and unordered swapped)
+      const signFlipDirect = Math.abs(u1 + c1) <= tol1 && Math.abs(u2 + c2) <= tol2;
+      const signFlipSwapped = !ordered && Math.abs(u1 + c2) <= tol2 && Math.abs(u2 + c1) <= tol1;
+      if (signFlipDirect || signFlipSwapped) {
         return {
           correct: false,
           trapHit: true,
@@ -327,7 +421,7 @@ window.AddMathApp = window.AddMathApp || {};
 
     // Single numerical value
     const val = parseStudentNumber(raw);
-    if (Number.isNaN(val)) {
+    if (!Number.isFinite(val)) {
       return {
         correct: false,
         feedback: l === 'bm'
@@ -351,6 +445,7 @@ window.AddMathApp = window.AddMathApp || {};
     // Check question-specific traps first!
     if (Array.isArray(question.traps)) {
       for (const trap of question.traps) {
+        if (trap.value === null || trap.value === undefined || trap.value === '') continue;
         const trapVal = Number(trap.value);
         if (Number.isFinite(trapVal) && Math.abs(val - trapVal) <= Math.max(tol, Math.abs(trapVal) * 0.01)) {
           return {
@@ -384,64 +479,155 @@ window.AddMathApp = window.AddMathApp || {};
   // Offline-capable LaTeX Math Renderer (uses KaTeX if loaded, else rich semantic HTML math fallback)
   function fallbackTexToHtml(tex) {
     if (!tex) return '';
-    let s = String(tex);
-    // Clean basic LaTeX commands into readable HTML math
+    // Stage 1: Escape raw < and > before injecting HTML tags
+    let s = String(tex)
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;');
+
+    // Stage 2: Expand \begin{cases}, \begin{*matrix}, and remaining line breaks \\
+    s = s.replace(/\\begin\{cases\}([\s\S]*?)\\end\{cases\}/g, (_, body) => {
+      const rows = body.split(/\\\\/)
+        .map(r => r.replace(/(^|[^\\])&(?!lt;|gt;|amp;|#\d+;)/g, '$1, ').trim())
+        .filter(Boolean);
+      return '&#123; <span class="m-cases" style="display:inline-flex;flex-direction:column;vertical-align:middle;text-align:left;">' +
+        rows.map(r => '<span>' + r + '</span>').join('') +
+        '</span>';
+    });
+    s = s.replace(/\\begin\{(p|b|v|V)?matrix\}([\s\S]*?)\\end\{\1?matrix\}/g, (_, kind, body) => {
+      const lBr = kind === 'b' ? '[' : (kind === 'v' || kind === 'V' ? '|' : '(');
+      const rBr = kind === 'b' ? ']' : (kind === 'v' || kind === 'V' ? '|' : ')');
+      const rows = body.split(/\\\\/).map(r => {
+        const cols = r.replace(/\\&/g, '\u0001AMP\u0001')
+          .split(/&(?!lt;|gt;|amp;|#\d+;)/)
+          .map(c => c.replace(/\u0001AMP\u0001/g, '\\&').trim());
+        return '<span>' + cols.join(' &nbsp; ') + '</span>';
+      }).filter(Boolean);
+      return lBr + '<span class="m-matrix" style="display:inline-flex;flex-direction:column;vertical-align:middle;text-align:center;">' +
+        rows.join('') +
+        '</span>' + rBr;
+    });
+    s = s.replace(/\\\\/g, ' ');
+
+    // Stage 3: Handle \not, escaped punctuation (\&, \{, \}), and TeX spacing
     s = s
-      .replace(/\\text\{([^}]*)\}/g, '<span class="m-txt">$1</span>')
-      .replace(/\\mathbf\{([^}]*)\}/g, '<strong>$1</strong>')
-      .replace(/\\vec\{([^}]*)\}/g, '<span class="m-vec">$1&#8407;</span>')
-      .replace(/\\hat\{\\mathbf\{([^}]*)\}\}/g, '<strong>$1&#770;</strong>')
-      .replace(/\\hat\{([^}]*)\}/g, '$1&#770;')
-      .replace(/\\bar\{([^}]*)\}/g, '<span style="text-decoration:overline">$1</span>')
-      .replace(/\\frac\{([^{}]+)\}\{([^{}]+)\}/g, '<span class="m-frac"><span class="m-num">$1</span><span class="m-den">$2</span></span>')
-      .replace(/\\frac\{([^{}]+)\}\{([^{}]+)\}/g, '<span class="m-frac"><span class="m-num">$1</span><span class="m-den">$2</span></span>')
-      .replace(/\\sqrt\[([^\]]+)\]\{([^}]+)\}/g, '<sup>$1</sup>&radic;<span class="m-rad">($2)</span>')
-      .replace(/\\sqrt\{([^}]+)\}/g, '&radic;<span class="m-rad">($1)</span>')
-      .replace(/\^\{([^}]+)\}/g, '<sup>$1</sup>')
+      .replace(/\\not\s*&lt;/g, '&#8814;')
+      .replace(/\\not\s*&gt;/g, '&#8815;')
+      .replace(/\\not\s*=/g, '&ne;')
+      .replace(/\\not(?![a-zA-Z])/g, '&#172;')
+      .replace(/\\&/g, '&amp;')
+      .replace(/\\\{/g, '&#123;')
+      .replace(/\\\}/g, '&#125;')
+      .replace(/\\qquad(?![a-zA-Z])|\\quad(?![a-zA-Z])/g, ' ')
+      .replace(/\\[,;: ]/g, ' ')
+      .replace(/\\!/g, '');
+
+    // Stage 4: Expand leaf brace wrappers (multi-pass so nested \underset{\sim}{\mathbf{a}} or \xrightarrow{\text{...}} resolve cleanly)
+    function applyTexBraceWrappers(str) {
+      return str
+        .replace(/\\phantom\{[^{}]*\}/g, '&#9633;')
+        .replace(/\\mathbb\{([^{}]*)\}/g, (_, ch) => {
+          const map = { R: '&#8477;', Z: '&#8484;', N: '&#8469;', Q: '&#8474;' };
+          return map[ch] || ch;
+        })
+        .replace(/\\hat\{\\mathbf\{([^{}]*)\}\}/g, '<strong>$1&#770;</strong>')
+        .replace(/\\text\{([^{}]*)\}/g, '<span class="m-txt">$1</span>')
+        .replace(/\\mathbf\{([^{}]*)\}/g, '<strong>$1</strong>')
+        .replace(/\\overrightarrow\{([^{}]*)\}/g, '<span class="m-vec">$1&#8407;</span>')
+        .replace(/\\vec\{([^{}]*)\}/g, '<span class="m-vec">$1&#8407;</span>')
+        .replace(/\\hat\{([^{}]*)\}/g, '$1&#770;')
+        .replace(/\\bar\{([^{}]*)\}/g, '<span style="text-decoration:overline">$1</span>')
+        .replace(/\\overline\{([^{}]*)\}/g, '<span style="text-decoration:overline">$1</span>')
+        .replace(/\\underset\{(?:\\sim|&sim;)\}\{([^{}]*)\}/g, '<span style="text-decoration:underline">$1</span>')
+        .replace(/\\underset\{([^{}]*)\}\{([^{}]*)\}/g, '$2')
+        .replace(/\\xrightarrow(?:\[[^\]]*\])?\{([^{}]*)\}/g, '&#8594;<sup>$1</sup> ');
+    }
+
+    for (let pass = 0; pass < 3; pass++) {
+      const prev = s;
+      s = applyTexBraceWrappers(s);
+      if (s === prev) break;
+    }
+
+    // Stage 5: Convert delimiters, Greek letters, symbols, operators (before function names) with (?![a-zA-Z]) boundaries
+    s = s
+      .replace(/\\left\.|\\right\./g, '')
+      .replace(/\\(?:left|right|Big|big)(?![a-zA-Z])/g, '')
+      .replace(/\\alpha(?![a-zA-Z])/g, '&alpha;')
+      .replace(/\\beta(?![a-zA-Z])/g, '&beta;')
+      .replace(/\\theta(?![a-zA-Z])/g, '&theta;')
+      .replace(/\\Delta(?![a-zA-Z])/g, '&Delta;')
+      .replace(/\\delta(?![a-zA-Z])/g, '&delta;')
+      .replace(/\\pi(?![a-zA-Z])/g, '&pi;')
+      .replace(/\\mu(?![a-zA-Z])/g, '&mu;')
+      .replace(/\\sigma(?![a-zA-Z])/g, '&sigma;')
+      .replace(/\\lambda(?![a-zA-Z])/g, '&lambda;')
+      .replace(/\\Phi(?![a-zA-Z])/g, '&Phi;')
+      .replace(/\\checkmark(?![a-zA-Z])/g, '&#10003;')
+      .replace(/\\infty(?![a-zA-Z])/g, '&infin;')
+      .replace(/\\int(?![a-zA-Z])/g, '&int;')
+      .replace(/\\sum(?![a-zA-Z])/g, '&sum;')
+      .replace(/\\pm(?![a-zA-Z])/g, '&plusmn;')
+      .replace(/\\mp(?![a-zA-Z])/g, '&#8723;')
+      .replace(/\\times(?![a-zA-Z])/g, '&times;')
+      .replace(/\\div(?![a-zA-Z])/g, '&divide;')
+      .replace(/\\cdot(?![a-zA-Z])/g, '&middot;')
+      .replace(/\\cdots(?![a-zA-Z])/g, '&#8943;')
+      .replace(/\\dots(?![a-zA-Z])/g, '&hellip;')
+      .replace(/\\(?:le|leq)(?![a-zA-Z])/g, '&le;')
+      .replace(/\\(?:ge|geq)(?![a-zA-Z])/g, '&ge;')
+      .replace(/\\(?:ne|neq)(?![a-zA-Z])/g, '&ne;')
+      .replace(/\\approx(?![a-zA-Z])/g, '&approx;')
+      .replace(/\\(?:implies|Rightarrow)(?![a-zA-Z])/g, '&rArr;')
+      .replace(/\\iff(?![a-zA-Z])/g, '&hArr;')
+      .replace(/\\leftrightarrow(?![a-zA-Z])/g, '&harr;')
+      .replace(/\\(?:to|rightarrow)(?![a-zA-Z])/g, '&rarr;')
+      .replace(/\\mapsto(?![a-zA-Z])/g, '&#8614;')
+      .replace(/\\subseteq(?![a-zA-Z])/g, '&sube;')
+      .replace(/\\in(?![a-zA-Z])/g, '&isin;')
+      .replace(/\\cup(?![a-zA-Z])/g, '&cup;')
+      .replace(/\\cap(?![a-zA-Z])/g, '&cap;')
+      .replace(/\\circ(?![a-zA-Z])/g, '&deg;')
+      .replace(/\\therefore(?![a-zA-Z])/g, '&there4;')
+      .replace(/\\because(?![a-zA-Z])/g, '&becaus;')
+      .replace(/\\mid(?![a-zA-Z])/g, '&#8739;')
+      .replace(/\\cong(?![a-zA-Z])/g, '&cong;')
+      .replace(/\\sim(?![a-zA-Z])/g, '&sim;')
+      .replace(/\\parallel(?![a-zA-Z])/g, '&#8741;')
+      .replace(/\\perp(?![a-zA-Z])/g, '&perp;')
+      .replace(/\\angle(?![a-zA-Z])/g, '&ang;')
+      .replace(/\\triangle(?![a-zA-Z])/g, '&#9651;')
+      .replace(/\\searrow(?![a-zA-Z])/g, '&#8600;')
+      .replace(/\\swarrow(?![a-zA-Z])/g, '&#8601;')
+      .replace(/\\(sin|cos|tan|sec|csc|cot|log|ln|lim|max|min)(?![a-zA-Z])/g, '$1');
+
+    // Stage 6: Strip empty {} anchors, resolve single-char ^/_ & entity ^/_, and run bottom-up nesting loop
+    s = s
+      .replace(/\{\}/g, '')
+      .replace(/\^(&deg;)/g, '$1')
+      .replace(/\^(&[a-zA-Z0-9#]+;)/g, '<sup>$1</sup>')
+      .replace(/_(&[a-zA-Z0-9#]+;)/g, '<sub>$1</sub>')
       .replace(/\^([0-9a-zA-Z+-])/g, '<sup>$1</sup>')
-      .replace(/_\{([^}]+)\}/g, '<sub>$1</sub>')
-      .replace(/_([0-9a-zA-Z])/g, '<sub>$1</sub>')
-      .replace(/\\alpha/g, '&alpha;')
-      .replace(/\\beta/g, '&beta;')
-      .replace(/\\theta/g, '&theta;')
-      .replace(/\\checkmark/g, '&#10003;')
-      .replace(/\\Delta/g, '&Delta;')
-      .replace(/\\delta/g, '&delta;')
-      .replace(/\\pi/g, '&pi;')
-      .replace(/\\mu/g, '&mu;')
-      .replace(/\\sigma/g, '&sigma;')
-      .replace(/\\lambda/g, '&lambda;')
-      .replace(/\\infty/g, '&infin;')
-      .replace(/\\int/g, '&int;')
-      .replace(/\\sum/g, '&sum;')
-      .replace(/\\pm/g, '&plusmn;')
-      .replace(/\\mp/g, '&#8723;')
-      .replace(/\\times/g, '&times;')
-      .replace(/\\div/g, '&divide;')
-      .replace(/\\le|\\leq/g, '&le;')
-      .replace(/\\ge|\\geq/g, '&ge;')
-      .replace(/\\ne|\\neq/g, '&ne;')
-      .replace(/\\approx/g, '&approx;')
-      .replace(/\\implies/g, '&rArr;')
-      .replace(/\\iff/g, '&hArr;')
-      .replace(/\\to|\\rightarrow/g, '&rarr;')
-      .replace(/\\mapsto/g, '&#8614;')
-      .replace(/\\subseteq/g, '&sube;')
-      .replace(/\\in/g, '&isin;')
-      .replace(/\\cup/g, '&cup;')
-      .replace(/\\cap/g, '&cap;')
-      .replace(/\\circ/g, '&deg;')
-      .replace(/\\left|\\right/g, '')
-      .replace(/\\quad|\\qquad|\\,|\\;/g, ' ')
-      .replace(/\\sin/g, 'sin')
-      .replace(/\\cos/g, 'cos')
-      .replace(/\\tan/g, 'tan')
-      .replace(/\\sec/g, 'sec')
-      .replace(/\\csc/g, 'csc')
-      .replace(/\\cot/g, 'cot')
-      .replace(/\\log/g, 'log')
-      .replace(/\\ln/g, 'ln')
-      .replace(/\\lim/g, 'lim');
+      .replace(/_([0-9a-zA-Z])/g, '<sub>$1</sub>');
+
+    for (let pass = 0; pass < 8; pass++) {
+      const prev = s;
+      s = applyTexBraceWrappers(s)
+        .replace(/\\sqrt\[([^\]]+)\]\{([^{}]*)\}/g, '<sup>$1</sup>&radic;<span class="m-rad">($2)</span>')
+        .replace(/\\sqrt\{([^{}]*)\}/g, '&radic;<span class="m-rad">($1)</span>')
+        .replace(/\^\{([^{}]*)\}/g, '<sup>$1</sup>')
+        .replace(/_\{([^{}]*)\}/g, '<sub>$1</sub>')
+        .replace(/\\frac\{([^{}]*)\}\{([^{}]*)\}/g, '<span class="m-frac"><span class="m-num">$1</span><span class="m-den">$2</span></span>')
+        .replace(/\\binom\{([^{}]*)\}\{([^{}]*)\}/g, '(<span class="m-frac"><span class="m-num" style="border-bottom:none">$1</span><span class="m-den">$2</span></span>)');
+      if (s === prev) break;
+    }
+
+    // Strip residual non-command grouping braces (e.g. |{-2}| -> |-2|) while preserving unknown \cmd{...}
+    for (let pass = 0; pass < 4; pass++) {
+      const prev = s;
+      s = s.replace(/(^|[^\\a-zA-Z])\{([^{}]*)\}/g, '$1$2');
+      if (s === prev) break;
+    }
+
     return '<span class="math-fallback">' + s + '</span>';
   }
 
@@ -480,30 +666,45 @@ window.AddMathApp = window.AddMathApp || {};
 
   // Render mixed text containing $$...$$, $...$, **bold**, *italic*, and `code` into clean HTML
   function renderMixed(text) {
-    if (!text) return '';
-    let str = String(text);
+    if (text === null || text === undefined || text === '') return '';
+    let str = String(text).replace(/\u0000/g, '');
     const mathBlocks = [];
 
-    // 1. Temporarily extract display math $$...$$ and inline math $...$ so markdown never corrupts math
+    // 1. Temporarily extract display math $$...$$ and inline math $...$ so escaping/markdown never corrupts math
     str = str.replace(/\$\$([\s\S]+?)\$\$/g, (_, m) => {
       const idx = mathBlocks.length;
       mathBlocks.push(renderTex(m.trim(), true));
-      return '@@MATHBLOCK_' + idx + '@@';
+      return '\u0000M' + idx + '\u0000';
     });
     str = str.replace(/\$([^$\n]+?)\$/g, (_, m) => {
       const idx = mathBlocks.length;
       mathBlocks.push(renderTex(m.trim(), false));
-      return '@@MATHBLOCK_' + idx + '@@';
+      return '\u0000M' + idx + '\u0000';
     });
 
-    // 2. Convert inline markdown (`code`, **bold**, *italic*)
+    // 2. Escape all raw HTML outside math blocks (zero HTML passthrough / XSS safe)
     str = str
-      .replace(/`([^`\n]+)`/g, '<code class="m-code">$1</code>')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;');
+
+    // 3. Extract inline `code` before bold/italic so markdown never crosses or corrupts <code> tags
+    const codeBlocks = [];
+    str = str.replace(/`([^`\n]+)`/g, (_, code) => {
+      const idx = codeBlocks.length;
+      codeBlocks.push('<code class="m-code">' + code + '</code>');
+      return '\u0000C' + idx + '\u0000';
+    });
+
+    // 4. Convert bold/italic markdown (**bold**, *italic*)
+    str = str
       .replace(/\*\*([\s\S]+?)\*\*/g, '<strong>$1</strong>')
       .replace(/(^|[^*])\*([^*\n]+)\*(?!\*)/g, '$1<em>$2</em>');
 
-    // 3. Restore rendered math blocks
-    str = str.replace(/@@MATHBLOCK_(\d+)@@/g, (_, i) => mathBlocks[Number(i)] || '');
+    // 5. Restore inline code and rendered math blocks
+    str = str
+      .replace(/\u0000C(\d+)\u0000/g, (_, i) => codeBlocks[Number(i)] || '')
+      .replace(/\u0000M(\d+)\u0000/g, (_, i) => mathBlocks[Number(i)] || '');
     return str;
   }
 

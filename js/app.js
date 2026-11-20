@@ -145,7 +145,7 @@ window.AddMathApp = window.AddMathApp || {};
                 <div class="mental-item">
                   <div class="mental-tag">${m.icon} ${U.t(m.tag, App.lang)}</div>
                   <div style="font-weight:800;font-size:0.9rem;margin-bottom:4px;">${U.renderMixed(U.t(m.title, App.lang))}</div>
-                  <div style="font-size:0.84rem;color:var(--text-muted);line-height:1.45;">${U.renderMixed(U.t(m.desc, App.lang))}</div>
+                  <div style="font-size:0.84rem;color:var(--text-muted);line-height:1.45;white-space:pre-line;">${U.renderMixed(U.t(m.desc, App.lang))}</div>
                 </div>
               `).join('')}
             </div>
@@ -451,7 +451,9 @@ window.AddMathApp = window.AddMathApp || {};
     const kw = mbankSearch.trim().toLowerCase();
     const filtered = kw
       ? list.filter((it) => {
-          const hay = `${it.code} ${U.t(it.topic, App.lang)} ${U.t(it.q, App.lang)} ${(it.mistakes[App.lang] || []).join(' ')}`.toLowerCase();
+          const rawM = it.mistakes && (it.mistakes[App.lang] || it.mistakes.bm);
+          const mistakesText = (Array.isArray(rawM) ? rawM : []).join(' ');
+          const hay = `${it.code} ${U.t(it.topic, App.lang)} ${U.t(it.q, App.lang)} ${mistakesText}`.toLowerCase();
           return hay.includes(kw);
         })
       : list;
@@ -466,7 +468,8 @@ window.AddMathApp = window.AddMathApp || {};
       const isDone = Boolean(doneMap[key]);
       const showM = mbankExpandAll || Boolean(mbankOpenMistake[key]);
       const showS = mbankExpandAll || Boolean(mbankOpenScheme[key]);
-      const mistakesArr = (it.mistakes && (it.mistakes[App.lang] || it.mistakes.bm)) || [];
+      const rawMistakes = it.mistakes && (it.mistakes[App.lang] || it.mistakes.bm);
+      const mistakesArr = Array.isArray(rawMistakes) ? rawMistakes : [];
 
       return `
         <div class="mbank-card ${isDone ? 'mastered' : ''}">
@@ -512,17 +515,62 @@ window.AddMathApp = window.AddMathApp || {};
                 <strong style="color:var(--accent);">✅ ${L('Cara Menjawab Betul & Skema Pemarkahan SPM:', 'Correct Solution Method & SPM Marking Scheme:')}</strong>
                 <span style="font-size:0.73rem;font-weight:700;color:var(--text-muted);">K1 = ${L('Kaedah', 'Method')} • N1 = ${L('Jawapan Tepat', 'Accuracy')}</span>
               </div>
-              ${(it.scheme || []).map((st) => `
-                <div class="mbank-scheme-row">
-                  <span class="spm-badge spm-${st.badge}">${st.badge}</span>
-                  <span>${U.renderMixed(U.t(st, App.lang))}</span>
-                </div>
-              `).join('')}
+              ${(Array.isArray(it.scheme) ? it.scheme : []).map((st) => {
+                if (!st) return '';
+                const whyStr = st.why ? U.t(st.why, App.lang).trim() : '';
+                return `
+                  <div class="mbank-scheme-row">
+                    <div class="mbank-scheme-main">
+                      <span class="spm-badge spm-${st.badge}">${st.badge}</span>
+                      <span>${U.renderMixed(U.t(st, App.lang))}</span>
+                    </div>
+                    ${whyStr ? `<div class="scheme-why">💡 <strong>${L('Kenapa?', 'Why?')}</strong> ${U.renderMixed(whyStr)}</div>` : ''}
+                  </div>
+                `;
+              }).join('')}
             </div>
           ` : ''}
         </div>
       `;
     }).join('');
+  }
+
+  function renderWorkedExampleHtml(ex) {
+    if (!ex) return '';
+    const titleStr = ex.title ? U.t(ex.title, App.lang).trim() : '';
+    const probStr = ex.problem ? U.t(ex.problem, App.lang).trim() : '';
+    const steps = Array.isArray(ex.steps) ? ex.steps : [];
+    const trapStr = ex.trap ? U.t(ex.trap, App.lang).trim() : '';
+
+    return `
+      <div class="concept-worked">
+        <div class="worked-hdr">
+          📝 ${titleStr ? U.renderMixed(titleStr) : L('Contoh Terpandu Langkah demi Langkah', 'Step-by-Step Worked Example')}
+        </div>
+        ${probStr ? `<div class="worked-problem">${U.renderMixed(probStr)}</div>` : ''}
+        ${steps.length ? `
+          <div class="worked-steps">
+            ${steps.map((st, idx) => {
+              if (!st) return '';
+              const lblStr = st.label ? U.t(st.label, App.lang).trim() : '';
+              const texStr = st.tex ? U.t(st.tex, App.lang).trim() : '';
+              const whyStr = st.why ? U.t(st.why, App.lang).trim() : '';
+              return `
+                <div class="worked-step">
+                  <div class="worked-step-lbl">
+                    <span class="worked-step-num">${L('Langkah', 'Step')} ${idx + 1}</span>
+                    <span>${U.renderMixed(lblStr)}</span>
+                  </div>
+                  ${texStr ? `<div class="worked-tex">${U.renderTex(texStr, true)}</div>` : ''}
+                  ${whyStr ? `<div class="worked-why">💡 <strong>${L('Kenapa?', 'Why?')}</strong> ${U.renderMixed(whyStr)}</div>` : ''}
+                </div>
+              `;
+            }).join('')}
+          </div>
+        ` : ''}
+        ${trapStr ? `<div class="worked-trap">⚠️ <strong>${L('Perangkap SPM:', 'SPM Trap:')}</strong> ${U.renderMixed(trapStr)}</div>` : ''}
+      </div>
+    `;
   }
 
   function renderLearnView(container) {
@@ -607,19 +655,36 @@ window.AddMathApp = window.AddMathApp || {};
           </div>
         </div>` : ''}
 
-        ${ch.concepts.map((sec) => `
-          <div class="card">
-            <h3 style="font-size:1.02rem;margin-bottom:8px;">${U.t(sec.title, App.lang)}</h3>
-            <p style="font-size:0.9rem;margin-bottom:10px;">${U.renderMixed(U.t(sec.body, App.lang))}</p>
-            ${sec.formulas.map((f) => `
-              <div class="formula-box">
-                <div style="font-size:0.75rem;font-weight:700;color:var(--text-muted);margin-bottom:4px;">${U.t(f.label, App.lang)}</div>
-                <div>${U.renderTex(f.tex, true)}</div>
-              </div>
-            `).join('')}
-            ${sec.tip ? `<div class="tip-box">💡 <strong>${L('Tip Pintar:', 'Smart Tip:')}</strong> ${U.renderMixed(U.t(sec.tip, App.lang))}</div>` : ''}
-          </div>
-        `).join('')}
+        ${ch.concepts.map((sec) => {
+          const prereqStr = sec.prereq ? U.t(sec.prereq, App.lang).trim() : '';
+          const firstStepStr = sec.firstStep ? U.t(sec.firstStep, App.lang).trim() : '';
+          return `
+            <div class="card">
+              <h3 style="font-size:1.02rem;margin-bottom:8px;">${U.t(sec.title, App.lang)}</h3>
+              ${prereqStr ? `
+                <div class="concept-prereq">
+                  <div class="concept-callout-hdr">🌱 ${L('Asas & Analogi (Mula Dari Kosong)', 'Start From Basics & Analogy')}</div>
+                  <div class="concept-callout-body">${U.renderMixed(prereqStr)}</div>
+                </div>
+              ` : ''}
+              <div class="concept-body">${U.renderMixed(U.t(sec.body, App.lang))}</div>
+              ${firstStepStr ? `
+                <div class="concept-firststep">
+                  <div class="concept-callout-hdr">🧭 ${L('Tak Tahu Mula? Buat Ini Dulu', 'Stuck? Do This First')}</div>
+                  <div class="concept-callout-body">${U.renderMixed(firstStepStr)}</div>
+                </div>
+              ` : ''}
+              ${(sec.formulas || []).map((f) => `
+                <div class="formula-box">
+                  <div style="font-size:0.75rem;font-weight:700;color:var(--text-muted);margin-bottom:4px;">${U.t(f.label, App.lang)}</div>
+                  <div>${U.renderTex(U.t(f.tex, App.lang), true)}</div>
+                </div>
+              `).join('')}
+              ${sec.workedExample ? renderWorkedExampleHtml(sec.workedExample) : ''}
+              ${sec.tip ? `<div class="tip-box">💡 <strong>${L('Tip Pintar:', 'Smart Tip:')}</strong> ${U.renderMixed(U.t(sec.tip, App.lang))}</div>` : ''}
+            </div>
+          `;
+        }).join('')}
 
         <div class="card">
           <h3 style="font-size:1.02rem;color:var(--danger);">⚠️ ${L('Radar Perangkap Lazim SPM', 'Common SPM Exam Traps')}</h3>
@@ -1105,7 +1170,7 @@ window.AddMathApp = window.AddMathApp || {};
     const kw = vaultSearch.trim().toLowerCase();
     const list = kw
       ? App.chapters.filter((c) => {
-          const hay = `${U.t(c.code, App.lang)} ${U.t(c.title, App.lang)} ${c.concepts.flatMap((s) => s.formulas).map((f) => U.t(f.label, App.lang) + ' ' + f.tex).join(' ')}`.toLowerCase();
+          const hay = `${U.t(c.code, App.lang)} ${U.t(c.title, App.lang)} ${(c.concepts || []).flatMap((s) => s.formulas || []).map((f) => U.t(f.label, App.lang) + ' ' + U.t(f.tex, App.lang)).join(' ')}`.toLowerCase();
           return hay.includes(kw);
         })
       : App.chapters;
@@ -1129,10 +1194,10 @@ window.AddMathApp = window.AddMathApp || {};
             </button>
           </div>
         </div>
-        ${c.concepts.flatMap((s) => s.formulas).map((f) => `
+        ${(c.concepts || []).flatMap((s) => s.formulas || []).map((f) => `
           <div class="formula-box">
             <small style="color:var(--text-muted);font-weight:700;">${U.t(f.label, App.lang)}</small>
-            <div>${U.renderTex(f.tex, true)}</div>
+            <div>${U.renderTex(U.t(f.tex, App.lang), true)}</div>
           </div>
         `).join('')}
       </div>

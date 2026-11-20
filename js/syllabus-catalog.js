@@ -37,7 +37,7 @@ window.AddMathApp = window.AddMathApp || {};
       ans: 2
     },
     {
-      q: { bm: 'Syarat wujudnya Hasil Tambah Ketakterhinggaan S∞ bagi JG ialah:', en: 'Sum to Infinity S∞ of a GP converges if and only if:' },
+      q: { bm: 'Syarat wujudnya Hasil Tambah Ketakterhinggaan S∞ bagi JG (Janjang Geometri) ialah:', en: 'Sum to Infinity S∞ of a GP (Geometric Progression) exists when:' },
       options: { bm: ['|r| < 1', 'r > 1', 'r = 1'], en: ['|r| < 1', 'r > 1', 'r = 1'] },
       ans: 0
     },
@@ -62,7 +62,7 @@ window.AddMathApp = window.AddMathApp || {};
       ans: 1
     },
     {
-      q: { bm: 'Rumus Indeks Gubahan Ī (dengan pemberat wᵢ) ialah:', en: 'The Weighted Composite Index Ī formula is:' },
+      q: { bm: 'Rumus Indeks Gubahan Ī (dengan pemberat wᵢ) ialah:', en: 'The Weighted Composite Index Ī formula (with weights wᵢ) is:' },
       options: { bm: ['∑Iᵢ / n', '∑(Iᵢ wᵢ) / ∑wᵢ', '∑(Iᵢ wᵢ) / 100'], en: ['∑Iᵢ / n', '∑(Iᵢ wᵢ) / ∑wᵢ', '∑(Iᵢ wᵢ) / 100'] },
       ans: 1
     },
@@ -117,7 +117,7 @@ window.AddMathApp = window.AddMathApp || {};
       ans: 1
     },
     {
-      q: { bm: 'Dalam Kinematik, zarah berhenti seketika / menukar arah apabila:', en: 'In Kinematics, a particle is instantaneously at rest when:' },
+      q: { bm: 'Dalam Kinematik, zarah berhenti seketika / menukar arah apabila:', en: 'In Kinematics, a particle is instantaneously at rest / changes direction when:' },
       options: { bm: ['s = 0', 'v = 0', 'a = 0'], en: ['s = 0', 'v = 0', 'a = 0'] },
       ans: 1
     }
