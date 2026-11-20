@@ -11,6 +11,7 @@ window.AddMathApp = window.AddMathApp || {};
   const defaultState = {
     lang: 'bm',
     theme: 'light',
+    comfortMode: false,
     xp: 0,
     streak: 1,
     combo: 0,
@@ -19,6 +20,7 @@ window.AddMathApp = window.AddMathApp || {};
     labsExplored: {},
     mastery: {}, // { 'f4-c1': 25, ... } (0..100)
     masterBankDone: {}, // { 'f4-c1:1.1': true, ... } (180 Master SPM Bank)
+    conceptsDone: {}, // { 'f4-c1:0': true, ... } (Subtopic self-check tracker)
     postersViewed: {},
     radar: { P: 0, K: 0, J: 0, ok: 0 }, // Misconception diagnostic tracker
     quests: { lab: false, solve3: false, kbat1: false },
@@ -47,6 +49,7 @@ window.AddMathApp = window.AddMathApp || {};
       const merged = Object.assign({}, base);
       merged.lang = parsed.lang === 'en' ? 'en' : 'bm';
       merged.theme = parsed.theme === 'dark' ? 'dark' : 'light';
+      merged.comfortMode = Boolean(parsed.comfortMode);
       merged.xp = nonNegNum(parsed.xp, base.xp);
       merged.streak = nonNegNum(parsed.streak, base.streak);
       merged.combo = nonNegNum(parsed.combo, base.combo);
@@ -56,6 +59,7 @@ window.AddMathApp = window.AddMathApp || {};
 
       merged.labsExplored = isPlainObject(parsed.labsExplored) ? Object.assign({}, parsed.labsExplored) : {};
       merged.masterBankDone = isPlainObject(parsed.masterBankDone) ? Object.assign({}, parsed.masterBankDone) : {};
+      merged.conceptsDone = isPlainObject(parsed.conceptsDone) ? Object.assign({}, parsed.conceptsDone) : {};
       merged.postersViewed = isPlainObject(parsed.postersViewed) ? Object.assign({}, parsed.postersViewed) : {};
 
       const cleanMastery = {};

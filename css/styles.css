@@ -1089,4 +1089,334 @@ body {
   .concept-worked { padding: 10px 11px; }
   .worked-step,
   .worked-problem { padding: 9px 10px; }
+  .comfort-btn { padding: 4px 8px; font-size: 0.72rem; height: 32px; }
+  .starter-steps { grid-template-columns: 1fr; }
 }
+
+/* ============================================================================
+   v3.0 Student-Friendly Educational UI/UX Upgrades (Weak-Student Focus)
+   ============================================================================ */
+
+/* Top-bar Comfort / Focus Mode Toggle */
+.comfort-btn {
+  border: 1px solid var(--border);
+  background: var(--surface-alt);
+  color: var(--text);
+  height: 36px;
+  padding: 0 11px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 0.8rem;
+  font-weight: 800;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  transition: background 0.18s, border-color 0.18s, color 0.18s, transform 0.12s;
+}
+.comfort-btn:hover {
+  border-color: var(--primary);
+  background: var(--primary-soft);
+  color: var(--primary);
+}
+.comfort-btn.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
+/* Warm Low-Anxiety Comfort / Large-Text Mode */
+[data-comfort="on"] {
+  --bg: #f9f6ef;
+  --surface: #fffdf9;
+  --surface-alt: #f4efe4;
+  --border: #e5dec9;
+}
+[data-theme="dark"][data-comfort="on"] {
+  --bg: #0f172a;
+  --surface: #172133;
+  --surface-alt: #1e293b;
+  --border: #334155;
+}
+[data-comfort="on"] body {
+  font-size: 1.08rem;
+  line-height: 1.8;
+  letter-spacing: 0.01em;
+}
+[data-comfort="on"] .concept-body,
+[data-comfort="on"] .concept-callout-body,
+[data-comfort="on"] .worked-problem,
+[data-comfort="on"] .worked-why,
+[data-comfort="on"] .worked-trap,
+[data-comfort="on"] .tip-box,
+[data-comfort="on"] .trap-box,
+[data-comfort="on"] .mbank-qbox {
+  font-size: 1.03rem;
+  line-height: 1.8;
+}
+[data-comfort="on"] .katex {
+  font-size: 1.14em;
+}
+[data-comfort="on"] .card {
+  padding: 22px;
+  border-width: 1.5px;
+}
+
+/* Zero-to-Hero Weak-Student Launchpad (Home) */
+.starter-launchpad {
+  background: linear-gradient(135deg, var(--accent-soft) 0%, var(--surface) 58%, var(--primary-soft) 100%);
+  border: 2px solid rgba(16, 185, 129, 0.42);
+  border-radius: 20px;
+  padding: 20px;
+  margin-bottom: 18px;
+  box-shadow: 0 10px 26px rgba(16, 185, 129, 0.1);
+}
+.starter-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--accent);
+  color: #fff;
+  font-size: 0.72rem;
+  font-weight: 800;
+  padding: 4px 11px;
+  border-radius: 999px;
+  letter-spacing: 0.02em;
+  margin-bottom: 8px;
+}
+.starter-steps {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin: 14px 0;
+}
+.starter-step-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 12px 13px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  cursor: pointer;
+  text-align: left;
+  transition: transform 0.16s ease, border-color 0.16s ease, box-shadow 0.16s ease;
+}
+.starter-step-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--accent);
+  box-shadow: 0 6px 16px rgba(16, 185, 129, 0.12);
+}
+.starter-step-num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 999px;
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-size: 0.78rem;
+  font-weight: 800;
+  margin-bottom: 2px;
+}
+.starter-step-title {
+  font-size: 0.88rem;
+  font-weight: 800;
+  color: var(--text);
+}
+.starter-step-desc {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  line-height: 1.45;
+}
+.starter-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+/* Home Chapter Search & Status Pill */
+.home-search-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+  margin-bottom: 12px;
+}
+.home-search-input {
+  flex: 1 1 220px;
+  min-width: 0;
+  padding: 10px 14px;
+  border-radius: 12px;
+  border: 1.5px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  font-size: 0.88rem;
+  font-family: inherit;
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.home-search-input:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px var(--primary-soft);
+}
+.chap-status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.7rem;
+  font-weight: 800;
+  padding: 2px 8px;
+  border-radius: 999px;
+}
+.chap-status-new { background: var(--surface-alt); color: var(--text-muted); border: 1px solid var(--border); }
+.chap-status-mid { background: var(--warn-soft); color: #b45309; border: 1px solid rgba(245, 158, 11, 0.35); }
+.chap-status-strong { background: var(--accent-soft); color: #047857; border: 1px solid rgba(16, 185, 129, 0.35); }
+[data-theme="dark"] .chap-status-mid { color: var(--warn); }
+[data-theme="dark"] .chap-status-strong { color: var(--accent); }
+
+/* Chapter Subtopic Roadmap & Progress Bar */
+.subtopic-roadmap {
+  background: var(--surface);
+  border: 1.5px solid rgba(79, 70, 229, 0.22);
+  border-radius: 16px;
+  padding: 14px 16px;
+  margin-bottom: 16px;
+  box-shadow: var(--shadow);
+}
+.roadmap-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 8px;
+}
+.roadmap-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin-top: 10px;
+}
+.roadmap-pill {
+  border: 1px solid var(--border);
+  background: var(--surface-alt);
+  color: var(--text);
+  font-size: 0.78rem;
+  font-weight: 700;
+  padding: 6px 11px;
+  border-radius: 999px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  transition: background 0.15s, border-color 0.15s, transform 0.12s;
+  max-width: 100%;
+  text-align: left;
+}
+.roadmap-pill:hover {
+  border-color: var(--primary);
+  background: var(--primary-soft);
+  color: var(--primary);
+}
+.roadmap-pill.done {
+  background: var(--accent-soft);
+  border-color: rgba(16, 185, 129, 0.45);
+  color: #047857;
+}
+[data-theme="dark"] .roadmap-pill.done { color: var(--accent); }
+
+/* Concept Card Understood State & Action Footer */
+.concept-card {
+  position: relative;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.concept-card.understood {
+  border-color: rgba(16, 185, 129, 0.55);
+  box-shadow: 0 6px 20px rgba(16, 185, 129, 0.08);
+}
+.concept-card-hdr {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+.concept-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px dashed var(--border);
+}
+
+/* Interactive Worked Example Step-by-Step Reveal */
+.worked-hdr-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 8px;
+}
+.worked-mode-btn {
+  border: 1px solid rgba(79, 70, 229, 0.35);
+  background: var(--surface);
+  color: var(--primary);
+  font-size: 0.74rem;
+  font-weight: 800;
+  padding: 5px 10px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+.worked-mode-btn:hover,
+.worked-mode-btn.active {
+  background: var(--primary);
+  color: #fff;
+}
+.worked-step.step-hidden {
+  display: none;
+}
+.worked-reveal-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 10px;
+  padding: 10px 12px;
+  background: var(--primary-soft);
+  border: 1px dashed rgba(79, 70, 229, 0.4);
+  border-radius: 12px;
+}
+
+/* Practice Encouragement Strip */
+.practice-calm-strip {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+  background: linear-gradient(90deg, var(--accent-soft), var(--primary-soft));
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  border-radius: 14px;
+  padding: 11px 14px;
+  margin-bottom: 14px;
+  font-size: 0.84rem;
+}
+
+/* Better Keyboard Focus & Accessibility */
+button:focus-visible,
+select:focus-visible,
+input:focus-visible {
+  outline: 2.5px solid var(--primary);
+  outline-offset: 2px;
+}
+

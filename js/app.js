@@ -29,6 +29,7 @@ window.AddMathApp = window.AddMathApp || {};
   let blitzDeck = [];
   let blitzState = { active: false, finished: false, timeLeft: 60, score: 0, correctCount: 0, answeredCount: 0, streak: 0, idx: 0, lockedChoice: null };
   let homeFormFilter = 'all'; // 'all' | '4' | '5'
+  let homeChapSearch = '';
   let solverRunCount = 0;
   let mbankSearch = '';
   let mbankOpenMistake = {};
@@ -37,6 +38,8 @@ window.AddMathApp = window.AddMathApp || {};
   let vaultSearch = '';
   let showHomePosterStrip = false;
   let activePosterModalChapId = null;
+  let clinicCollapsed = false;
+  let workedRevealState = {}; // { 'f4-c1:0': revealedStepCount | null }
 
   function getClinic(chapId) {
     return (App.teacherClinic && App.teacherClinic[chapId]) || null;
@@ -112,13 +115,19 @@ window.AddMathApp = window.AddMathApp || {};
     if (!cl) return '';
     return `
       <div class="card clinic-card">
-        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:10px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:${clinicCollapsed ? '0' : '10px'};">
           <div>
             <div style="font-size:0.74rem;font-weight:800;color:var(--primary);">🩺 ${L('KLINIK CIKGU PAKAR & NOTA VISUAL PANTAS', 'EXPERIENCED TEACHER CLINIC & VISUAL POSTER')}</div>
             <h3 style="font-size:1.08rem;margin-top:2px;">${L('Ubat "Sakit Kepala" Pelajar, Analogi Ingatan & Kamus Ayat SPM', 'Student Pain-Killer Guide, Memory Hooks & SPM Phrase Decoder')}</h3>
           </div>
-          ${cl.poster ? `<button type="button" class="btn btn-primary btn-sm" data-open-poster="${ch.id}">🔍 ${L('Besarkan Poster Penuh', 'Zoom Full Poster')}</button>` : ''}
+          <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;">
+            ${cl.poster ? `<button type="button" class="btn btn-primary btn-sm" data-open-poster="${ch.id}">🔍 ${L('Besarkan Poster Penuh', 'Zoom Full Poster')}</button>` : ''}
+            <button type="button" class="btn btn-outline btn-sm" id="btn-toggle-clinic">
+              ${clinicCollapsed ? `▼ ${L('Buka Klinik', 'Expand Clinic')}` : `▲ ${L('Lipat Klinik', 'Fold Clinic')}`}
+            </button>
+          </div>
         </div>
+        ${clinicCollapsed ? '' : `
 
         <div class="${cl.poster ? 'clinic-hero-grid' : ''}">
           ${cl.poster ? `
@@ -177,6 +186,7 @@ window.AddMathApp = window.AddMathApp || {};
             </div>
           </div>
         ` : ''}
+        `}
       </div>
     `;
   }
@@ -216,6 +226,17 @@ window.AddMathApp = window.AddMathApp || {};
 
   function applyTheme() {
     document.documentElement.setAttribute('data-theme', state.theme || 'light');
+    document.documentElement.setAttribute('data-comfort', state.comfortMode ? 'on' : 'off');
+  }
+
+  function getChapConceptStats(ch) {
+    const list = Array.isArray(ch.concepts) ? ch.concepts : [];
+    const doneMap = state.conceptsDone || {};
+    let done = 0;
+    list.forEach((_, idx) => {
+      if (doneMap[ch.id + ':' + idx]) done++;
+    });
+    return { done, total: list.length };
   }
 
   function awardXP(pts) {
@@ -252,6 +273,12 @@ window.AddMathApp = window.AddMathApp || {};
     document.getElementById('btn-lang-bm').classList.toggle('active', App.lang === 'bm');
     document.getElementById('btn-lang-en').classList.toggle('active', App.lang === 'en');
     document.getElementById('btn-theme').textContent = state.theme === 'dark' ? '☀️' : '🌙';
+    const comfortBtn = document.getElementById('btn-comfort');
+    if (comfortBtn) {
+      comfortBtn.classList.toggle('active', Boolean(state.comfortMode));
+      comfortBtn.setAttribute('aria-pressed', state.comfortMode ? 'true' : 'false');
+      comfortBtn.textContent = state.comfortMode ? L('A+ Fokus ✓', 'A+ Focus ✓') : L('A+ Fokus', 'A+ Focus');
+    }
 
     const navMap = [
       { id: 'home', bm: 'Utama', en: 'Home', ico: '🏠' },
@@ -300,9 +327,14 @@ window.AddMathApp = window.AddMathApp || {};
     const q3 = state.quests.kbat1 ? '✅' : '⬜';
     const totalBank = getTotalBankStats();
     const bankPct = totalBank.total ? Math.round((totalBank.done / totalBank.total) * 100) : 0;
-    const visibleChaps = homeFormFilter === 'all'
+    const visibleChaps = (homeFormFilter === 'all'
       ? App.chapters
-      : App.chapters.filter((c) => String(c.form) === homeFormFilter);
+      : App.chapters.filter((c) => String(c.form) === homeFormFilter)).filter((c) => {
+      const kw = homeChapSearch.trim().toLowerCase();
+      if (!kw) return true;
+      return `${U.t(c.code, App.lang)} ${U.t(c.title, App.lang)} ${U.t(c.subtitle, App.lang)}`.toLowerCase().includes(kw);
+    });
+    const activeChapObj = getActiveChapter();
 
     container.innerHTML = `
       <div class="hero-banner">
@@ -313,9 +345,40 @@ window.AddMathApp = window.AddMathApp || {};
           <span style="font-size:0.82rem;font-weight:700;">Combo 🔥 x${state.combo || 0}</span>
         </div>
         <h1 style="margin-top:10px;">${L('Kuasai Semua 18 Bab AddMath T4 & T5 Secara Visual!', 'Master All 18 Form 4 & 5 AddMath Chapters Visually!')}</h1>
-        <p>${L('Silibus penuh KSSM (T4 Bab 1–10 & T5 Bab 1–8) kini dilengkapi 180 Contoh Soalan Peperiksaan SPM, Analisis Kesilapan Lazim Murid & Skema Pemarkahan Penuh (K1/N1)!', 'Complete KSSM syllabus (F4 Ch 1–10 & F5 Ch 1–8) now equipped with 180 Master SPM Exam Questions, Common Student Mistakes & Analytical K1/N1 Marking Schemes!')}</p>
+        <p>${L('Silibus penuh KSSM (T4 Bab 1–10 & T5 Bab 1–8) kini dilengkapi Nota Mesra Pelajar Lemah (Mula Dari Kosong), Contoh Zero-Leap & 180 Soalan SPM (K1/N1)!', 'Complete KSSM syllabus (F4 Ch 1–10 & F5 Ch 1–8) equipped with Weak-Student-First Notes (Start From Zero), Zero-Leap Examples & 180 SPM Questions (K1/N1)!')}</p>
         <div style="font-size:0.78rem;font-weight:700;">${L('Kemajuan Tahap Seterusnya', 'Next Rank Progress')} (${state.xp} XP)</div>
         <div class="xp-bar-wrap"><div class="xp-bar-fill" style="width:${rank.pct}%"></div></div>
+      </div>
+
+      <div class="starter-launchpad">
+        <div class="starter-badge">🌱 ${L('LALUAN PELAJAR LEMAH • MULA DARI KOSONG', 'BEGINNER-FRIENDLY PATH • START FROM ZERO')}</div>
+        <h2 style="font-size:1.12rem;margin-bottom:4px;">${L('Rasa AddMath Susah? Jangan Risau — Ikut 3 Langkah Tenang Ini:', 'Feel AddMath Is Hard? No Stress — Follow These 3 Calm Steps:')}</h2>
+        <p style="font-size:0.84rem;color:var(--text-muted);margin-bottom:4px;">
+          ${L('Setiap bab direka supaya awak faham daripada asas Tingkatan 1–3, nampak langkah pertama bila buntu, dan faham "Kenapa?" di setiap baris kiraan.', 'Every chapter connects from Form 1–3 basics, shows what to write first when stuck, and explains "Why?" at every single line.')}
+        </p>
+        <div class="starter-steps">
+          <button type="button" class="starter-step-card" data-starter-go="concept">
+            <span class="starter-step-num">1</span>
+            <span class="starter-step-title">🌱 ${L('Faham Asas & Analogi', 'Grasp Basics & Analogy')}</span>
+            <span class="starter-step-desc">${L(`Buka ${U.t(activeChapObj.code, App.lang)} (${U.t(activeChapObj.title, App.lang)}) & baca cerita mudah dulu.`, `Open ${U.t(activeChapObj.code, App.lang)} (${U.t(activeChapObj.title, App.lang)}) & read the simple analogy first.`)}</span>
+          </button>
+          <button type="button" class="starter-step-card" data-starter-go="bank">
+            <span class="starter-step-num">2</span>
+            <span class="starter-step-title">📝 ${L('Lihat Contoh Tanpa Lompat', 'See Zero-Leap Examples')}</span>
+            <span class="starter-step-desc">${L('Tengok cara cikgu jawab & elak perangkap markah SPM.', 'See exact teacher steps & avoid common SPM traps.')}</span>
+          </button>
+          <button type="button" class="starter-step-card" data-starter-go="practice-easy">
+            <span class="starter-step-num">3</span>
+            <span class="starter-step-title">🎯 ${L('Cuba Latihan Aras Asas', 'Try Easy TP1 Practice')}</span>
+            <span class="starter-step-desc">${L('Mula soalan paling senang (TP1–2) dengan bimbingan langkah.', 'Start with gentle TP1–2 questions with step-by-step hints.')}</span>
+          </button>
+        </div>
+        <div class="starter-actions">
+          <button type="button" class="btn btn-accent btn-sm" data-starter-go="concept">🚀 ${L(`Mula Belajar ${U.t(activeChapObj.code, App.lang)} Sekarang →`, `Start Learning ${U.t(activeChapObj.code, App.lang)} Now →`)}</button>
+          <button type="button" class="btn btn-outline btn-sm" id="btn-home-comfort-toggle">
+            ${state.comfortMode ? `✅ ${L('Mod Fokus & Teks Besar: AKTIF', 'Focus & Large Text: ON')}` : `🧘 ${L('Aktifkan Mod Fokus & Teks Besar (A+)', 'Turn On Focus & Large Text (A+)')}`}
+          </button>
+        </div>
       </div>
 
       <div class="card" style="border-color:var(--primary);background:linear-gradient(180deg, var(--primary-soft), var(--surface));">
@@ -383,7 +446,7 @@ window.AddMathApp = window.AddMathApp || {};
         </div>
       </div>
 
-      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin:14px 0 12px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin:14px 0 10px;">
         <h3 style="font-size:1.08rem;">📚 ${L('Silibus Lengkap KSSM (18/18 Bab Aktif!)', 'Complete KSSM Syllabus (18/18 Chapters Unlocked!)')}</h3>
         <div style="display:flex;gap:6px;flex-wrap:wrap;">
           <button class="btn btn-sm ${homeFormFilter === 'all' ? 'btn-primary' : 'btn-outline'}" data-form-filter="all">${L('Semua (18)', 'All (18)')}</button>
@@ -392,23 +455,36 @@ window.AddMathApp = window.AddMathApp || {};
         </div>
       </div>
 
-      <div class="grid-2">
+      <div class="home-search-row">
+        <input id="home-chap-search" type="text" class="home-search-input" value="${String(homeChapSearch).replace(/"/g, '&quot;')}" placeholder="${L('🔍 Cari bab atau topik (cth: fungsi, kuadratik, pembezaan, vektor)...', '🔍 Search chapter or topic (e.g. functions, quadratic, differentiation, vectors)...')}">
+        ${homeChapSearch ? `<button type="button" class="btn btn-outline btn-sm" id="btn-clear-home-search">✕ ${L('Padam', 'Clear')}</button>` : ''}
+      </div>
+
+      <div class="grid-2" id="home-chap-grid">
         ${visibleChaps.map((c) => {
           const m = state.mastery[c.id] || 0;
           const bSt = getChapBankStats(c.id);
+          const cSt = getChapConceptStats(c);
+          const statusCls = m >= 70 ? 'chap-status-strong' : (m > 0 || cSt.done > 0 ? 'chap-status-mid' : 'chap-status-new');
+          const statusLbl = m >= 70
+            ? L('🌟 Mantap!', '🌟 Strong!')
+            : (m > 0 || cSt.done > 0 ? L('📖 Sedang Belajar', '📖 In Progress') : L('🌱 Baru Mula', '🌱 Fresh Start'));
           return `
             <div class="chap-card" data-open-chap="${c.id}">
               <div style="display:flex;gap:12px;align-items:flex-start;">
                 <div class="chap-icon" style="background:${c.color}">${c.icon}</div>
                 <div style="flex:1;">
-                  <div style="font-size:0.73rem;font-weight:800;color:var(--primary);">${U.t(c.code, App.lang)} • ${U.t(c.spmWeight, App.lang)}</div>
+                  <div style="display:flex;justify-content:space-between;align-items:center;gap:6px;flex-wrap:wrap;">
+                    <span style="font-size:0.73rem;font-weight:800;color:var(--primary);">${U.t(c.code, App.lang)} • ${U.t(c.spmWeight, App.lang)}</span>
+                    <span class="chap-status-pill ${statusCls}">${statusLbl}</span>
+                  </div>
                   <div style="font-weight:800;font-size:1rem;margin:2px 0;">${U.t(c.title, App.lang)}</div>
                   <div style="font-size:0.82rem;color:var(--text-muted);">${U.t(c.subtitle, App.lang)}</div>
                 </div>
               </div>
               <div>
                 <div style="display:flex;justify-content:space-between;align-items:center;gap:6px;margin-bottom:6px;flex-wrap:wrap;">
-                  <span style="font-size:0.75rem;font-weight:700;">${L('Penguasaan TP1–TP6', 'TP1–TP6 Mastery')}: ${m}%</span>
+                  <span style="font-size:0.75rem;font-weight:700;">${L('Penguasaan TP1–TP6', 'TP1–TP6 Mastery')}: ${m}% • ${L('Nota', 'Notes')}: ${cSt.done}/${cSt.total}</span>
                   <div style="display:flex;gap:5px;flex-wrap:wrap;">
                     ${getClinic(c.id) && getClinic(c.id).poster ? `
                       <button type="button" class="btn btn-outline btn-sm" style="padding:3px 8px;min-height:26px;font-size:0.73rem;" data-open-poster="${c.id}">
@@ -535,17 +611,28 @@ window.AddMathApp = window.AddMathApp || {};
     }).join('');
   }
 
-  function renderWorkedExampleHtml(ex) {
+  function renderWorkedExampleHtml(ex, exKey) {
     if (!ex) return '';
     const titleStr = ex.title ? U.t(ex.title, App.lang).trim() : '';
     const probStr = ex.problem ? U.t(ex.problem, App.lang).trim() : '';
     const steps = Array.isArray(ex.steps) ? ex.steps : [];
     const trapStr = ex.trap ? U.t(ex.trap, App.lang).trim() : '';
+    const revealLimit = exKey && typeof workedRevealState[exKey] === 'number' ? workedRevealState[exKey] : null;
+    const isStepMode = revealLimit !== null && steps.length > 1;
+    const shownCount = isStepMode ? Math.min(steps.length, Math.max(1, revealLimit)) : steps.length;
+    const hasMoreSteps = isStepMode && shownCount < steps.length;
 
     return `
-      <div class="concept-worked">
-        <div class="worked-hdr">
-          📝 ${titleStr ? U.renderMixed(titleStr) : L('Contoh Terpandu Langkah demi Langkah', 'Step-by-Step Worked Example')}
+      <div class="concept-worked" ${exKey ? `data-worked-box="${exKey}"` : ''}>
+        <div class="worked-hdr-row">
+          <div class="worked-hdr" style="margin-bottom:0;">
+            📝 ${titleStr ? U.renderMixed(titleStr) : L('Contoh Terpandu Langkah demi Langkah', 'Step-by-Step Worked Example')}
+          </div>
+          ${exKey && steps.length > 1 ? `
+            <button type="button" class="worked-mode-btn ${isStepMode ? 'active' : ''}" data-worked-stepmode="${exKey}">
+              ${isStepMode ? `📄 ${L('Tunjuk Semua Langkah', 'Show All Steps')}` : `🎯 ${L('Mod 1-per-1 (Fokus)', '1-by-1 Focus Mode')}`}
+            </button>
+          ` : ''}
         </div>
         ${probStr ? `<div class="worked-problem">${U.renderMixed(probStr)}</div>` : ''}
         ${steps.length ? `
@@ -555,8 +642,9 @@ window.AddMathApp = window.AddMathApp || {};
               const lblStr = st.label ? U.t(st.label, App.lang).trim() : '';
               const texStr = st.tex ? U.t(st.tex, App.lang).trim() : '';
               const whyStr = st.why ? U.t(st.why, App.lang).trim() : '';
+              const hiddenCls = isStepMode && idx >= shownCount ? ' step-hidden' : '';
               return `
-                <div class="worked-step">
+                <div class="worked-step${hiddenCls}">
                   <div class="worked-step-lbl">
                     <span class="worked-step-num">${L('Langkah', 'Step')} ${idx + 1}</span>
                     <span>${U.renderMixed(lblStr)}</span>
@@ -567,6 +655,21 @@ window.AddMathApp = window.AddMathApp || {};
               `;
             }).join('')}
           </div>
+          ${hasMoreSteps ? `
+            <div class="worked-reveal-bar">
+              <span style="font-size:0.8rem;font-weight:700;color:var(--primary);">
+                🧭 ${L(`Sedang lihat Langkah ${shownCount} / ${steps.length} — Cuba teka langkah seterusnya dulu!`, `Viewing Step ${shownCount} / ${steps.length} — Try predicting the next step first!`)}
+              </span>
+              <div style="display:flex;gap:6px;flex-wrap:wrap;">
+                <button type="button" class="btn btn-primary btn-sm" data-worked-next="${exKey}">
+                  ${L(`Tunjuk Langkah ${shownCount + 1} →`, `Reveal Step ${shownCount + 1} →`)}
+                </button>
+                <button type="button" class="btn btn-outline btn-sm" data-worked-all="${exKey}">
+                  ${L('Tunjuk Semua', 'Show All')}
+                </button>
+              </div>
+            </div>
+          ` : ''}
         ` : ''}
         ${trapStr ? `<div class="worked-trap">⚠️ <strong>${L('Perangkap SPM:', 'SPM Trap:')}</strong> ${U.renderMixed(trapStr)}</div>` : ''}
       </div>
@@ -613,10 +716,10 @@ window.AddMathApp = window.AddMathApp || {};
 
     const tabsHtml = `
       <div class="mode-tabs">
-        <button class="mode-tab ${activeSubTab === 'concept' ? 'active' : ''}" data-subtab="concept">🎨 ${L('Konsep & Makmal Graf', 'Concept & Visual Lab')}</button>
-        <button class="mode-tab ${activeSubTab === 'bank' ? 'active' : ''}" data-subtab="bank">📋 ${L(`Contoh SPM & Kesilapan (${chapBank.total})`, `SPM Examples & Mistakes (${chapBank.total})`)}</button>
-        <button class="mode-tab ${activeSubTab === 'solver' ? 'active' : ''}" data-subtab="solver">🧮 ${L('Smart Solver (Kira Langkah)', 'Dynamic Smart Solver')}</button>
-        <button class="mode-tab ${activeSubTab === 'practice' ? 'active' : ''}" data-subtab="practice">🎯 ${L('Latihan Berpandu TP1–TP6', 'Guided Practice TP1–TP6')}</button>
+        <button class="mode-tab ${activeSubTab === 'concept' ? 'active' : ''}" data-subtab="concept">1️⃣ ${L('Faham Asas & Graf', '1. Basics & Visual Lab')}</button>
+        <button class="mode-tab ${activeSubTab === 'bank' ? 'active' : ''}" data-subtab="bank">2️⃣ ${L(`Contoh SPM (${chapBank.total})`, `2. SPM Bank (${chapBank.total})`)}</button>
+        <button class="mode-tab ${activeSubTab === 'solver' ? 'active' : ''}" data-subtab="solver">3️⃣ ${L('Smart Solver', '3. Smart Solver')}</button>
+        <button class="mode-tab ${activeSubTab === 'practice' ? 'active' : ''}" data-subtab="practice">4️⃣ ${L('Latihan TP1–6', '4. Practice TP1–6')}</button>
       </div>
     `;
 
@@ -624,11 +727,37 @@ window.AddMathApp = window.AddMathApp || {};
 
     if (activeSubTab === 'concept') {
       const lab = App.visualLabs[ch.id];
+      const cStats = getChapConceptStats(ch);
+      const cPct = cStats.total ? Math.round((cStats.done / cStats.total) * 100) : 0;
+      const doneConcepts = state.conceptsDone || {};
       bodyHtml = `
         <div class="card">
           <div style="font-size:0.78rem;font-weight:800;color:var(--primary);">${U.t(ch.code, App.lang)} • ${U.t(ch.spmWeight, App.lang)}</div>
           <h2 style="font-size:1.3rem;margin:2px 0 6px;">${U.t(ch.title, App.lang)}</h2>
           <p style="font-size:0.9rem;color:var(--text-muted);">${U.t(ch.subtitle, App.lang)}</p>
+        </div>
+
+        <div class="subtopic-roadmap">
+          <div class="roadmap-top">
+            <div>
+              <div style="font-size:0.74rem;font-weight:800;color:var(--primary);">🗺️ ${L('PETA BELAJAR BAB INI • LOMPAT TERUS KE SUBTOPIK', 'CHAPTER ROADMAP • JUMP TO ANY SUBTOPIC')}</div>
+              <div style="font-size:0.84rem;color:var(--text-muted);margin-top:2px;">
+                ${L(`Subtopik difahami: <strong>${cStats.done} / ${cStats.total}</strong> (${cPct}%) — tandakan setiap subtopik bila dah faham!`, `Subtopics understood: <strong>${cStats.done} / ${cStats.total}</strong> (${cPct}%) — check off each subtopic as you go!`)}
+              </div>
+            </div>
+            <button type="button" class="btn btn-outline btn-sm" id="btn-roadmap-comfort">
+              ${state.comfortMode ? `✅ ${L('Teks Besar: AKTIF', 'Large Text: ON')}` : `🧘 ${L('Teks Besar (A+)', 'Large Text (A+)')}`}
+            </button>
+          </div>
+          <div class="xp-bar-wrap" style="background:var(--border);height:8px;">
+            <div class="xp-bar-fill" style="width:${cPct}%;background:var(--accent);"></div>
+          </div>
+          <div class="roadmap-pills">
+            ${(ch.concepts || []).map((sec, idx) => {
+              const isDone = Boolean(doneConcepts[ch.id + ':' + idx]);
+              return `<button type="button" class="roadmap-pill ${isDone ? 'done' : ''}" data-jump-concept="concept-sec-${idx}">${isDone ? '✅' : '📘'} ${U.t(sec.title, App.lang)}</button>`;
+            }).join('')}
+          </div>
         </div>
 
         ${renderTeacherClinicHtml(ch)}
@@ -655,12 +784,17 @@ window.AddMathApp = window.AddMathApp || {};
           </div>
         </div>` : ''}
 
-        ${ch.concepts.map((sec) => {
+        ${ch.concepts.map((sec, idx) => {
           const prereqStr = sec.prereq ? U.t(sec.prereq, App.lang).trim() : '';
           const firstStepStr = sec.firstStep ? U.t(sec.firstStep, App.lang).trim() : '';
+          const cKey = ch.id + ':' + idx;
+          const isUnderstood = Boolean(doneConcepts[cKey]);
           return `
-            <div class="card">
-              <h3 style="font-size:1.02rem;margin-bottom:8px;">${U.t(sec.title, App.lang)}</h3>
+            <div class="card concept-card ${isUnderstood ? 'understood' : ''}" id="concept-sec-${idx}">
+              <div class="concept-card-hdr">
+                <h3 style="font-size:1.05rem;margin:0;flex:1;">${U.t(sec.title, App.lang)}</h3>
+                ${isUnderstood ? `<span class="chap-status-pill chap-status-strong">✅ ${L('Sudah Faham', 'Understood')}</span>` : ''}
+              </div>
               ${prereqStr ? `
                 <div class="concept-prereq">
                   <div class="concept-callout-hdr">🌱 ${L('Asas & Analogi (Mula Dari Kosong)', 'Start From Basics & Analogy')}</div>
@@ -680,8 +814,16 @@ window.AddMathApp = window.AddMathApp || {};
                   <div>${U.renderTex(U.t(f.tex, App.lang), true)}</div>
                 </div>
               `).join('')}
-              ${sec.workedExample ? renderWorkedExampleHtml(sec.workedExample) : ''}
+              ${sec.workedExample ? renderWorkedExampleHtml(sec.workedExample, cKey) : ''}
               ${sec.tip ? `<div class="tip-box">💡 <strong>${L('Tip Pintar:', 'Smart Tip:')}</strong> ${U.renderMixed(U.t(sec.tip, App.lang))}</div>` : ''}
+              <div class="concept-footer">
+                <span style="font-size:0.8rem;color:var(--text-muted);font-weight:600;">
+                  ${isUnderstood ? L('Tahniah! Teruskan ke subtopik seterusnya atau cuba latihan.', 'Great job! Move to the next subtopic or try practice.') : L('Faham bahagian ini? Tandakan untuk simpan kemajuan!', 'Got this part? Check it off to save progress!')}
+                </span>
+                <button type="button" class="btn btn-sm ${isUnderstood ? 'btn-accent' : 'btn-outline'}" data-concept-done="${cKey}">
+                  ${isUnderstood ? `✅ ${L('Dah Faham ✓', 'Understood ✓')}` : `✅ ${L('Saya Dah Faham (+10 XP)', 'I Understand This (+10 XP)')}`}
+                </button>
+              </div>
             </div>
           `;
         }).join('')}
@@ -772,6 +914,11 @@ window.AddMathApp = window.AddMathApp || {};
       const safeVal = String(draftAnswer || '').replace(/"/g, '&quot;');
 
       bodyHtml = `
+        <div class="practice-calm-strip">
+          <span>🌱 <strong>${L('Jangan takut salah!', 'Don’t fear mistakes!')}</strong> ${L('Jika buntu, klik "Bimbing Langkah demi Langkah" atau rujuk nota asas bab ini.', 'If stuck, tap "Guide Me Step-by-Step" or review this chapter’s basics.')}</span>
+          <button type="button" class="btn btn-outline btn-sm" data-subtab="concept">📘 ${L('Rujuk Nota Bab Ini', 'Review Chapter Notes')}</button>
+        </div>
+
         <div class="card">
           <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:12px;">
             <div style="display:flex;gap:6px;flex-wrap:wrap;">
@@ -1265,6 +1412,18 @@ window.AddMathApp = window.AddMathApp || {};
       return;
     }
     const liveIdx = e.target.getAttribute && e.target.getAttribute('data-solver-live');
+    if (e.target.id === 'home-chap-search') {
+      homeChapSearch = e.target.value;
+      const pos = e.target.selectionStart;
+      renderMain();
+      const inp = document.getElementById('home-chap-search');
+      if (inp) {
+        inp.focus();
+        if (typeof pos === 'number') inp.setSelectionRange(pos, pos);
+      }
+      return;
+    }
+
     if (liveIdx !== null && liveIdx !== undefined) {
       const outEl = document.getElementById('solver-out-' + liveIdx);
       if (outEl && outEl.dataset.opened === '1') {
@@ -1330,6 +1489,114 @@ window.AddMathApp = window.AddMathApp || {};
       return;
     }
 
+    if (hit('btn-comfort') || hit('btn-home-comfort-toggle') || hit('btn-roadmap-comfort')) {
+      state.comfortMode = !state.comfortMode;
+      G.saveState(state);
+      applyTheme();
+      renderMain();
+      return;
+    }
+
+    if (hit('btn-toggle-clinic')) {
+      clinicCollapsed = !clinicCollapsed;
+      renderMain();
+      return;
+    }
+
+    if (hit('btn-clear-home-search')) {
+      homeChapSearch = '';
+      renderMain();
+      return;
+    }
+
+    const starterBtn = e.target.closest('[data-starter-go]');
+    if (starterBtn) {
+      const target = starterBtn.getAttribute('data-starter-go');
+      currentView = 'learn';
+      if (target === 'practice-easy') {
+        activeTier = 1;
+        activeSubTab = 'practice';
+        currentQuestion = null;
+      } else {
+        activeSubTab = target || 'concept';
+      }
+      renderMain();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
+
+    const jumpConcept = e.target.closest('[data-jump-concept]');
+    if (jumpConcept) {
+      const targetId = jumpConcept.getAttribute('data-jump-concept');
+      document.getElementById(targetId)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      return;
+    }
+
+    const conceptDoneBtn = e.target.closest('[data-concept-done]');
+    if (conceptDoneBtn) {
+      const key = conceptDoneBtn.getAttribute('data-concept-done');
+      state.conceptsDone = state.conceptsDone || {};
+      if (!state.conceptsDone[key]) {
+        state.conceptsDone[key] = true;
+        const curM = state.mastery[activeChapterId] || 0;
+        state.mastery[activeChapterId] = Math.min(100, curM + 4);
+        awardXP(10);
+        const cSt = getChapConceptStats(getActiveChapter());
+        if (cSt.total > 0 && cSt.done === cSt.total) G.fireConfetti();
+      } else {
+        delete state.conceptsDone[key];
+        G.saveState(state);
+      }
+      renderMain();
+      return;
+    }
+
+    const workedModeBtn = e.target.closest('[data-worked-stepmode]');
+    if (workedModeBtn) {
+      const key = workedModeBtn.getAttribute('data-worked-stepmode');
+      workedRevealState[key] = typeof workedRevealState[key] === 'number' ? null : 1;
+      const box = document.querySelector(`[data-worked-box="${key}"]`);
+      const idx = Number(String(key).split(':')[1]);
+      const sec = getActiveChapter().concepts && getActiveChapter().concepts[idx];
+      if (box && sec && sec.workedExample) {
+        box.outerHTML = renderWorkedExampleHtml(sec.workedExample, key);
+      } else {
+        renderMain();
+      }
+      return;
+    }
+
+    const workedNextBtn = e.target.closest('[data-worked-next]');
+    if (workedNextBtn) {
+      const key = workedNextBtn.getAttribute('data-worked-next');
+      const cur = typeof workedRevealState[key] === 'number' ? workedRevealState[key] : 1;
+      workedRevealState[key] = cur + 1;
+      const box = document.querySelector(`[data-worked-box="${key}"]`);
+      const idx = Number(String(key).split(':')[1]);
+      const sec = getActiveChapter().concepts && getActiveChapter().concepts[idx];
+      if (box && sec && sec.workedExample) {
+        box.outerHTML = renderWorkedExampleHtml(sec.workedExample, key);
+      } else {
+        renderMain();
+      }
+      return;
+    }
+
+    const workedAllBtn = e.target.closest('[data-worked-all]');
+    if (workedAllBtn) {
+      const key = workedAllBtn.getAttribute('data-worked-all');
+      workedRevealState[key] = null;
+      const box = document.querySelector(`[data-worked-box="${key}"]`);
+      const idx = Number(String(key).split(':')[1]);
+      const sec = getActiveChapter().concepts && getActiveChapter().concepts[idx];
+      if (box && sec && sec.workedExample) {
+        box.outerHTML = renderWorkedExampleHtml(sec.workedExample, key);
+      } else {
+        renderMain();
+      }
+      return;
+    }
+
     if (hit('btn-toggle-poster-gallery')) {
       showHomePosterStrip = !showHomePosterStrip;
       renderMain();
@@ -1365,6 +1632,7 @@ window.AddMathApp = window.AddMathApp || {};
         state.labsExplored = {};
         state.mastery = {};
         state.masterBankDone = {};
+        state.conceptsDone = {};
         state.postersViewed = {};
         state.radar = { P: 0, K: 0, J: 0, ok: 0 };
         state.quests = { lab: false, solve3: false, kbat1: false };
